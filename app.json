@@ -1,0 +1,112 @@
+{
+  "expo": {
+    "name": "Routes Admin",
+    "slug": "routes-admin",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "custom photos permission",
+          "cameraPermission": "Allow Route Pulse to open the camera",
+          "//": "Disables the microphone permission",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "react-native-maps",
+        {
+          "iosGoogleMapsApiKey": "AIzaSyDmFlx79dIq9lzTupQGttpE8m8eQ5ZS5yA",
+          "androidGoogleMapsApiKey": "AIzaSyDmFlx79dIq9lzTupQGttpE8m8eQ5ZS5yA"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ]
+    ],
+    "version": "0.0.2",
+    "newArchEnabled": true,
+    "description": "Routes Admin Application",
+    "ios": {
+      "bundleIdentifier": "lk.trips.admin",
+      "buildNumber": "3",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSLocationWhenInUseUsageDescription": "This app needs your location to provide relevant features while in use.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs your location to provide relevant features even when in the background.",
+      }
+    },
+    "android": {
+      "package": "lk.trips.admin",
+      "edgeToEdgeEnabled": true,
+      "googleServicesFile": "./google-services.json",
+      "permisisons": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CONTACTS"
+      ],
+      "intentFilters": [
+        {
+          "autoVerify": true,
+          "action": "VIEW",
+          "data": {
+            "mimeType": "vnd.android.cursor.dir/contact"
+          },
+          "category": [
+            "DEFAULT"
+          ]
+        }
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDmFlx79dIq9lzTupQGttpE8m8eQ5ZS5yA"
+        },
+        "foregroundService": {
+          "isAndroidForegroundServiceEnabled": true
+        }
+      },
+      "versionCode": 3
+    },
+    "jsEngine": "hermes",
+    "privacy": "public",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "icon": "./src/assets/images/image-app-icon.png",
+    "splash": {
+      "image": "src/assets/images/image-splash.png",
+      "backgroundColor": "#F7F9FC",
+      "resizeMode": "contain"
+    },
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#F7F9FC"
+    },
+    "assetBundlePatterns": [
+      "src/assets/images/*",
+      "src/assets/fonts",
+      "src/layouts/**/assets/*"
+    ],
+    "updates": {
+      "fallbackToCacheTimeout": 20
+    },
+    "extra": {
+      "eas": {
+        "projectId": "96a83dd8-6d78-4b0d-8dd2-58896b4934e2"
+      }
+    }
+  }
+}

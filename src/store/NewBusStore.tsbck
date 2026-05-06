@@ -1,0 +1,40 @@
+import React from 'react';
+import { NewBusType } from "../types";
+import { observable, action, computed } from "mobx";
+
+export class NewBusStore {
+   
+    @observable newbus: NewBusType;
+
+    @observable name: string;
+
+    
+
+    @action.bound
+    updateStartLocation(latitude: number, longitude: number){
+        console.log("store::"+latitude+","+longitude);
+        if(this.newbus){
+            this.newbus.startLatitude = latitude;
+            this.newbus.startLongitude = longitude;
+        }
+    }
+
+    @computed
+    getStartLatitude(){ 
+        return this.newbus.startLatitude;   
+    }
+
+    @computed
+    getStartLongitude(){ 
+        return this.newbus.startLongitude;   
+    }
+
+}
+
+
+// Instantiate the counter store.
+//const newBusStore = new NewBusStore();
+// Create a React Context with the counter store instance.
+//export const NewBusStoreContext = React.createContext(newBusStore);
+
+export default new NewBusStore();

@@ -1,0 +1,16 @@
+{
+    "lists": [
+      {
+        "icon": "photo-camera",
+        "label": "Take photo"
+      },
+      {
+        "icon": "photo",
+        "label": "Choose image"
+      },
+      {
+        "icon": "delete",
+        "label": "Delete"
+      }
+    ]
+}
