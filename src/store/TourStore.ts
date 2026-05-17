@@ -42,8 +42,8 @@ id: String,
 
 const StoppingPlace = types.model({
   place: types.optional(types.string, ""),
-  latitude: types.optional(types.number, 0.0),
-  longitude: types.optional(types.number, 0.0),
+  latitude: types.optional(types.string, ""),
+  longitude: types.optional(types.string, ""),
 })
 .actions((self) => ({
   setPlace(place,latitude,longitude) {
@@ -57,14 +57,13 @@ const StoppingPlace = types.model({
 
 
 
+
+
 const TourStore = types
   .model({
     id: types.optional(types.string, ""),
     objectId: types.optional(types.string, ""),
-    transportServiceId: types.optional(types.string, ""),
-    transportServiceName: types.optional(types.string, ""),
-    transportServiceThemeColor: types.optional(types.string, "#142169"),
-    vehicleType: types.optional(types.string, "Van"),
+    vehicleType: types.optional(types.string, "Luxury Bus"),
     title: types.optional(types.string, ""),
     remarks: types.optional(types.string, ""),
     stoppingsPlaces: types.array(StoppingPlace),
@@ -76,6 +75,8 @@ const TourStore = types
     schedules: types.array(Schedule),
     confirmationStartsBefore: types.optional(types.string, "7 Days"),
     confirmationFinishBefore: types.optional(types.string, "2 Days"),
+    vehicleId: types.optional(types.string, ""),  
+    driverMobileNumber: types.optional(types.string, "") 
   })
   .actions((self) => ({
     reset() {
@@ -86,10 +87,12 @@ const TourStore = types
       self.stoppings= String[0];
       self.schedules= Schedule[0];
     },
-    populate(bus) {
-      self.id = bus.id;
-      self.objectId = bus._id;
-      self.title = bus.title;
+    populate(tour) {
+      self.id = tour.id;
+      self.objectId = tour._id;
+      self.title = tour.title;
+      self.photos = tour.photos;
+      self.stoppingsPlaces = tour.stoppingsPlaces;
     },
     setId(id) {
       self.id = id;
@@ -99,15 +102,6 @@ const TourStore = types
     },
     setVehicleType(vehicleType) {
       self.vehicleType = vehicleType;
-    },
-    setTransportServiceId(transportServiceId) {
-      self.transportServiceId = transportServiceId;
-    },
-    setTransportServiceName(transportServiceName) {
-      self.transportServiceName = transportServiceName;
-    },
-    setTransportServiceThemeColor(transportServiceThemeColor) {
-      self.transportServiceThemeColor = transportServiceThemeColor;
     },
     setNoOfSeats(noOfSeats) {
       self.noOfSeats = noOfSeats;
@@ -143,6 +137,24 @@ const TourStore = types
         time,
         waitingTime
       })
+    },
+    updateStopping(oldLatitude, oldLongitude,title,place,latitude, longitude,time, day, waitingTime){
+      const oldStopping = self.stoppings.find(s => s.latitude === oldLatitude && s.longitude === oldLongitude);
+      oldStopping.latitude = latitude;
+      oldStopping.longitude = longitude;
+      oldStopping.place = place;
+      oldStopping.title = title;
+      oldStopping.time = time;
+      oldStopping.waitingTime = waitingTime;
+      oldStopping.day = day;
+    },
+    deleteStopping(stopping){
+      self.stoppings.remove(stopping);
+    },
+    deleteStoppingById(latitude, longitude){
+      const stopping = self.stoppings.find(s => s.latitude === latitude && s.longitude === longitude);
+      console.log("####"+stopping.latitude+","+stopping.longitude);
+      self.stoppings.remove(stopping);
     },
     
     addStoppingAtIndex(title,place,latitude,longitude,day,time,waitingTime,index){

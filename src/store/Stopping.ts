@@ -8,9 +8,9 @@ const Stopping = types.model({
   title: types.optional(types.string, ""),   // Lunch, Start 2nd Day, End 1st Day
   remarks: types.optional(types.string, ""),   //
   place: types.optional(types.string, ""),
-  latitude: types.optional(types.number, 0.0),
-  longitude: types.optional(types.number, 0.0),
-  day: types.optional(types.string, "1"),
+  latitude: types.optional(types.string, ""),
+  longitude: types.optional(types.string, ""),
+  day: types.optional(types.string, ""),
   time: types.optional(types.string, ""),
   waitingTime: types.optional(types.string, "15 mins"),
 })
@@ -18,8 +18,8 @@ const Stopping = types.model({
   reset() {
       console.log("self::"+self);
       self.place = "";
-      self.latitude = 7.183527;
-      self.longitude = 80.132246;
+      self.latitude = "";
+      self.longitude = "";
       self.time= "";
   },
   setTime(time) {

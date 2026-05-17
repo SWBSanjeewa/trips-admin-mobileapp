@@ -217,15 +217,23 @@ export const TourScheduleCard = React.forwardRef(({navigation},refStandard) => {
 
 			<Card style={{ margin: 10, borderRadius:10}}>	
 				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text>{appStore.tour.title}</Text>
+					{Number(appStore.tour.noOfDays) > 1 && 
+						<Text>{appStore.tour.schedules[route.params?.index].tourStartDate} - {format(add(new Date(appStore.tour.schedules[route.params?.index].tourStartDate), { days: Number(appStore.tour.noOfDays)-1}),'yyyy-MM-dd')}</Text>
+					}
+					{Number(appStore.tour.noOfDays) == 1 && 
+						<Text>{appStore.tour.schedules[route.params?.index].tourStartDate}</Text>
+					}
+					
+				</View>								
+			</Card>
+
+			<Card style={{ margin: 10, borderRadius:10}} onPress={onBookingsPress}>	
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Transport Service</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onBookingsPress}/>
 				</View>
 			</Card>
 
-			<Card style={{ margin: 10, borderRadius:10}}>	
-				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text>{appStore.tour.schedules[route.params?.index].tourStartDate} - {format(add(new Date(appStore.tour.schedules[route.params?.index].tourStartDate), { days: Number(appStore.tour.noOfDays)-1}),'yyyy-MM-dd')}</Text>
-				</View>								
-			</Card>
 
 			<Card style={{ margin: 10, borderRadius:10}} onPress={onBookingsPress}>	
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>

@@ -22,14 +22,19 @@ export const getRouteColor = (routeType) => {
 }
 
 export const vehcileTypes = [
-	{name: "A/C Small Bus (Rosa/Coaster)", themeColor: "#013220"},
-	{name: "Non A/C Bus (Leyland)", themeColor: "#FAD5A5"},
-	{name: "A/C Luxury Bus (KingLong, Yutong)", themeColor: "#00008B"},
-	{name: "A/C Van (KDH)", themeColor: "#808080"}
+	{name: "Luxury Bus", details: "A/C Toyota Coaster/ Mitsubishi Rosa Bus", themeColor: "#013220"},
+	{name: "Super Luxury Bus", details: "A/C Kinglong/Yutong Coach", themeColor: "#00008B"},
+	{name: "Normal Bus", details: "Leyland,Tata Bus", themeColor: "#FAD5A5"}
 ]
+
 
 export const getVehicleColor = (vehicleType) => {
 	const vType = vehcileTypes.find(p => p.name === vehicleType);
 	return vType.themeColor;
+}
+
+export const getTourTypeColor = (tourType) => {
+	const tType = tourTypes.find(p => p.name === tourType);
+	return tType.themeColor;
 }
 

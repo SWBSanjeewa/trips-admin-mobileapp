@@ -57,7 +57,7 @@ const App: React.FC<{ mapping: Mapping; theme: Theme }> = ({ mapping, theme }) =
 
 	return (
 		<GestureHandlerRootView>
-			
+			<AutocompleteDropdownContextProvider>
 			<Provider value={appStore}>
 			<React.Fragment>
 				<IconRegistry icons={[ AppIconsPack]} />
@@ -75,6 +75,7 @@ const App: React.FC<{ mapping: Mapping; theme: Theme }> = ({ mapping, theme }) =
 				<FlashMessage position="top" />
 			</React.Fragment>
 			</Provider>
+			</AutocompleteDropdownContextProvider>
 			
 		</GestureHandlerRootView>
 	);

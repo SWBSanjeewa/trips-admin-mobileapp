@@ -1,5 +1,5 @@
 import { Avatar, Button, Card, Text, List } from "@ui-kitten/components";
-import React,{useState,useEffect} from "react";
+import React,{useState,useRef} from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { ListRenderItemInfo, StyleSheet, View , ScrollView,Image, ActivityIndicator} from "react-native";
 
@@ -8,9 +8,15 @@ import { useStore } from "mobx-store-provider";
 
 import { TransportService } from "./extra/data";
 
+import { AutocompleteDropdown ,IAutocompleteDropdownRef} from 'react-native-autocomplete-dropdown';
+
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 import { CachedImage } from '@georstat/react-native-image-cache';
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
+
+import { TranportServiceSuggestions}  from "./extra/transportservices-auto-suggestions"
 
 
 const client = axios.create({
@@ -19,13 +25,19 @@ const client = axios.create({
 
 
 
-export default ({ navigation }): React.ReactElement => {
+//export default ({ navigation }): React.ReactElement => {
+export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
+
 
 	const appStore = useStore(AppStore);
 
 	const [transportServices, setTransportServices] = useState([]);
 
 	const [loading, setLoading] = useState(true);
+
+	const routeTypeRef = useRef<typeof IAutocompleteDropdownRef>();
+
+	const ItemSeparatorComponent = () => <View style={{ height: 1, width: '100%', backgroundColor: '#d8e1e6' }} />
 
 	const loadTransportServices = async() => {
 		console.log("Load transport services...");
@@ -55,12 +67,26 @@ export default ({ navigation }): React.ReactElement => {
 		navigation && navigation.navigate("TransportService", { id: info.item._id });
 	};
 
+	const onRouteTypeSelect = (value): void => {
+		console.log("Selected route Id:"+value?.id);
+		//appStore.searchContext.setRouteTypeIndex(value?.id);
+		//appStore.searchContext.setType(value?.title);
+	};
+
 	const renderItemHeader = (info: ListRenderItemInfo<TransportService>): React.ReactElement => (
 		
 		<CachedImage
 				resizeMode="cover"
 				style={styles.itemHeader} source={info.item.photos[0]} />
 	);
+
+	const onSearchClosePress = (): void => {	
+			//appStore.searchContext.reset();
+			searchCallback(false);
+			loadTransportServices();
+	};
+	
+
 
 	
 
@@ -85,6 +111,10 @@ export default ({ navigation }): React.ReactElement => {
 		  };
 		}, [])
 	);
+
+	const handleUpdate = (newValue) => {
+    	setTransportServices(newValue);
+  	};
 	
 
 	if (loading) {
@@ -93,6 +123,22 @@ export default ({ navigation }): React.ReactElement => {
 
 	return (
 		<View>
+			{search && (
+				//!appStore.searchContext.close && (
+				<View>  
+					<View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>
+						
+						<AntDesign style={{top: 4}} name="close" size={18} color="#444" onPress={onSearchClosePress} />
+					</View>
+
+					<View style={{  padding: 1, margin: 1,borderColor: "#eee", borderWidth: 0 ,flexDirection: "column", justifyContent: "flex-start"}}>		
+							<TranportServiceSuggestions updateParent={handleUpdate} />
+					</View>
+					
+					</View>
+				
+				//)
+			)}
 			<List
 				contentContainerStyle={styles.listContent}
 				data={transportServices}
@@ -100,7 +146,8 @@ export default ({ navigation }): React.ReactElement => {
 		</View>
 		
 	);
-};
+});
+
 
 const styles = StyleSheet.create({
 

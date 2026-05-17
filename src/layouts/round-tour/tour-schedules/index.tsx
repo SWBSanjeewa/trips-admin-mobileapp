@@ -171,8 +171,12 @@ const TourSchedulesList = ({ navigation }): React.ReactElement => {
 			<View style={{ flexDirection: "row",  justifyContent: 'flex-start', margin: 2}}>
 				<View style={{ padding: 5, height: 45}}>
 					<View style={{ padding: 2}}>
-						<Text>{schedule.tourStartDate} - {format(add(new Date(schedule.tourStartDate), { days: Number(appStore.tour.noOfDays)-1}),'yyyy-MM-dd')}</Text>
-						
+						{Number(appStore.tour.noOfDays) > 1 && 
+							<Text>{schedule.tourStartDate} - {format(add(new Date(schedule.tourStartDate), { days: Number(appStore.tour.noOfDays)-1}),'yyyy-MM-dd')}</Text>
+						}
+						{Number(appStore.tour.noOfDays) == 1 && 
+							<Text>{schedule.tourStartDate}</Text>
+						}	
 					</View>
 				</View>
 			</View>

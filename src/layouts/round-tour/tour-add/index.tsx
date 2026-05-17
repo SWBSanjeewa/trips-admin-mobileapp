@@ -8,6 +8,7 @@ import { useStore } from "mobx-store-provider";
 import { toJS } from "mobx";
 import {
 	MaterialIcons as MDIcon,
+	Entypo as Entypo,
 } from '@expo/vector-icons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
@@ -296,12 +297,15 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 		navigation.navigate("TourSchedules")
 	};
 
-	const onTransportServiceSelect = (index): void => {
-		setSelectedIndexTransportServices(index);
-		appStore.tour.setTransportServiceId(transportServices[index-1]._id);
-		appStore.tour.setTransportServiceName(transportServices[index-1].name);
-		appStore.tour.setTransportServiceThemeColor(transportServices[index-1].themeColor);
+	const onDriverPress = (): void => {
+		//navigation.navigate("TourSchedules")
 	};
+
+	const onVehiclePress = (): void => {
+		navigation.navigate("TransportServiceVehicleSelect")
+	};
+
+	
 
 	
 	const onAddStopping = (stopping: string) => () =>  {
@@ -319,28 +323,6 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 	return (
 		
 		<ScrollView keyboardShouldPersistTaps='handled'>
-			
-			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
-				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<View style={{flexDirection: "row", justifyContent: "space-between"}}>
-						<Text style={{ padding: 5, paddingLeft: 10}}>Transport Service</Text>
-					</View>
-					{transportServiceErrorMessage =="" && (
-					<View style={{ margin: 10}}>
-						<Select
-							placeholder='Default'
-							value={transportService}
-							selectedIndex={selectedIndexTransportServices}
-							onSelect={(index: IndexPath) => onTransportServiceSelect(index)}>
-							{transportServices.map(renderOptionTransportService)}
-						</Select>
-					</View>
-					)}
-					{transportServiceErrorMessage!="" && (
-						<Text style={styles.errorLabel}>{transportServiceErrorMessage}</Text>	
-					)}
-				</View>
-			</View>
 
 			<View style={{ margin: 10}}>
 					<View style={styles.labelContainer}>
@@ -447,7 +429,7 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 						appStore.tour.addStoppingPlaceAtIndex(address,details.geometry.location.lat,details.geometry.location.lng,index+1);
 						setSelectedStopping("");
 					}else{
-						appStore.tour.addStoppingPlace(address,details.geometry.location.lat,details.geometry.location.lng);
+						appStore.tour.addStoppingPlace(address,details.geometry.location.lat.toString(),details.geometry.location.lng.toString());
 						
 						//place,latitude,longitude,title,remarks,plusDays,arrivalTime,departureTime,stayDuration
 					}
@@ -556,6 +538,9 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 			</Card>
 
 			
+
+           
+			
 			<View style={{flexDirection: "row", justifyContent: "space-between"}}>
 				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onCreatePress()}>Create</Button>
 			</View>
@@ -625,6 +610,10 @@ const styles = StyleSheet.create({
         padding: 8, // Also used to make it look nicer
         zIndex: 0, // Ensure border has z-index of 0
     },
+	disbaleText: {
+		fontSize: 16,
+		color: '#b1b0abff',
+	},
 	item: {
 		marginVertical: 8,
 		padding: 0,

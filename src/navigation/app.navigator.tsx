@@ -49,12 +49,16 @@ import { TourAddScreen } from "../scenes/round-tour/tour-add.component";
 import { TourListScreen } from "../scenes/round-tour/tour-list.component";
 import { TourStoppingsScreen } from "../scenes/round-tour/tour-stoppings.component";
 import { TourStoppingAddScreen } from "../scenes/round-tour/tour-stopping-add.component";
+import { TourStoppingEditScreen } from "../scenes/round-tour/tour-stopping-edit.component";
 import { TourSchedulesScreen } from "../scenes/round-tour/tour-schedules.component";
 import { TourScheduleScreen } from "../scenes/round-tour/tour-schedule.component";
+import { TourDetailsScreen } from "../scenes/round-tour/tour-details.component";
 
 import { VehicleAddScreen } from "../scenes/auth/vehicle-add.component";
 import { VehicleScreen } from "../scenes/auth/vehicle.component";
 import { TransportServiceVehicleListScreen } from "../scenes/auth/transportservice-vehicle-list.component";
+
+import { TransportServiceVehicleSelectScreen } from "../scenes/round-tour/transportservice-vehicle-select.component";
 
 
 
@@ -122,12 +126,18 @@ export const AppNavigator = (): React.ReactElement => {
 				<Stack.Screen name="TourList" component={TourListScreen} />
 				<Stack.Screen name="TourStoppingsScreen" component={TourStoppingsScreen} />
 				<Stack.Screen name="TourStoppingAddScreen" component={TourStoppingAddScreen} />
+				<Stack.Screen name="TourStoppingEdit" component={TourStoppingEditScreen} />
 				<Stack.Screen name="TourSchedules" component={TourSchedulesScreen} />
 				<Stack.Screen name="TourSchedule" component={TourScheduleScreen} />
+				<Stack.Screen name="TourDetails" component={TourDetailsScreen} />
 
 				<Stack.Screen name="VehicleAdd" component={VehicleAddScreen} />
 				<Stack.Screen name="Vehicle" component={VehicleScreen} />
 				<Stack.Screen name="TransportServiceVehicles" component={TransportServiceVehicleListScreen} />
+
+				<Stack.Screen name="TransportServiceVehicleSelect" component={TransportServiceVehicleSelectScreen} />
+
+				
 			</Stack.Navigator>
 		</NavigationContainer>
 	);

@@ -232,7 +232,7 @@ title: types.optional(types.string, ""),   // Lunch, Start 2nd Day, End 1st Day
 		<ScrollView>
 			<TopNavigation title={props => (
 				<Text style={{fontWeight: '500', fontSize: 18}}>
-					Add Tour Stopping
+					Edit Tour Stopping
 				</Text>)} accessoryLeft={renderBackAction} />
 				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
 					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>

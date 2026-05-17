@@ -1002,6 +1002,24 @@ const Busses = types.model({
 
 
 
+
+const Tours = types.model({
+  tours: types.array(TourStore),
+})
+.actions((self) => ({
+  addTour(id,objectId,transportServiceId,transportServiceName,transportServiceThemeColor,vehicleType,title,remarks,stoppingsPlaces,stoppings,noOfSeats,noOfDays,countryCode,photos,schedules,confirmationStartsBefore,confirmationFinishBefore){
+    console.log("::"+title);
+    self.tours.push({
+      id,objectId,transportServiceId,transportServiceName,transportServiceThemeColor,vehicleType,title,remarks,stoppingsPlaces,stoppings,noOfSeats,noOfDays,countryCode,photos,schedules,confirmationStartsBefore,confirmationFinishBefore
+    })
+  },
+  reset(){
+    self.tours = TourStore[0];
+  }
+}))
+
+
+
 const defaultBus = NewBusStore.create({
   title: "Title"
 })
@@ -1041,6 +1059,9 @@ const AppStore = types.model("App", {
   
   busses: types.optional(Busses, {
   }),
+
+  tours: types.optional(Tours, {
+  })
   
 });
 

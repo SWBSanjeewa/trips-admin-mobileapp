@@ -1,25 +1,14 @@
 import { ImageSourcePropType } from "react-native";
 
-class Schedule {
-	constructor(
-		readonly _id: string,
-		readonly tourStartDate: string,
-	) {}
-}
-
-export class Tour {
+export class Bus {
 	constructor(
 		readonly _id: string,
 		readonly title: string,
-		readonly remarks: string,
-		readonly tourType: string,
-		readonly vehicleType: string,
-		readonly noOfDays: string,
+		readonly description: string,
+		readonly registrationNumber: string,
 		readonly image: ImageSourcePropType,
 		readonly photos: string[],
 		readonly stoppings: string[],
-		readonly stoppingsPlaces: string[],
-		readonly schedules: Schedule[],
 	) {}
 
 	/*

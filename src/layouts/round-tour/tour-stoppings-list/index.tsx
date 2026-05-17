@@ -35,7 +35,7 @@ const BusJourneyList = ({ navigation }): React.ReactElement => {
 	
 
 	const onStoppingEditPress = (stopping,index): void => {
-		navigation && navigation.navigate("BusStoppingEditScreen", {id: "stopping-edit", "journeyType": "Journey","returnRoute": "Journey", oldLatitude: stopping.latitude, oldLongitude: stopping.longitude, place: stopping.place, latitude: stopping.latitude, longitude: stopping.longitude, time: stopping.time, index: index});
+		navigation && navigation.navigate("TourStoppingEdit", {id: "stopping-edit", oldLatitude: stopping.latitude, oldLongitude: stopping.longitude, title: stopping.title, place: stopping.place, latitude: stopping.latitude, longitude: stopping.longitude, time: stopping.time, waitingTime: stopping.waitingTime, day: stopping.day, index: index});
 	};
 
 
@@ -54,7 +54,9 @@ const BusJourneyList = ({ navigation }): React.ReactElement => {
 		setCopyFromChecked(!copyFromChecked);
 		appStore.tour.stoppingsPlaces.forEach(stopping => {
 			console.log(">>"+stopping);
-            appStore.tour.addStopping(stopping.place,0,0,"","",0,"00.00 AM","00.00 AM","");
+            appStore.tour.addStopping(stopping.title,stopping.place,stopping.latitude,stopping.longitude,"1","00.00 AM","15 Minutes");
+
+			//addStopping(title,place,latitude,longitude,day,time,waitingTime){
 
 			//place: any, latitude: any, longitude: any, title: any, remarks: any, plusDays: any, arrivalTime: any, departureTime: any, stayDuration: any
         });
@@ -94,9 +96,11 @@ const BusJourneyList = ({ navigation }): React.ReactElement => {
 					return <Card key={index} style={styles.item} onPress={()=>onStoppingEditPress(stopping,index)}>
 						<View>
 							<View pointerEvents="none">
+								<Text>Day</Text><Input placeholder="Day..." value={stopping.day}/>
+								<Text>Title</Text><Input placeholder="Title..." value={stopping.title}/>
 								<Text>Place</Text><Input placeholder="Location..." value={stopping.place}/>
-								<Text>Arrival Time</Text><Input placeholder="Arrival Time..." value={stopping.arrivalTime}/>
-								<Text>Departure Time</Text><Input placeholder="Departure Time..." value={stopping.departureTime}/>
+								<Text>Time</Text><Input placeholder="Time..." value={stopping.time}/>
+								<Text>Waiting</Text><Input placeholder="Waiting..." value={stopping.waitingTime}/>
 							</View>
 						</View>
 					</Card>;	

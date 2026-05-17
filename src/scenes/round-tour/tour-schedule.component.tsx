@@ -35,7 +35,7 @@ export const TourScheduleScreen = ({ navigation }): React.ReactElement => {
 			<SafeAreaLayout style={{ flex: 1}} insets="bottom">
 			<TopNavigation title={props => (
 				<Text {...props} style={{fontWeight: "500", fontSize: 18}}>
-				 Tour Schedule
+				 Schedule
 				</Text>)} accessoryLeft={renderBackAction}  accessoryRight={renderMoreAction}/>
 				<ContentView navigation={navigation} ref={ref}/>
 			</SafeAreaLayout>
