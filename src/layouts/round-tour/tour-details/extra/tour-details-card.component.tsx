@@ -322,17 +322,10 @@ export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		
 		
 		
-		<Card style={styles.item} onPress={() => navigation.navigate("BusPassengers", {id: appStore.bus.id, readOnly: true,latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}>
+		<Card style={styles.item} onPress={() => navigation.navigate("TourSchedules", {id: ""})}>
 			<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-				<Text>Passengers</Text>
-				<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusPassengers",{id: appStore.bus.id, readOnly: true, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
-			</View>
-		</Card>
-
-		<Card style={styles.item} onPress={() => navigation.navigate("BusDriversList", {id: appStore.bus.id, readOnly: true, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}>
-			<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-				<Text>Drivers</Text>
-				<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusDriversList",{id: appStore.bus.id, readOnly: true, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
+				<Text>Schedules</Text>
+				<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("TourSchedules",{id: ""})}/>
 			</View>
 		</Card>
 

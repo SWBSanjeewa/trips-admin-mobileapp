@@ -206,8 +206,23 @@ export const TourScheduleCard = React.forwardRef(({navigation},refStandard) => {
 	useEffect(() => {
 		console.log("useEffect");	
 		console.log("schedules:::"+route.params?.index);
+		console.log(JSON.stringify(appStore.tour.schedules)); 
 			
 	});
+
+	const onVehiclePress = (): void => {
+		console.log(appStore.tour.schedules[route.params?.index].transportServiceId );
+		appStore.transportService.setId(appStore.tour.schedules[route.params?.index].transportServiceId );
+		console.log("%%%%% "+appStore.transportService.id);
+		navigation.navigate("TransportServiceVehicles", { viewFrom: "tour-schedule", index: route.params?.index})
+	};
+
+	const onTransportServiceAddPress = (): void => {
+		console.log("onTransportServiceAddPress");
+		navigation.navigate("TransportServiceList", { viewFrom: "tour-schedule", index: route.params?.index})
+	};
+
+	
 
 	
 	
@@ -228,9 +243,26 @@ export const TourScheduleCard = React.forwardRef(({navigation},refStandard) => {
 			</Card>
 
 			<Card style={{ margin: 10, borderRadius:10}} onPress={onBookingsPress}>	
-				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Transport Service</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onBookingsPress}/>
+				<View>
+					 {appStore.tour.schedules[route.params?.index].transportServiceId && (
+                        <>
+						  
+                           	<Text>Transport Service</Text>
+						  
+						   <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+							 	<Text style={styles.disbaleText}>{appStore.tour.schedules[route.params?.index].transportServiceName} </Text>
+								<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onTransportServiceAddPress}/>
+							</View>
+                       </>
+                    )}
+                    {!appStore.tour.schedules[route.params?.index].transportServiceId && (
+                        <>
+							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+                            	<Text style={styles.disbaleText}>Transport Service</Text>
+                            	<Entypo name="plus" style={styles.itemContentIcon} onPress={onTransportServiceAddPress} />
+							</View>
+                        </>
+                    )}
 				</View>
 			</Card>
 
@@ -242,19 +274,25 @@ export const TourScheduleCard = React.forwardRef(({navigation},refStandard) => {
 				</View>
 			</Card>
 
-			<Card style={{ margin: 10, borderRadius:10}} onPress={onBookingsPress}>	
-				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+			<Card style={{ margin: 10, borderRadius:10}} >	
+				<View>
                      
                     {appStore.tour.schedules[route.params?.index].vehicleId && (
                         <>
                             <Text>Vehicle</Text>
-                             <MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onBookingsPress}/>
+							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+							 	<Text style={styles.disbaleText}>{appStore.tour.schedules[route.params?.index].vehicleId} </Text>
+								<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onVehiclePress}/>
+							</View>
+                             
                        </>
                     )}
                     {!appStore.tour.schedules[route.params?.index].vehicleId && (
                         <>
-                            <Text style={styles.disbaleText}>Vehicle</Text>
-                            <Entypo name="plus" style={styles.itemContentIcon} onPress={onBookingsPress} />
+							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+                            	<Text style={styles.disbaleText}>Vehicle</Text>
+                            	<Entypo name="plus" style={styles.itemContentIcon} onPress={onVehiclePress} />
+							</View>
                         </>
                     )}
 				</View>

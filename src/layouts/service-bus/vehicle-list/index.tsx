@@ -18,7 +18,7 @@ import { HomeOutlineIcon, PersonOutlineIcon } from "../../../components/icons";
 import { useFocusEffect } from '@react-navigation/native';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 
-import { TranportServiceSuggestions}  from "./extra/transportservices-auto-suggestions"
+import { VehiclesSuggestions}  from "./extra/vehicles-auto-suggestions"
 
 const client = axios.create({
 	baseURL: 'https://routes.lk:7007'
@@ -44,9 +44,9 @@ import { toJS } from "mobx";
 import { Galeria } from '@nandorojo/galeria'
 
 
-//export default ({ navigation , search}): React.ReactElement => {
 
-const VehicleList = ({ navigation }): React.ReactElement => {
+export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
+//onst VehicleList = ({ navigation }): React.ReactElement => {
 //export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 	
 	//const { refFrom, refTo ,refScrollView} = ref;
@@ -64,7 +64,8 @@ const VehicleList = ({ navigation }): React.ReactElement => {
 
 	//const [busses, setBusses] = useState([]);
 
-	
+	const [vehicles, setVehicles] = useState([]); 
+
 	const [searchClose, setSearchClose] = React.useState(false);
 
 	const [forceRefresh, setForceRefresh] = React.useState(false);
@@ -107,6 +108,25 @@ const VehicleList = ({ navigation }): React.ReactElement => {
 	
 	
 	const onItemPress = (info): void => {
+		console.log(">>>"+info);
+		//JSON.stringify(info);
+		
+		if(route.params?.viewFrom == "tour-schedule"){
+			appStore.tour.schedules[route.params?.index].setVehicleId(info.regNumber);
+			navigation && navigation.navigate("TourSchedule", { index: route.params?.index });
+		}else{
+			appStore.vehicle.setTitle(info.title);
+			appStore.vehicle.setNoOfSeats(info.noOfSeats);
+			appStore.vehicle.setRegNumber(info.regNumber);
+			console.log("photos size:"+info.photos.length);
+			info.photos.forEach(photo => {
+				appStore.vehicle.addPhoto(photo);
+			});
+			navigation && navigation.navigate("Vehicle");
+		}
+	};
+
+	const onItemPressbck = (info): void => {
 		console.log(info);
 		appStore.vehicle.setTitle(info.title);
 		appStore.vehicle.setNoOfSeats(info.noOfSeats);
@@ -115,9 +135,58 @@ const VehicleList = ({ navigation }): React.ReactElement => {
 		info.photos.forEach(photo => {
 			appStore.vehicle.addPhoto(photo);
 		});
+		
 		navigation && navigation.navigate("Vehicle")
 	};
 
+	const handleUpdate = (newValue) => {
+    	setVehicles(newValue);
+  	};
+
+	const loadVehicles = async() => {
+			console.log("Load transport services...");
+			const config: AxiosRequestConfig = {
+				headers: {
+				  'Accept': 'application/json',
+				  'token': appStore.user.accessToken
+				} as RawAxiosRequestHeaders,
+			  };
+			  try {	
+				console.log(`/transportServices/`+ appStore.transportService.id+`/vehicles`);
+				const response: AxiosResponse = await client.get(`/transportServices/`+ appStore.transportService.id+`/vehicles`, config);
+				setLoading(false);
+				console.log(response.status);
+				console.log("vehicles:::::"+response.data.vehicles);  
+				setVehicles(response.data.vehicles);  
+				console.log(JSON.stringify(response.data));
+			  } catch(err) {
+				console.log(err);
+				setLoading(false);
+			  }  
+			
+	};
+
+	const onSearchClosePress = (): void => {	
+			//appStore.searchContext.reset();
+			searchCallback(false);
+			loadVehicles();
+	};
+
+	useEffect(() => {
+		
+			const fetch = async ()=>{
+				await loadVehicles();
+				setLoading(false);
+			}
+	
+			fetch();	
+	
+	
+		}, []);
+	
+	
+
+	/*
 	useFocusEffect(
 			React.useCallback(() => {
 				
@@ -130,6 +199,7 @@ const VehicleList = ({ navigation }): React.ReactElement => {
 			  };
 			}, [route.params?.reload])
 	);
+	*/
 
 	const renderItemHeader = (info: ListRenderItemInfo<Vehicle>): React.ReactElement => (
 		<View>
@@ -167,17 +237,39 @@ const VehicleList = ({ navigation }): React.ReactElement => {
 		</Card>
 	);
 
+	if (loading) {
+			return <ActivityIndicator />;
+	}
+
 
 	return (
+
+		
 		<SafeAreaLayout style={styles.parentContainer}>
+			{search && (
+				//!appStore.searchContext.close && (
+				<View>  
+					<View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>
+						
+						<AntDesign style={{top: 4}} name="close" size={18} color="#444" onPress={onSearchClosePress} />
+					</View>
+
+					<View style={{  padding: 1, margin: 1,borderColor: "#eee", borderWidth: 0 ,flexDirection: "column", justifyContent: "flex-start"}}>		
+							<VehiclesSuggestions updateParent={handleUpdate} />
+					</View>
+					
+					</View>
+				
+				//)
+			)}
 			<View style={{ paddingHorizontal: 10 }}>
-				{appStore.transportService.vehicles.map(function(info, index){
+				{vehicles?.map(function(info, index){
 					return renderItem(info);		
 				})}	
 			</View>
 		</SafeAreaLayout>
 	);
-}
+});
 
 const styles = StyleSheet.create({
 
@@ -230,7 +322,4 @@ const styles = StyleSheet.create({
 		marginHorizontal: 16,
 	},
 });
-
-export default observer(VehicleList);
-
 

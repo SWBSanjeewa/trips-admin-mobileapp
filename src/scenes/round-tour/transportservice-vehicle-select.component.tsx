@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet ,Text} from "react-native";
 import { BusSearchIcon } from "../../components/icons";
 import { PlusOutlineIcon } from "../../components/icons";
 import { SafeAreaLayout } from "../../components/safe-area-layout.component";
-import ContentView from "../../layouts/round-tour/vehicle-select";
+import ContentView from "../../layouts/service-bus/vehicle-list";
 import AppStore from "../../store/AppStore";
 import { useStore } from "mobx-store-provider";
 import { ArrowIosBackIcon } from "../../components/icons";

@@ -13,7 +13,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
-import {routeBusTypes, getRouteColor, vehcileTypes, getVehicleColor}  from "../../../app/routes-common";
+import {routeBusTypes, getRouteColor, operatorTypes, transportAuthorityTypes}  from "../../../app/routes-common";
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
@@ -36,14 +36,14 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 		baseURL: 'https://routes.lk:7007'
 	});
 
-	const [regNoFocus, setRegNoFocus] = React.useState<boolean>(false);
-	const regNoCustomStyle = regNoFocus ? styles.inputContainerFocus : styles.inputContainer;
+	const [routeNoFocus, setRouteNoFocus] = React.useState<boolean>(false);
+	const routeNoCustomStyle = routeNoFocus ? styles.inputContainerFocus : styles.inputContainer;
 
 	const [titleFocus, setTitleFocus] = React.useState<boolean>(false);
 	const titleCustomStyle = titleFocus ? styles.inputContainerFocus : styles.inputContainer;
 
 
-	const [registrationNumberErrorMessage, setRegistrationNumberErrorMessage] = React.useState<string>("");
+	const [routeNoErrorMessage, setRouteNoErrorMessage] = React.useState<string>("");
 
 	const [titleErrorMessage, setTitleErrorMessage] = React.useState<string>("");
 
@@ -55,82 +55,54 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 
 
-	const [selectedIndex, setSelectedIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
-	const vehcileType = vehcileTypes[selectedIndex.row];
+	const [selectedOperatorIndex, setSelectedOperatorIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
+	const operatorType = operatorTypes[selectedOperatorIndex.row];
 
 	const [selectedIndexBusType, setSelectedIndexBusType] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
 	const routeType = routeBusTypes[selectedIndexBusType.row];
 
+	const [selectedIndexTransportAuthorityType, setSelectedIndexTransportAuthorityType] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
+	const transportAuthorityType = transportAuthorityTypes[selectedIndexTransportAuthorityType.row];
+
 
 	const [selectedStopping, setSelectedStopping] = React.useState<string>("");
-
-
-
-	const onVehicleTypeSelect = (index): void => {
-		console.log("Slected index:"+index);
-		setSelectedIndex(index);
-		
-		appStore.bus.setVehicleType(vehcileTypes[index-1].name);
-	};
-
-	const onTransportServiceSelect = (index): void => {
-		setSelectedIndexTransportServices(index);
-		appStore.bus.setTransportServiceId(transportServices[index-1]._id);
-		appStore.bus.setTransportServiceName(transportServices[index-1].name);
-		appStore.bus.setTransportServiceThemeColor(transportServices[index-1].themeColor);
-	};
+	
 
 	const onBusTypeSelect = (index): void => {
 		setSelectedIndexBusType(index);
-		appStore.bus.setRouteType(routeBusTypes[index-1].name);
+		appStore.routeBus.setTypeOfService(routeBusTypes[index-1].name);
 	};
+
+	const onOperatorTypeSelect = (index): void => {
+		setSelectedOperatorIndex(index);
+		appStore.routeBus.setOperator(operatorTypes[index-1].name);
+	};
+
+	const onTransportAuthorityTypeSelect = (index): void => {
+		setSelectedIndexTransportAuthorityType(index);
+		appStore.routeBus.setTransportAuthority(transportAuthorityTypes[index-1].name);
+	};
+
+
+	
 
 	const isValidValues = (): any => {
 		
 		var inputValid =true;
 
-		if(!appStore.bus.transportServiceId){
-			console.log("$$$$"+appStore.bus.transportServiceId);
-			setTransportServiceErrorMessage("Transport service is mandatory");	
-			inputValid =false;
-		}
-
-		if(!appStore.bus.registrationNumber){
-			setRegistrationNumberErrorMessage("Vehicle registration number is mandatory");	
-			inputValid =false;
-		}
-
-		if(!appStore.bus.title){
-			setTitleErrorMessage("Title is mandatory");	
-			inputValid =false;
-		}
-
-		if(appStore.bus.photos && appStore.bus.photos.length == 0){
-			setPhotosErrorMessage("At least one photo should be there");
-			inputValid =false;	
-		}
-
-		if(appStore.bus.journey && appStore.bus.journey.stoppings && appStore.bus.journey.stoppings.length < 2){
-			setJourneyStoppingsErrorMessage("At least 2 stoppings should be there");
-			inputValid =false;	
-		}
-
-		if(appStore.bus.returnJourney && appStore.bus.returnJourney.stoppings && appStore.bus.returnJourney.stoppings.length < 2){
-			setReturnJourneyStoppingsErrorMessage("At least 2 stoppings should be there");
-			inputValid =false;	
-		}
+		
 		return inputValid;
 		
 	};
 
 	
 
-	const onCreatePress1 = async() => {
-		console.log(JSON.stringify(toJS(appStore.bus)));	
+	const onCreatePress1= async() => {
+		console.log(JSON.stringify(toJS(appStore.routeBus)));	
 	}
 
 	const onCreatePress = async() => {
-		console.log(JSON.stringify(toJS(appStore.bus)));	
+		console.log(JSON.stringify(toJS(appStore.routeBus)));	
 
 
 		const config: AxiosRequestConfig = {
@@ -142,10 +114,10 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 		  try {
 			  
 			  if(isValidValues()){
-				const response: AxiosResponse = await client.post(`/buses/create`, appStore.bus , config);
+				const response: AxiosResponse = await client.post(`/routebuses/create`, appStore.routeBus , config);
 				console.log(response.status);
 				console.log(response.data.json); 
-				appStore.bus.reset();
+				appStore.routeBus.reset();
 				navigation && navigation.navigate("BusHome", {reload: true});
 			  }
 			  
@@ -165,18 +137,18 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 	
 
-	const onRegistrationNumberChange = (value): void => {
+	const onRouteNoChange = (value): void => {
 		if(value.length != 0){
-			setRegistrationNumberErrorMessage("");
+			setRouteNoErrorMessage("");
 		}
-		appStore.bus.setRegistrationNumber(value);
+		appStore.routeBus.setRouteNo(value);
 	};
 
 	const onTitleChange = (value): void => {
 		if(value.length != 0){
 			setTitleErrorMessage("");
 		}
-		appStore.bus.setTitle(value);
+		appStore.routeBus.setTitle(value);
 	};
 
 	
@@ -193,41 +165,88 @@ const BusAdd = ({ navigation }): React.ReactElement => {
        // setUploadPhotos(prevState => !prevState);
     };
 
-	const onDeleteStopping = (stopping: string) => () =>  {
-		appStore.bus.deleteStopping(stopping);
+	const onDeleteStoppingPlace = (stopping: string) => () =>  {
+		appStore.routeBus.deleteStoppingPlaceByPlace(stopping);
 	};
 
 	
 	
 	return (
 		
-		<ScrollView>
+		<ScrollView keyboardShouldPersistTaps='handled'>
 			
 			<View>
-			
-				<View style={{ margin: 10}}>
-					<View style={styles.labelContainer}>
-						<Text style={styles.label}>Route No</Text>
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Transport Authority Type</Text>
+						<View style={{ margin: 10}}>
+							<Select
+								placeholder='Default'
+								value={transportAuthorityType.name}
+								selectedIndex={selectedIndexTransportAuthorityType}
+								onSelect={(index: IndexPath) => onTransportAuthorityTypeSelect(index)}>
+								{transportAuthorityTypes.map(renderOptionBusTypes)}
+							</Select>
+						</View>
 					</View>
-					<View style={regNoCustomStyle}>
-						<TextInput style={styles.captionText} placeholder="01" onChangeText={onRegistrationNumberChange} value={appStore.bus.registrationNumber} onFocus={() => setRegNoFocus(true)} onBlur={() => setRegNoFocus(false)} />
-					</View>	
-					{registrationNumberErrorMessage!="" && (
-						<Text style={styles.errorLabel}>{registrationNumberErrorMessage}</Text>	
-					)}
 				</View>
 
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Service Type</Text>
+						<View style={{ margin: 10}}>
+							<Select
+								placeholder='Default'
+								value={routeType.name}
+								selectedIndex={selectedIndexBusType}
+								onSelect={(index: IndexPath) => onBusTypeSelect(index)}>
+								{routeBusTypes.map(renderOptionBusTypes)}
+							</Select>
+						</View>
+					</View>
+				</View>
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Operator Type</Text>
+						<View style={{ margin: 10}}>
+							<Select
+								placeholder='Default'
+								value={operatorType.name}
+								selectedIndex={selectedOperatorIndex}
+								onSelect={(index: IndexPath) => onOperatorTypeSelect(index)}>
+								{operatorTypes.map(renderOptionBusTypes)}
+							</Select>
+						</View>
+					</View>
+				</View>
+			
+				
 				<View style={{ margin: 10}}>
 					<View style={styles.labelContainer}>
 						<Text style={styles.label}>Title</Text>
 					</View>
 					<View style={titleCustomStyle}>
-						<TextInput style={styles.captionText} placeholder="Kandy to Comobo" onChangeText={onTitleChange} value={appStore.bus.title} onFocus={() => setTitleFocus(true)} onBlur={() => setTitleFocus(false)} />
+						<TextInput style={styles.captionText} placeholder="Kandy to Comobo" onChangeText={onTitleChange} value={appStore.routeBus.title} onFocus={() => setTitleFocus(true)} onBlur={() => setTitleFocus(false)} />
 					</View>	
 					{titleErrorMessage!="" && (
 						<Text style={styles.errorLabel}>{titleErrorMessage}</Text>	
 					)}
 				</View>
+
+				<View style={{ margin: 10}}>
+					<View style={styles.labelContainer}>
+						<Text style={styles.label}>Route No</Text>
+					</View>
+					<View style={routeNoCustomStyle}>
+						<TextInput style={styles.captionText} placeholder="01" onChangeText={onRouteNoChange} value={appStore.routeBus.routeNo} onFocus={() => setRouteNoFocus(true)} onBlur={() => setRouteNoFocus(false)} />
+					</View>	
+					{routeNoErrorMessage!="" && (
+						<Text style={styles.errorLabel}>{routeNoErrorMessage}</Text>	
+					)}
+				</View>
+
 			
 
 				<View style={{ margin: 10}}>
@@ -236,22 +255,23 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 					</View>
 					<View style={styles.descriptionInputContainer}>
 					<View style={{flexDirection: "row", flexWrap: "wrap"}}>
-					{appStore.bus.stoppings.map(function(stopping, index){
+					{appStore.routeBus.stoppingPlaces.map(function(stopping, index){
 						if(stopping == selectedStopping){
 							return <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#222"}} onPress={onAddStopping(stopping)}>
-										<Text style={{padding: 2}}>{stopping}</Text>
-										<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteStopping(stopping)} />
+										<Text style={{padding: 2}}>{stopping.place}</Text>
+										<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteStoppingPlace(stopping.place)} />
 								</TouchableOpacity>
 						}else{
 							return <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddStopping(stopping)}>
-										<Text style={{padding: 2}}>{stopping}</Text>
-										<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteStopping(stopping)} />
+										<Text style={{padding: 2}}>{stopping.place}</Text>
+										<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteStoppingPlace(stopping.place)} />
 								</TouchableOpacity>
 						}
 						
 					})}	
 					</View>	
 						<GooglePlacesAutocomplete
+				keyboardShouldPersistTaps={ "handled" }
 				ref={refAutoComplete}
 				styles={{
 					container:{
@@ -271,35 +291,30 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 					}
 				}}
 				
-				  renderRow={(rowData) => {
-					const title = rowData.structured_formatting.main_text;
-					var address=""
-					if(rowData.structured_formatting.secondary_text){
-						var lastIndex=rowData.structured_formatting.secondary_text.lastIndexOf(",");
-						if(lastIndex>0)
-				    		address = rowData.structured_formatting.secondary_text.slice(0,lastIndex);
-					}
+				renderRow={(rowData) => {
+				const title = rowData.structured_formatting.main_text;
+				var address=""
+				if(rowData.structured_formatting.secondary_text){
+					var lastIndex=rowData.structured_formatting.secondary_text.lastIndexOf(",");
+					if(lastIndex>0)
+						address = rowData.structured_formatting.secondary_text.slice(0,lastIndex);
+				}
+				
+				return (
+					<View style={{ padding: 0 }}>
 					
-					return (
-					 <View style={{ padding: 0 }}>
-					  
-					  <Text style={{ fontSize: 14 }}>{title}</Text>
-					  <Text style={{ fontSize: 14, color: '#777777',}}>{address}</Text>
-					 </View>
-					 );
-					}}
-				  placeholder='Enter Location'
-				  textInputProps={{
+					<Text style={{ fontSize: 14 }}>{title}</Text>
+					<Text style={{ fontSize: 14, color: '#777777',}}>{address}</Text>
+					</View>
+					);
+				}}
+				placeholder='Enter Location'
+				textInputProps={{
 					selectionColor:"#142169",
 					cursorColor:"#142169"
-				 }}
-				  minLength={2}
-				  onPress={(data, details = null) => {
-					// 'details' is provided when fetchDetails = true
-					console.log(data);
-					console.log("*****");
-					console.log(data.description)
 				}}
+				minLength={2}
+				 
 
 				fetchDetails={true}
 				onPress={(data, details = null) => {
@@ -315,21 +330,26 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 				       address = data.description.slice(0,index);
 					}
 					
+					
 					refAutoComplete.current?.setAddressText("");
-					//setSearch({searchKeyword: data.description});
+					
 					if(selectedStopping != ""){
 						var index = appStore.routeBus.getIndex(selectedStopping);
-						appStore.routeBus.addStoppingAtIndex(address,index+1);
+						appStore.routeBus.addStoppingPlaceAtIndex(address,details.geometry.location.lat.toString(),details.geometry.location.lng.toString(),index+1);
 						setSelectedStopping("");
 					}else{
-						appStore.routeBus.addStopping(address);
+						appStore.routeBus.addStoppingPlace(address,details.geometry.location.lat.toString(),details.geometry.location.lng.toString());
 					}
 					
 				}}
 
 				onFail={(error) => console.error(error)}
-			
+
 				predefinedPlaces={[]}
+				debounce={200}
+				timeout={20000}
+			
+			
 				query={{
 					key: 'AIzaSyDmFlx79dIq9lzTupQGttpE8m8eQ5ZS5yA',
 					language: 'en',
@@ -342,38 +362,12 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 					
 				</View>
 
-				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
-					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-						<Text style={{ padding: 5, paddingLeft: 10}}>Road Type</Text>
-						<View style={{ margin: 10}}>
-							<Select
-								placeholder='Default'
-								value={routeType.name}
-								selectedIndex={selectedIndexBusType}
-								onSelect={(index: IndexPath) => onBusTypeSelect(index)}>
-								{routeBusTypes.map(renderOptionBusTypes)}
-							</Select>
-						</View>
-					</View>
-				</View>
+				
 				
 			</View>
 
 			
-			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToJourney}>	
-				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Timetables</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToJourney}/>
-				</View>
-				{journeyStoppingsErrorMessage!="" && (
-						<Text style={styles.errorLabel}>{journeyStoppingsErrorMessage}</Text>	
-				)}
-			</Card>
-
-			
-
-
-
+		
 			<View style={{flexDirection: "row", justifyContent: "space-between"}}>
 				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onCreatePress()}>Create</Button>
 			</View>

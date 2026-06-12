@@ -403,7 +403,7 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 					selectionColor:"#142169",
 					cursorColor:"#142169"
 				 }}
-				  minLength={2}
+				minLength={2}
 				 
 
 				fetchDetails={true}
@@ -422,16 +422,13 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 					}
 					
 					refAutoComplete.current?.setAddressText("");
-					//setSearch({searchKeyword: data.description});
-					//console.log("lat:lng"+details.geometry.location.lat+","+details.geometry.location.lng);
+					
 					if(selectedStopping != ""){
 						var index = appStore.tour.getIndex(selectedStopping);
-						appStore.tour.addStoppingPlaceAtIndex(address,details.geometry.location.lat,details.geometry.location.lng,index+1);
+						appStore.tour.addStoppingPlaceAtIndex(address,details.geometry.location.lat.toString(),details.geometry.location.lng.toString(),index+1);
 						setSelectedStopping("");
 					}else{
 						appStore.tour.addStoppingPlace(address,details.geometry.location.lat.toString(),details.geometry.location.lng.toString());
-						
-						//place,latitude,longitude,title,remarks,plusDays,arrivalTime,departureTime,stayDuration
 					}
 					
 				}}

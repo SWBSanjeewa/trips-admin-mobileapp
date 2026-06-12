@@ -2,10 +2,9 @@ import { BottomNavigation, BottomNavigationTab, Button, Card, List, Text ,Input,
 import React,{useState,useEffect,useCallback,useRef, forwardRef} from "react";
 import { TextInput, ListRenderItemInfo, StyleSheet, View , ScrollView,SafeAreaView, ActivityIndicator} from "react-native";
 import { useRoute } from "@react-navigation/native";
-import { RouteBus } from "./extra/data";
+import { Bus } from "./extra/data";
 
 import { CachedImage } from '@georstat/react-native-image-cache';
-import { Image } from 'expo-image';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SafeAreaLayout } from "./../../../components/safe-area-layout.component";
 
@@ -17,8 +16,6 @@ import { HomeOutlineIcon, PersonOutlineIcon } from "../../../components/icons";
 import { useFocusEffect } from '@react-navigation/native';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 
-import {routeBusTypes, operatorTypes, getRouteBusThemePhotoUrl}  from "../../../app/routes-common";
-
 import { TranportServiceSuggestions}  from "./extra/transportservices-auto-suggestions"
 
 const client = axios.create({
@@ -27,7 +24,7 @@ const client = axios.create({
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import {routeTypes, getRouteColor, vehcileTypes, getTourTypeColor}  from "../../../app/routes-common";
+import {routeTypes, getRouteColor, vehcileTypes, getVehicleColor}  from "../../../app/routes-common";
 
 //import * as Device from 'expo-device';
 //import * as Notifications from 'expo-notifications';
@@ -100,13 +97,21 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 
 	const [reload, setReload] = React.useState(false);
 	
-	const isTourOwner = (): boolean => {
+	const isBusOwner = (): boolean => {
 		
 		console.log("isBusOwner"+appStore.user.mobileNumber);
 		if(appStore.user.role == "admin"){
 			console.log("role is admin");
 			return true;
 		}
+		
+		appStore.bus.owners.map(function(owner, index){
+			console.log("owner:"+owner);
+			if(owner == appStore.user.mobileNumber){
+				return true;
+			}
+		});
+		console.log("not admin and owner:");
 
 		return false;
 	};
@@ -163,7 +168,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 	  }
 		*/
 	// /byRouteType/:routeType"
-	const loadRouteBuses = async(searchUrl) => {
+	const loadBusses = async(searchUrl) => {
 		setLoading(true);
 		const config: AxiosRequestConfig = {
 			
@@ -175,14 +180,18 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 		  try {
 			console.log("appStore.user.accessToken::####"+appStore.user.accessToken);
 			const userId = appStore.user.mobileNumber;
+			console.log("Load routes buses::####"+searchUrl);
+			
 			const response: AxiosResponse = await client.get(searchUrl, config);
 			console.log(response.status);
 			console.log(response.data);  
+			//setBusses(response.data); 
 			appStore.routeBuses.reset();
+			
 			response.data.forEach((element) => appStore.routeBuses.addRouteBus(element.objectId,element.title,element.routeNo,element.operator,element.transportAuthority,element.typeOfService,element.stoppingPlaces));
-			console.log(">>>"+appStore.routeBuses.routeBuses.length);
-			//var owner = isBusOwner(); 
-			//console.log("Is owner::"+owner);
+			console.log(">>>"+appStore.routeBuses);
+			var owner = isBusOwner(); 
+			console.log("Is owner::"+owner);
 		  } catch(err) {
 			console.log(searchUrl);
 			console.log(err);
@@ -231,7 +240,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 	const onSearchClosePress = (): void => {	
 		appStore.searchContext.reset();
 		searchCallback(false);
-		loadRouteBuses("/routebuses/getAll");	
+		loadBusses("/buses/getAll");	
 	};
 
 	const onSearchPress = (): void => {
@@ -247,38 +256,30 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 	const onItemPress = (info: ListRenderItemInfo<Bus>): void => {
 		
 		
-		const tour = appStore.tours.tours[info.index];
-		//console.log(bus.title);
+		const bus = appStore.busses.busses[info.index];
+		console.log(bus.title);
 		//console.log(" info.item._id"+ info.item._id+" journeyStartLatitude:"+bus.journey.stoppings[0].latitude);
-		navigation && navigation.navigate("TourDetails", { id: tour.id });
+		navigation && navigation.navigate("BusDetails", { id: bus.id , journeyStartLatitude: bus.journeyStartLatitude, journeyStartLongitude: bus.journeyStartLongitude, returnJourneyStartLatitude: bus.returnJourneyStartLatitude, returnJourneyStartLongitude: bus.returnJourneyStartLongitude});
 	};
 
-	const renderItemHeader1 = (info: ListRenderItemInfo<RouteBus>): React.ReactElement => (
+	const renderItemHeader = (info: ListRenderItemInfo<Bus>): React.ReactElement => (
 		<View>
-			<View style={{  width: 100}}>
-					<Image
-						contentFit="contain"
-						style={styles.itemHeader} source={"https://routes.lk:7007/route_buses/"+getRouteBusThemePhotoUrl(info.item.operator, info.item.typeOfService)}/>
-				</View>
-			<View style={{  flexDirection: "row", justifyContent: "flex-end" , paddingHorizontal: 10, marginHorizontal: 20 }}>
-				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: -10 }} onPress={()=>onRouteTypePress(info.item.noOfDays)}>{info.item.operator}</Button>
+			<View style={{padding: 5,flexDirection: "row", justifyContent: "flex-end"}}>
+				<Button size="small" style={{ backgroundColor: getRouteColor(info.item.routeType) ,borderColor: getRouteColor(info.item.routeType)}} onPress={()=>onRouteTypePress(info.item.routeType)}>{info.item.routeType}</Button>
 			</View>
+			<CachedImage
+				resizeMode="cover"
+				style={styles.itemHeader} source={info.item.photos[0]} />
 		</View>
 	);
 
-	const renderItemHeader = (info: ListRenderItemInfo<RouteBus>): React.ReactElement => (
-		<View>
-			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-end" }}>	
-				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: 5 }} >{info.item.operator}</Button>
-				<Button size="small" onPress={()=>onTransportServicePress(info.item)}>{info.item.typeOfService}</Button>
+	const renderItemFooter = (info: ListRenderItemInfo<Bus>): React.ReactElement => (
+		<View style={styles.itemFooter}>
+			<View style={styles.itemAuthoringContainer}>
+				<Text category="s2">{info.item.description}</Text>
 			</View>
-			
 		</View>
 	);
-
-
-	
-
 
 	const [selectedIndex, setSelectedIndex] = React.useState(0);
 
@@ -295,24 +296,24 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 
 		var url;
 		if(routeType == ""){
-			url = "/routebuses/byTransportService/"+item.transportServiceId;
+			url = "/buses/byTransportService/"+item.transportServiceId;
 		}else{
-			url = "/routebuses/search/routeType/"+routeType+"/transportService/"+item.transportServiceId;
+			url = "/buses/search/routeType/"+routeType+"/transportService/"+item.transportServiceId;
 		}
 		console.log("url::"+url);
-		loadRouteBuses(url);	
+		loadBusses(url);	
 	};
 
 	const onRouteTypePress = (routeType): void => {
 		setRouteType(routeType);
 		var url;
 		if(transportService == ""){
-			url = "/routebuses/byRouteType/"+routeType;
+			url = "/buses/byRouteType/"+routeType;
 		}else{
-			url = "/routebuses/search/routeType/"+routeType+"/transportService/"+transportServiceId;
+			url = "/buses/search/routeType/"+routeType+"/transportService/"+transportServiceId;
 		}
 		console.log("url::"+url);
-		loadRouteBuses(url);	
+		loadBusses(url);	
 	};
 
 	
@@ -322,22 +323,22 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 		setTransportServiceId("");
 		var url;
 		if(routeType == ""){
-			url = "/routebuses/getAll";
+			url = "/buses/getAll";
 		}else{
-			url = "/routebuses/byRouteType/"+routeType;
+			url = "/buses/byRouteType/"+routeType;
 		}
-		loadRouteBuses(url);	
+		loadBusses(url);	
 	};
 
 	const onRouteTypeClosePress = (): void => {
 		setRouteType("");
 		var url;
 		if(transportService == ""){
-			url = "/routebuses/getAll";
+			url = "/buses/getAll";
 		}else{
-			url = "/routebuses/byTransportService/"+transportServiceId;
+			url = "/buses/byTransportService/"+transportServiceId;
 		}
-		loadRouteBuses(url);	
+		loadBusses(url);	
 	};
 
 	function searchCloseOk(){
@@ -352,45 +353,32 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 	};
 
 
-	const renderItem = (info: ListRenderItemInfo<RouteBus>, index): React.ReactElement => (
+	const renderItem = (info: ListRenderItemInfo<Bus>, index): React.ReactElement => (
 		<Card
 			style={styles.item}
 			header={() => renderItemHeader(info)}
 			//footer={() => renderItemFooter(info)}
 			onPress={() => onItemPress(info)}
 		>
-
 			
-			<View>
 			<Text category="h5">{info.item.title}</Text>
-			
-			<View style={{ 
-      flexDirection: 'row', 
-      alignItems: 'center', // Centers icon and text vertically
-      padding: 5
-    }}>
-      {/* Your Icon or Image */}
-      <Image 
-	    contentFit="contain"
-        source={"https://routes.lk:7007/route_buses/"+getRouteBusThemePhotoUrl(info.item.operator, info.item.typeOfService)}
-        style={{ width: 100, height: 100, marginRight: 8 }} 
-      />
-
-      {/* ⚠️ flexShrink: 1 is mandatory here to prevent cutoff */}
-      
-	  <Text style={{ flexShrink: 1, fontSize: 16 }}>
-					{info.item.stoppingPlaces.map(function(stopping, index){	
-						if(index==0 ){
-							return <Text style={{ color: "grey" }}>{stopping.place}</Text>	
-						}else{
-							return <Text style={{ color: "grey" }}>- {stopping.place}</Text>	
-						}							
-					})}	
-					</Text>
-    </View>
-
-	</View>
-			
+			<View style={{flexDirection: "row"}}>
+				<Text>
+				{info.item.stoppings.map(function(stopping, index){	
+					if(index==0 ){
+						return <Text style={{ color: "grey"}}>{stopping.place}</Text>	
+					}else{
+						return <Text style={{ color: "grey"}}>- {stopping.place}</Text>	
+					}							
+				})}	
+				</Text>
+			</View>
+			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "space-between"}}>
+				{info.item.registrationNumber && (
+				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2}} >{info.item.registrationNumber}</Button>
+				)}	
+				<Button size="small" style={{ backgroundColor: info.item.transportServiceThemeColor,borderColor: info.item.transportServiceThemeColor}} onPress={()=>onTransportServicePress(info.item)}>{info.item.transportServiceName}</Button>
+			</View>
 			
 		</Card>
 	);
@@ -480,11 +468,11 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 			
 			console.log("reload::::"+route.params?.reload);
 			if(route.params?.reload){
-				loadRouteBuses("/routeBuses/getAll");
+				loadBusses("/buses/byRouteType/"+appStore.bus.routeType);
 			}else{
 				setLoading(false);
 			}
-			console.log("tours:::"+appStore.routeBuses.routeBuses.length);
+			console.log("busses:::"+appStore.busses.busses.length);
 			
 		  return () => {
 			
@@ -757,7 +745,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 
 			<List
 				contentContainerStyle={styles.listContent}
-				data={appStore.routeBuses.routeBuses}
+				data={appStore.busses.busses}
 				renderItem={renderItem}
 			/>
 				</ScrollView>
@@ -799,7 +787,7 @@ const styles = StyleSheet.create({
 	    marginHorizontal: 8
 	},
 	itemHeader: {
-		height: 220
+		height: 220,
 	},
 	itemContent: {
 		marginVertical: 8,

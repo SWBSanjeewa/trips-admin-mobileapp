@@ -1,16 +1,23 @@
 import { ImageSourcePropType } from "react-native";
 
-export class Bus {
+class StopppingPlace {
+	constructor(
+		readonly place: string,
+		readonly latitude: string,
+		readonly longitude: string,
+	) {}
+}
+
+export class RouteBus {
 	constructor(
 		readonly _id: string,
 		readonly title: string,
-		readonly description: string,
-		readonly registrationNumber: string,
-		readonly image: ImageSourcePropType,
-		readonly photos: string[],
-		readonly stoppings: string[],
+		readonly routeNo: string,
+		readonly operator: string,
+		readonly transportAuthority: string,
+		readonly typeOfService: string,
+		readonly stoppingPlaces: StopppingPlace[],
 	) {}
-
 	/*
 	static bus1(): Bus {
 		return new Bus(

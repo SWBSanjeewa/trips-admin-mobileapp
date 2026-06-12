@@ -837,6 +837,9 @@ const TransportService = types.model({
       self.officeNumber=officeNumber;
       self.themeColor=themeColor;
   },
+  setId(id){
+    self.id= id;
+  },
   setName(name){
     self.name= name;
   },
@@ -1019,6 +1022,22 @@ const Tours = types.model({
 }))
 
 
+const RouteBuses = types.model({
+  routeBuses: types.array(NewRouteVirtualBusStore),
+})
+.actions((self) => ({
+  addRouteBus(objectId,title,routeNo,operator,transportAuthority,typeOfService,stoppingPlaces){
+    console.log("::"+title);
+    self.routeBuses.push({
+      objectId,title,routeNo,operator,transportAuthority,typeOfService,stoppingPlaces
+    })
+  },
+  reset(){
+    self.routeBuses = NewRouteVirtualBusStore[0];
+  }
+}))
+
+
 
 const defaultBus = NewBusStore.create({
   title: "Title"
@@ -1061,6 +1080,8 @@ const AppStore = types.model("App", {
   }),
 
   tours: types.optional(Tours, {
+  }),
+  routeBuses: types.optional(RouteBuses, {
   })
   
 });

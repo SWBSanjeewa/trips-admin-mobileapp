@@ -18,6 +18,8 @@ import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from
 
 import { TranportServiceSuggestions}  from "./extra/transportservices-auto-suggestions"
 
+import { useRoute } from "@react-navigation/native";
+
 
 const client = axios.create({
 	baseURL: 'https://routes.lk:7007'
@@ -32,6 +34,8 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 	const appStore = useStore(AppStore);
 
 	const [transportServices, setTransportServices] = useState([]);
+
+	const route = useRoute();
 
 	const [loading, setLoading] = useState(true);
 
@@ -64,7 +68,14 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 		//console.log("id:::"+transportServices[info.index].name);
 		console.log("id:::"+info.item._id);
 		console.log(JSON.stringify(info.item._id)); 
-		navigation && navigation.navigate("TransportService", { id: info.item._id });
+
+		if(route.params?.viewFrom == "tour-schedule"){
+			appStore.tour.schedules[route.params?.index].setTransportServiceId(info.item._id);
+			appStore.tour.schedules[route.params?.index].setTransportServiceName(info.item.name);
+			navigation && navigation.navigate("TourSchedule", { index: route.params?.index });
+		}else{
+			navigation && navigation.navigate("TransportService", { id: info.item._id });
+		}
 	};
 
 	const onRouteTypeSelect = (value): void => {

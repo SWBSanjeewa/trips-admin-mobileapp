@@ -5,6 +5,7 @@ import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown'
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 import AppStore from "../../../../store/AppStore";
 import { useStore } from "mobx-store-provider";
+import { useRoute } from "@react-navigation/native";
 
 //const Child = ({ updateParent }) => {
 // memo(({ onUpdate }) => {
@@ -14,6 +15,8 @@ export const TranportServiceSuggestions = ({ updateParent }) => {
   const [remoteDataSet, setRemoteDataSet] = useState<AutocompleteDropdownItem[] | null>(null)
   const [selectedItem, setSelectedItem] = useState<AutocompleteDropdownItem | null>(null)
   const appStore = useStore(AppStore);
+  const route = useRoute();
+
   const [transportServiceSuggestionsList, setTransportServiceSuggestionsList] = useState([
     { id: "1", title: appStore.searchContext.transportServiceName }
     ])
@@ -28,6 +31,12 @@ export const TranportServiceSuggestions = ({ updateParent }) => {
     console.log("### appStore.searchContext.setTransportServiceName:"+appStore.searchContext.transportServiceName);
 	//	setSelectedItem(value?.title);
     appStore.searchContext.setTransportServiceName(value?.title);
+
+    console.log("Value::"+value);
+    console.log("Index::"+route.params?.index);
+    if(route.params?.viewFrom == "tour-schedule"){
+      appStore.tour.schedules[route.params?.index].setTransportServiceId(value?.id);
+    }
     //setTransportServiceSuggestionsList([{ id: "1", title: value?.title }]);
 	};
 

@@ -6,12 +6,12 @@ import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from
 import AppStore from "../../../../store/AppStore";
 import { useStore } from "mobx-store-provider";
 
-export const TranportServiceSuggestions = memo((props: Omit<IAutocompleteDropdownProps, 'ref' | 'dataSet'>) => {
+export const VehiclesSuggestions = ({ updateParent }) => {
   const [loading, setLoading] = useState(false)
   const [remoteDataSet, setRemoteDataSet] = useState<AutocompleteDropdownItem[] | null>(null)
   const [selectedItem, setSelectedItem] = useState<AutocompleteDropdownItem | null>(null)
   const appStore = useStore(AppStore);
-  const [transportServiceSuggestionsList, setTransportServiceSuggestionsList] = useState([
+  const [vehicleSuggestionsList, setVehicleSuggestionsList] = useState([
     { id: "1", title: appStore.searchContext.transportServiceName }
     ])
 
@@ -20,7 +20,7 @@ export const TranportServiceSuggestions = memo((props: Omit<IAutocompleteDropdow
 	  baseURL: 'https://routes.lk:7007'
   });
 
-  const onTransportServiceSelect = (value): void => {
+  const onVehicleSelect = (value): void => {
     console.log("### "+value?.title);
     console.log("### appStore.searchContext.setTransportServiceName:"+appStore.searchContext.transportServiceName);
 	//	setSelectedItem(value?.title);
@@ -32,55 +32,38 @@ export const TranportServiceSuggestions = memo((props: Omit<IAutocompleteDropdow
     //appStore.searchContext.setTransportServiceName("Any");
    }, [])
 
-  const getSuggestions = useCallback(async (q: string) => {
-    const filterToken = q.toLowerCase()
-    console.log('getSuggestions', filterToken)
-    if (typeof q !== 'string' || q.length < 3) {
-      setRemoteDataSet(null)
-      return
-    }
-    setLoading(true)
-    const response = await fetch('https://jsonplaceholder.typicode.com/posts').then(
-      data =>
-        new Promise(res => {
-          setTimeout(() => res(data.json()), 2000) // imitate of a long response
-        }),
-    )
-    const items = (await response) as Record<string, string>[]
-
-    const suggestions = items
-      .filter(item => item.title?.toLowerCase().includes(filterToken))
-      .map(item => ({
-        id: item.id || '0',
-        title: item.title || '',
-      }))
-
-    setRemoteDataSet(suggestions)
-    setLoading(false)
-  }, [])
+ 
 
 
-  const getTransportServiceSuggestions = useCallback(async q => {
+  const getVehicleSuggestions = useCallback(async q => {
     const filterToken = q.toLowerCase()
     console.log('getSuggestions', q)
     if (typeof q !== 'string' || q.length < 3) {
-      setTransportServiceSuggestionsList(null)
+      setVehicleSuggestionsList(null)
       return
     }
     setLoading(true)
     
     const config: AxiosRequestConfig = {
+         params: {
+				  'q': filterToken
+			  },
         headers: {
           'Accept': 'application/json',
           'token': appStore.user.accessToken
         } as RawAxiosRequestHeaders,
       };
       try {	
-        const response: AxiosResponse = await client.get(`/transportServices/list` , config);
+        console.log(">>"+appStore.transportService.id);
+        const response: AxiosResponse = await client.get(`/transportServices/`+appStore.transportService.id+`/vehicles/search` , config);
         setLoading(false);
         console.log(response.status);
         console.log(response.data);  
-        //setTransportServices(response.data); 
+
+        console.log(response.data[0]);  
+        updateParent(response.data[0].items);
+       
+        /*
         const items = await response.data;
         const suggestions = items
           .filter(item => item.name.toLowerCase().includes(filterToken))
@@ -88,7 +71,8 @@ export const TranportServiceSuggestions = memo((props: Omit<IAutocompleteDropdow
             id: item._id,
             title: item.name,
         }))
-        setTransportServiceSuggestionsList(suggestions)
+        setVehicleSuggestionsList(suggestions)
+        */
         setLoading(false) 
       } catch(err) {
         console.log(err);
@@ -101,7 +85,7 @@ export const TranportServiceSuggestions = memo((props: Omit<IAutocompleteDropdow
   return (
     <>
       <AutocompleteDropdown
-        dataSet={transportServiceSuggestionsList}
+        dataSet={vehicleSuggestionsList}
         closeOnBlur={false}
         useFilter={false}
         initialValue='1'
@@ -114,15 +98,14 @@ export const TranportServiceSuggestions = memo((props: Omit<IAutocompleteDropdow
           backgroundColor: '#eee',
           borderRadius: 25,
         }}
-        onSelectItem={onTransportServiceSelect}
+        onSelectItem={onVehicleSelect}
         loading={loading}
-        onChangeText={getTransportServiceSuggestions}
+        onChangeText={getVehicleSuggestions}
         suggestionsListTextStyle={{
           color: '#8f3c96',
         }}
-        {...props}
       />
      
     </>
   )
-})
+}

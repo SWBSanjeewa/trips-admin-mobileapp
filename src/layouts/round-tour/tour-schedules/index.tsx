@@ -145,6 +145,7 @@ const TourSchedulesList = ({ navigation }): React.ReactElement => {
 
 	
 	const onActionsPress = (schedule,index): void => {	
+		console.log(">> TourSchedule");
 		navigation && navigation.navigate("TourSchedule", {index: index});
 	};
 

@@ -47,6 +47,9 @@ const Schedule = types.model({
   setTransportServiceThemeColor(transportServiceThemeColor) {
     self.transportServiceThemeColor = transportServiceThemeColor;
   },
+  setVehicleId(vehicleId) {
+    self.vehicleId = vehicleId;
+  },
 })
 );
 

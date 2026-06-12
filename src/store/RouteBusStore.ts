@@ -43,7 +43,7 @@ const Stopping = types.model({
   latitude: types.optional(types.number, 0.0),
   longitude: types.optional(types.number, 0.0),
   plusDays: types.optional(types.number, 0.0),
-  time: types.string,
+  time: types.string
 })
 .actions((self) => ({
   setTime(time) {
@@ -52,47 +52,27 @@ const Stopping = types.model({
 })
 );
 
-const Journey = types.model({
-  start: types.optional(types.string, ""), 
-  startTime: types.string,
-  startTimePlusDays: types.optional(types.string, ""),
-  end: types.optional(types.string, ""),
-  endTime: types.string,
-  endTimePlusDays: types.optional(types.string, ""),
-  distance: types.optional(types.string, ""),
-  transportServiceType: types.optional(types.string, ""),  //SLTB, PVT
-  roadType: types.optional(types.string, ""),     // ExpressWay, Normal
-  depot: types.optional(types.string, ""),
-  ntcNumber: types.optional(types.string, ""),
-  busRunningNumber: types.optional(types.string, ""),
-  busRegistrationNumber: types.optional(types.string, ""),
-  stoppings: types.array(Stopping),
+const StoppingPlace = types.model({
+  place: types.optional(types.string, ""),
+  latitude: types.optional(types.string, ""),
+  longitude: types.optional(types.string, ""),
 })
 .actions((self) => ({
-  
-  setStart(start){
-    this.start= start;
-  },
-  setEnd(end){
-    this.end=end;
-  },
-  reset(){
-    self.start="";
-    self.end="";
-  },
-}))
+  setPlace(place,latitude,longitude) {
+    self.place = place;
+    self.latitude = latitude;
+    self.longitude = longitude;
+  }
+})
+);
+
 
 
 const Timetable = types.model({
-  journey: types.array(Journey),
-  returnJourney: types.array(Journey),
-  runningDays: types.optional(types.string, "")
+  stoppings: types.array(Stopping),
+  runningNumber: types.string // Galle - Makumbura M1 G1 SLTB
 })
 .actions((self) => ({
-  addDriver(name, mobileNumber){
-      self.name=name;
-      self.mobileNumber=mobileNumber;
-  },
   setName(name){
     this.name= name;
   },
@@ -100,84 +80,100 @@ const Timetable = types.model({
     this.mobileNumber=mobileNumber;
   },
   reset(){
-    self.name="";
-    self.mobileNumber="";
+    
   },
 }))
+
+const Route = types.model({
+  runningDays: types.string,
+  timetableType: types.optional(types.string, "SelectedDays"),  // SelectedDays, SelectedDates
+  selectedDaysTimetables: types.array(Timetable),
+  selectedDatesTimetables: types.array(Timetable)
+})
 
 
 const NewRouteVirtualBusStore = types
   .model({
-    id: types.optional(types.string, ""),
     objectId: types.optional(types.string, ""),
-    routeNumber: types.optional(types.string, ""),  //01
-    title: types.optional(types.string, ""),   //Colombo-Kandy
-    stoppings: types.array(Stopping),
-    vehicleType: types.optional(types.string, "Highway"),    // Highway, Highway-Luxury, Luxury, Semi-Luxury, Normal, Semi-Luxury & Normal
-    timetableType: types.optional(types.string, "Everyday"),  // Everyday, OddEven, SelectedDays, SelectedDates
-    everyDayTimetable: types.optional(Timetable, {
+    title: types.optional(types.string, ""),  // Colombo to Kandy
+    routeNo: types.optional(types.string, ""),   // 636 Kandy matale (via Wattegama)
+    operator: types.optional(types.string, ""),   // SLTB, Private, Combined
+    transportAuthority: types.optional(types.string, ""),   // NTC, CP-TSA, SP-RPSA
+    typeOfService: types.optional(types.string, ""),   // Normal, Luxury, Super Luxury
+    stoppingPlaces: types.array(StoppingPlace),
+    journey: types.optional(Route, {
+      runningDays: "2,3,4,5,6",
+      selectedDaysTimetables: [],
+      selectedDatesTimetables: []
     }),
-    oddDayTimetable: types.optional(Timetable, {
+    returnJourney: types.optional(Route, {
+      runningDays: "2,3,4,5,6",
+      selectedDaysTimetables: [],
+      selectedDatesTimetables: []
     }),
-    evenDayTimetable: types.optional(Timetable, {
-    }),
-    selectedDayTimetables: types.array(Timetable),
-    selectedDateTimetables: types.array(Timetable)
+    
   })
   .actions((self) => ({
     reset() {
       console.log("self::"+self);
-      self.id = "";
       self.objectId = "";
-      self.routeNumber = "";
       self.title = "";
-      self.stoppings= String[0];
-      self.everyDayTimetable = null;
-      self.oddDayTimetable = null;
-      self.evenDayTimetable = null;
-      self.selectedDayTimetables = Timetable[0];
-      self.selectedDateTimetables = Timetable[0];
+      self.routeNo = "";
+      self.operator = "";
+      self.transportAuthority = "";
+      self.typeOfService = "";
+      self.stoppingPlaces= StoppingPlace[0];
     },
     populate(bus) {
-      self.id = bus.id;
       self.objectId = bus._id;
       self.title = bus.title;
+      self.routeNo = bus.routeNo;
     },
-    setId(id) {
-      self.id = id;
+    setTitle(title) {
+      self.title = title;
+    },
+    setRouteNo(routeNo) {
+      self.routeNo = routeNo;
     },
     setObjectId(objectId) {
       self.objectId = objectId;
     },
-    setVehicleType(vehicleType) {
-      self.vehicleType = vehicleType;
+    setOperator(operator) {
+      self.operator = operator;
     },
-    addStopping(place,latitude,longitude,time){
-      self.stoppings.push({
+    setTransportAuthority(transportAuthority) {
+      self.transportAuthority = transportAuthority;
+    },
+    setTypeOfService(typeOfService) {
+      self.typeOfService = typeOfService;
+    },
+    addStoppingPlace(place,latitude,longitude){
+      self.stoppingPlaces.push({
         place,
         latitude,
-        longitude,
-        time
+        longitude
       })
     },
-    addStoppingAtIndex(place,latitude,longitude,time,index){
-      self.stoppings.splice(index, 0, {place,latitude,longitude,time});
+    addStoppingPlaceAtIndex(place,latitude,longitude,index){
+      self.stoppingPlaces.splice(index, 0, {place,latitude,longitude});
     },
-    getIndex(stopping){
-      return self.stoppings.findIndex(q => q === stopping);
+    getIndex(stoppingPlace){
+      return self.stoppingPlaces.findIndex(q => q === stoppingPlace);
     },
     getStopping(index){
-      return self.stoppings[index];
+      return self.stoppingPlaces[index];
     },
-    deleteStopping(index){
+    deleteStoppingPlaceByIndex(index){
       //const s = self.stoppings.find(s => s === stopping);
-      self.stoppings.remove(self.stoppings[index]);
+      self.stoppingPlaces.remove(self.stoppingPlaces[index]);
+    },
+    deleteStoppingPlaceByPlace(place){
+       const stoppingPlace = self.stoppingPlaces.find(p => p.place === place);
+       self.stoppingPlaces.remove(stoppingPlace);
     }
   }))
   .views((self) => ({
-    getPassengers() {
-      return self.passengers.length;
-    }
+    
   })
 );
 
