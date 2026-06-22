@@ -1,4 +1,8 @@
 https://www.sprpta.lk/schedulebyrouteall.php?routenumber=350
+
+https://www.ntc.gov.lk/times/
+
+
 undefined
 
 ## Set node version
@@ -274,3 +278,11 @@ const onImagePressed = (): void => {
 					source={appStore.bus.photos[imageIndex]}
 					style={styles.itemHeader}/>
 			</TouchableOpacity>
+
+
+
+{"objectId":"6a27ff1471402e567619f942","title":"Galle - Kadawatha","routeNo":"EX1","operator":"Combined","transportAuthority":"NTC","typeOfService":"Super Luxury","duration":"","stoppingPlaces":[{"place":"Galle","latitude":"6.032894799999999","longitude":"80.2167912"},{"place":"Dewata","latitude":"6.0297661","longitude":"80.2439809"},{"place":"Pinnaduwa Interchange","latitude":"6.0690063","longitude":"80.26453939999999"},{"place":"Kottawa Interchange","latitude":"6.8404498","longitude":"79.9811617"},{"place":"Makumbura Highway bus & train station","latitude":"6.840224900000001","longitude":"79.9760596"}],"journey":{"timetables":[{"type":"Everyday","runningDays":"","turns":[{"onboardStartTime":"5:30","startTime":"5:00","runningNo":"G1","assignedBuses":[{"ntcNumber":"12322", "busRegNo":"NB-4321"},{"ntcNumber":"12325", "busRegNo":"NB-1234"}],"stoppings":[{"place":"Galle","latitude":"7.0034343","longitude":"80.23432","plusDays":"0","time":"5:00"},{"place":"Dewata","latitude":"7.0030043","longitude":"81.23432","plusDays":"0","time":"5:20"}]}]}]},"returnJourney":{"timetables":[{"type":"Everyday","runningDays":"","turns":[{"onboardStartTime":"5:30","startTime":"5:00","runningNo":"G1","assignedBuses":[{"ntcNumber":"12322", "busRegNo":"NB-4321"},{"ntcNumber":"12325", "busRegNo":"NB-1234"}],"stoppings":[{"place":"Galle","latitude":"7.0034343","longitude":"80.23432","plusDays":"0","time":"5:00"},{"place":"Dewata","latitude":"7.0030043","longitude":"81.23432","plusDays":"0","time":"5:20"}]}]}]}}
+
+
+
+{"objectId":"6a27ff1471402e567619f942","title":"Galle - Kadawatha","routeNo":"EX1","operator":"Combined","transportAuthority":"NTC","typeOfService":"Super Luxury","duration":"1h 50m","stoppingPlaces":[{"place":"Galle","latitude":"6.032894799999999","longitude":"80.2167912"},{"place":"Dewata","latitude":"6.0297661","longitude":"80.2439809"},{"place":"Pinnaduwa Interchange","latitude":"6.0690063","longitude":"80.26453939999999"},{"place":"Kadawatha","latitude":"6.8404498","longitude":"79.9811617"}],"journey":{"timetables":[{"type":"Selected Days","runningDays":"2,3","turns":[{"onboardStartTime":"4:40","startTime":"5:00","runningNo":"G1","assignedBuses":[{"ntcNumber":"12322", "busRegNo":"NB-4321"},{"ntcNumber":"12325", "busRegNo":"NB-1234"}],"stoppings":[{"place":"Galle","latitude":"7.0034343","longitude":"80.23432","plusDays":"0","time":"5:00"},{"place":"Dewata","latitude":"7.0030043","longitude":"81.23432","plusDays":"0","time":"5:20"}]}]},{"type":"Selected Days","runningDays":"4,5""turns":[{"onboardStartTime":"5:00","startTime":"5:20","runningNo":"SLTB","assignedBuses":[{"ntcNumber":"12322", "busRegNo":"NB-4321"},{"ntcNumber":"12325", "busRegNo":"NB-1234"}],"stoppings":[{"place":"Galle","latitude":"7.0034343","longitude":"80.23432","plusDays":"0","time":"5:00"},{"place":"Dewata","latitude":"7.0030043","longitude":"81.23432","plusDays":"0","time":"5:20"}]}]}]},"returnJourney":{"timetables":[{"type":"Selected Days","runningDays":"4,5","turns":[{"onboardStartTime":"5:30","startTime":"5:00","runningNo":"G1","assignedBuses":[{"ntcNumber":"12322", "busRegNo":"NB-4321"},{"ntcNumber":"12325", "busRegNo":"NB-1234"}],"stoppings":[{"place":"Galle","latitude":"7.0034343","longitude":"80.23432","plusDays":"0","time":"5:00"},{"place":"Dewata","latitude":"7.0030043","longitude":"81.23432","plusDays":"0","time":"5:20"}]}]}]}}

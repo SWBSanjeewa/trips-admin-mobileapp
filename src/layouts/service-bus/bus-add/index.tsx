@@ -60,7 +60,6 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 	const [transportServices, setTransportServices] = useState([]);
 	const [selectedIndexTransportServices, setSelectedIndexTransportServices] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
 	const transportService = transportServices[selectedIndexTransportServices.row]?.name;
-
 	const [transportServiceErrorMessage, setTransportServiceErrorMessage] = React.useState<string>("");
 
 	const [registrationNumberErrorMessage, setRegistrationNumberErrorMessage] = React.useState<string>("");

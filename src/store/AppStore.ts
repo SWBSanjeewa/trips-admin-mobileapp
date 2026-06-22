@@ -1,9 +1,11 @@
 import { remove } from "mobx";
 import { types } from "mobx-state-tree";
 import { cast } from "mobx-state-tree"
-import NewRouteVirtualBusStore from "./RouteBusStore";
+import NewRouteVirtualBusStore, {Timetable} from "./RouteBusStore";
+
 import TourStore from "./TourStore";
 import StoppingStore from "./Stopping";
+
 
 
 
@@ -1082,6 +1084,9 @@ const AppStore = types.model("App", {
   tours: types.optional(Tours, {
   }),
   routeBuses: types.optional(RouteBuses, {
+  }),
+  routeBusTimetable: types.optional(Timetable,{
+    
   })
   
 });

@@ -36,6 +36,16 @@ export const busThemePhoto = [
 		{operator: "SLTB", typeOfService: "Normal", url: "sltb_normal.png"},
 ]
 
+const options = ['Option 1', 'Option 2', 'Option 3'];
+export const routeBusTimetableTypes = [
+		"Everyday",
+		"Weekdays",
+		"Weekends",
+		"Selected Days",
+		"Odd Days",
+		"Even Days"
+]
+
 
 export const getRouteColor = (routeType) => {
 	const rType = routeTypes.find(p => p.name === routeType);

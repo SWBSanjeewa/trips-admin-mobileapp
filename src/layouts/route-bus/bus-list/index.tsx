@@ -179,7 +179,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 			console.log(response.status);
 			console.log(response.data);  
 			appStore.routeBuses.reset();
-			response.data.forEach((element) => appStore.routeBuses.addRouteBus(element.objectId,element.title,element.routeNo,element.operator,element.transportAuthority,element.typeOfService,element.stoppingPlaces));
+			response.data.forEach((element) => appStore.routeBuses.addRouteBus(element._id,element.title,element.routeNo,element.operator,element.transportAuthority,element.typeOfService,element.stoppingPlaces));
 			console.log(">>>"+appStore.routeBuses.routeBuses.length);
 			//var owner = isBusOwner(); 
 			//console.log("Is owner::"+owner);
@@ -244,13 +244,14 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 	};
 
 
-	const onItemPress = (info: ListRenderItemInfo<Bus>): void => {
+	const onItemPress = (info: ListRenderItemInfo<RouteBus>): void => {
 		
 		
-		const tour = appStore.tours.tours[info.index];
+		const routeBus = appStore.routeBuses.routeBuses[info.index];
 		//console.log(bus.title);
 		//console.log(" info.item._id"+ info.item._id+" journeyStartLatitude:"+bus.journey.stoppings[0].latitude);
-		navigation && navigation.navigate("TourDetails", { id: tour.id });
+		console.log(JSON.stringify(routeBus));
+		navigation && navigation.navigate("RouteBusDetails", { id: routeBus.objectId });
 	};
 
 	const renderItemHeader1 = (info: ListRenderItemInfo<RouteBus>): React.ReactElement => (
@@ -271,8 +272,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-end" }}>	
 				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: 5 }} >{info.item.operator}</Button>
 				<Button size="small" onPress={()=>onTransportServicePress(info.item)}>{info.item.typeOfService}</Button>
-			</View>
-			
+			</View>	
 		</View>
 	);
 

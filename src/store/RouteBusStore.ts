@@ -40,10 +40,10 @@ id: String,
    */
 const Stopping = types.model({
   place: types.optional(types.string, ""),
-  latitude: types.optional(types.number, 0.0),
-  longitude: types.optional(types.number, 0.0),
-  plusDays: types.optional(types.number, 0.0),
-  time: types.string
+  latitude: types.optional(types.string, "0.0"),
+  longitude: types.optional(types.string, "0.0"),
+  plusDays: types.optional(types.string, "0"),
+  time: types.string 
 })
 .actions((self) => ({
   setTime(time) {
@@ -66,30 +66,112 @@ const StoppingPlace = types.model({
 })
 );
 
+/*
+
+const Stopping = new Schema({ 
+    place: String,
+    location: String,
+	  latitude: String,
+	  longitude: String,
+    time: String
+});
+
+//Eg: Colombo - Trincomalee have 2 busses assgned the same time 
+// today - From colombo 
+// tomorrow - From trinco
+const AssignedBus = new Schema({ 
+    ntcNumber: String, // Optional: 12400 
+    busRegNo: String.  // NE-1234
+});
 
 
-const Timetable = types.model({
-  stoppings: types.array(Stopping),
-  runningNumber: types.string // Galle - Makumbura M1 G1 SLTB
+const Turn = new Schema({ 
+    onboardStartTime: String, // 4.45AM
+    startTime: String,  // 5.00AM
+    runningNo: String,  // Optional: Makumbura-Galle M1, SLTB
+    assignedBuses: [AssignedBus],  
+    busRegNo: String,  
+    stoppings: [Stopping],
+});
+
+
+const Timetable = new Schema({ 
+    type: String, // Odd Days, Even Days, SelectedDays, Everyday, Weekdays, Weekends
+    turns: [Turn],
+    selectedRunningDays: [String]
+});
+
+*/
+
+const AssignedBus = types.model({
+  ntcNumber: types.string,
+  busRegNo: types.string
 })
 .actions((self) => ({
-  setName(name){
-    this.name= name;
-  },
-  setMobileNumber(mobileNumber){
-    this.mobileNumber=mobileNumber;
-  },
+  
   reset(){
     
   },
 }))
 
-const Route = types.model({
-  runningDays: types.string,
-  timetableType: types.optional(types.string, "SelectedDays"),  // SelectedDays, SelectedDates
-  selectedDaysTimetables: types.array(Timetable),
-  selectedDatesTimetables: types.array(Timetable)
+const Turn = types.model({
+  onboardStartTime: types.string,
+  startTime: types.string,
+  runningNo: types.string,
+  assignedBuses: types.array(AssignedBus),
+  stoppings: types.array(Stopping)
 })
+.actions((self) => ({
+  
+  reset(){
+    
+  },
+}))
+
+
+
+export const Timetable = types.model({
+  type: types.optional(types.string, ""),
+  runningDays: types.optional(types.string, ""),
+  turns: types.array(Turn)
+})
+.actions((self) => ({
+  
+  reset(){
+    self.type = "";
+    self.runningDays = "";
+  },
+  addTurn(onboardStartTime,startTime,runningNo,assignedBuses,stoppings){
+    console.log("Add turns");
+    self.turns.push({onboardStartTime,startTime,runningNo,assignedBuses,stoppings})
+  },
+  setTimetableType(timetableType){
+    self.type = timetableType;
+  },
+  setRunningDays(runningDays){
+    self.runningDays = runningDays;
+  }
+}))
+
+const Route = types.model({
+  timetables: types.array(Timetable)
+})
+.actions((self) => ({
+  
+  reset(){  
+
+  },
+  addTimetable(type,runningDays, turns){
+    console.log("addTimetable"+type);
+    self.timetables.push({type,runningDays});
+    console.log("end addTimetable"+turns.length);
+  },
+  addTurn(onboardStartTime,startTime,runningNo,assignedBuses,stoppings){
+    var timetable = self.timetables.pop();
+    timetable?.addTurn(onboardStartTime,startTime,runningNo,assignedBuses,stoppings)
+  },
+}))
+
 
 
 const NewRouteVirtualBusStore = types
@@ -100,16 +182,13 @@ const NewRouteVirtualBusStore = types
     operator: types.optional(types.string, ""),   // SLTB, Private, Combined
     transportAuthority: types.optional(types.string, ""),   // NTC, CP-TSA, SP-RPSA
     typeOfService: types.optional(types.string, ""),   // Normal, Luxury, Super Luxury
+    duration: types.optional(types.string, ""), // 90 Minutes - Makumbura-Galle
     stoppingPlaces: types.array(StoppingPlace),
     journey: types.optional(Route, {
-      runningDays: "2,3,4,5,6",
-      selectedDaysTimetables: [],
-      selectedDatesTimetables: []
+      timetables: []
     }),
     returnJourney: types.optional(Route, {
-      runningDays: "2,3,4,5,6",
-      selectedDaysTimetables: [],
-      selectedDatesTimetables: []
+      timetables: []
     }),
     
   })
@@ -128,6 +207,18 @@ const NewRouteVirtualBusStore = types
       self.objectId = bus._id;
       self.title = bus.title;
       self.routeNo = bus.routeNo;
+      self.operator = bus.operator;
+      self.transportAuthority = bus.transportAuthority;
+      self.typeOfService = bus.typeOfService;
+      self.routeNo = bus.routeNo;
+      console.log(">>"+bus.journey);
+      console.log(JSON.stringify(bus.journey[0]));	
+      
+      //bus.journey[0].timetables?.forEach(timetable => {
+      //  console.log("###"+timetable);
+      //  self.journey.addTimetable(timetable.type,timetable.runningDays, timetable.turns);
+      //});
+      self.journey = bus.journey[0];
     },
     setTitle(title) {
       self.title = title;
@@ -170,6 +261,11 @@ const NewRouteVirtualBusStore = types
     deleteStoppingPlaceByPlace(place){
        const stoppingPlace = self.stoppingPlaces.find(p => p.place === place);
        self.stoppingPlaces.remove(stoppingPlace);
+    },
+    addTimetable(type,runningDays){
+      console.log("addTimetable"+type);
+      self.journey.timetables.push({type,runningDays});
+      console.log("end addTimetable"+self.journey.timetables.length);
     }
   }))
   .views((self) => ({
