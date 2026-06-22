@@ -42,15 +42,18 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const [selectedDaysSelected, setSelectedDaysSelected] = React.useState(false);
 
-	const [selectedTurn, setSelectedTurn] = React.useState<string>("");
+	const [selectedTurn, setSelectedTurn] = React.useState<number>(-1);
+
+	const [timetableIndex, setTimetableIndex] = React.useState<number>(-1);
+
+	
 	
 	const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
   	const displayValue = routeBusTimetableTypes[selectedIndex.row];
 
 	const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-	const [date, setDate ]= useState(new Date());
-	const [time, setTime] = useState("");
 
+	const [isEditModeDatePickerVisible, setEditModeDatePickerVisibility] = useState(false);
 	
 
 
@@ -78,8 +81,30 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
        // setUploadPhotos(prevState => !prevState);
     };
 
+	const onEditModeAddTurn = (startTime: string) => () =>  {
+       console.log("Add after:"+startTime);
+	  // appStore.routeBusTimetable.addTurn("",startTime,"",[],[]);
+	   setEditModeDatePickerVisibility(true);
+	  // JSON.stringify(toJS(appStore.routeBusTimetable));
+	  // setSelectedStopping(stopping);
+       // setUploadPhotos(prevState => !prevState);
+    };
+
+	const onTimetableAddTurn = (startTime: string) => () =>  {
+       console.log("Add after:"+startTime);
+	  // appStore.routeBusTimetable.addTurn("",startTime,"",[],[]);
+	   setDatePickerVisibility(true);
+	  // JSON.stringify(toJS(appStore.routeBusTimetable));
+	  // setSelectedStopping(stopping);
+       // setUploadPhotos(prevState => !prevState);
+    };
+
 	const hideDatePicker = () => {
 		setDatePickerVisibility(false);
+	};
+
+	const hideEditModeDatePicker = () => {
+		setEditModeDatePickerVisibility(false);
 	};
 
 	const onDeleteTurn = (startTime: string) => () =>  {
@@ -89,6 +114,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const onTimetableAddPress = async() => {
 		console.log("onTimetableAddPress");
+		setTimetableIndex(-1);
+		setSelectedTurn(-1);
 		if(appStore.routeBusTimetable.type == ""){
 			appStore.routeBusTimetable.setTimetableType(routeBusTimetableTypes[0]);
 		}
@@ -151,10 +178,15 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			hideDatePicker();  
 			console.warn("A date has been actualDate: ", date);
 			console.warn("A date has been actualDate: ", format(date, 'p'));
-			setTime(format(date, 'hh:mm a'));
-			setDate(date);
-			appStore.routeBusTimetable.addTurn("",format(date, 'HH:mm'),"",[],[]);
-			
+			appStore.routeBusTimetable.addTurn("",format(date, 'HH:mm'),"",[],[]);	
+	};
+
+	const handleEditModeConfirm = (date) => {	
+			hideEditModeDatePicker();  
+			console.warn("A date has been actualDate: ", date);
+			console.warn("A date has been actualDate: ", format(date, 'p'));
+			appStore.routeBus.journey.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],[]);
+			//appStore.routeBusTimetable.addTurn("",format(date, 'HH:mm'),"",[],[]);	
 	};
 	
 	const onRouteTimetableTypeSelect = (index): void => {
@@ -211,7 +243,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					<View style={styles.inputContainer}>
 						<View style={{flexDirection: "row", flexWrap: "wrap"}}>
 						{appStore.routeBusTimetable.turns.map(function(turn, index){
-							if(turn == selectedTurn){
+							if(index == selectedTurn){
 								return <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#222"}} onPress={onAddTurn(turn.startTime)}>
 											<Text style={{padding: 2}}>{turn.startTime}</Text>
 											<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteTurn(turn.startTime)} />
@@ -236,9 +268,9 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			
 			)}
 			<View>	
-				{appStore.routeBus.journey.timetables.map((timetable,index) => (
+				{appStore.routeBus.journey.timetables.map((timetable,timetable_index) => (
 					
-					<Card key={index} style={styles.item} onPress={()=>onTimetableDetailsPress(timetable,index)}>
+					<Card key={timetable_index} style={styles.item} onPress={()=>onTimetableDetailsPress(timetable,timetable_index)}>
 						<Text>{timetable.type}</Text>
 						{timetable.runningDays && (
 							<DayPicker
@@ -261,19 +293,44 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							
 						{timetable.turns.map(function(turn, index){
 							
-							if(turn == selectedTurn){
-								return <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#222"}} onPress={onAddTurn(turn.startTime)}>
-											<Text style={{padding: 2}}>{turn.startTime}</Text>
-									</TouchableOpacity>
+							if(index == selectedTurn && timetable_index == timetableIndex){
+								return <Pressable 
+								         style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#000"}}
+										onPress={({ nativeEvent }) => {
+												console.log('On Press action:', nativeEvent.event);
+												}}
+										onLongPress={({ nativeEvent }) => {
+											   // setSelectedTurn(turn);
+												console.log('On Long Press action:', nativeEvent.event);
+												}}
+										delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
+										>
+								   
+											<Text style={{padding: 2,paddingHorizontal: 10}}>{turn.startTime}</Text>
+									
+									</Pressable>
 							}else{
-								return <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
+								return <Pressable 
+								        style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
+										onPress={({ nativeEvent }) => {
+												console.log('On Press action:', nativeEvent.event);
+												}}
+										onLongPress={({ nativeEvent }) => {
+												setSelectedTurn(index);
+												setTimetableIndex(timetable_index);
+												console.log("##"+turn.startTime);
+												console.log('On Long Press action:', nativeEvent.event);
+												}}
+										delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
+										>
 											<Text style={{padding: 2, paddingHorizontal: 10}}>{turn.startTime}</Text>
-									</TouchableOpacity>
+									</Pressable>
 							}
 							
 						})}	
 						
-							<AntDesign style={{top: 0}} name="plus" size={30} color="black" onPress={onAddTurn("")} />
+						
+							<AntDesign style={{top: 0}} name="plus" size={30} color="black" onPress={onEditModeAddTurn("")} />
 						
 						
 					</View>
@@ -282,61 +339,26 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					</Card>
 				))}
 
-				  <MenuView
-		shouldOpenOnLongPress={true}
-        title="Options Menu"
-        onPressAction={({ nativeEvent }) => {
-          console.log('Selected action:', nativeEvent.event);
-        }}
-        actions={[
-          {
-            id: 'edit',
-            title: 'Edit Item',
-            titleColor: '#007AFF',
-            image: 'pencil', // iOS SF Symbol / Android Drawable
-          },
-          {
-            id: 'delete',
-            title: 'Delete',
-            attributes: { destructive: true },
-            image: 'trash',
-          },
-        ]}
-      >
-        <Pressable 
-          onPress={({ nativeEvent }) => {
-          console.log('On Press action:', nativeEvent.event);
-        }}
-          style={({ pressed }) => [
-            styles.button,
-            pressed && styles.buttonPressed
-          ]}
-        >
-          <Text style={styles.text}>Tap Me or Long Press Me</Text>
-        </Pressable>
-      </MenuView>
+				 
 
-	  <Pressable 
-  onPress={({ nativeEvent }) => {
-          console.log('On Press action:', nativeEvent.event);
-        }}
-  onLongPress={({ nativeEvent }) => {
-          console.log('On Long Press action:', nativeEvent.event);
-        }}
-  delayLongPress={500} // Custom control over timing
->
-  <Text>Tap or Hold Me safely under New Arch</Text>
-</Pressable>
 			
 			</View>
 
 			<DateTimePickerModal
 							isVisible={isDatePickerVisible}
-							date={date}
 							mode="time"
 							timeZoneName={'Asia/Colombo'} 
 							onConfirm={handleConfirm}
 							onCancel={hideDatePicker}/>	
+
+			<DateTimePickerModal
+							isVisible={isEditModeDatePickerVisible}
+							mode="time"
+							timeZoneName={'Asia/Colombo'} 
+							onConfirm={handleEditModeConfirm}
+							onCancel={hideEditModeDatePicker}/>	
+
+			
 	
 		
 		  

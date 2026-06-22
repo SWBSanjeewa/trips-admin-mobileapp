@@ -140,6 +140,7 @@ export const Timetable = types.model({
   reset(){
     self.type = "";
     self.runningDays = "";
+    self.turns=Turn[0];
   },
   addTurn(onboardStartTime,startTime,runningNo,assignedBuses,stoppings){
     console.log("Add turns");
@@ -170,6 +171,20 @@ const Route = types.model({
     var timetable = self.timetables.pop();
     timetable?.addTurn(onboardStartTime,startTime,runningNo,assignedBuses,stoppings)
   },
+
+  addTurnAfterIndex(timetableIndex,previousTurnIndex,onboardStartTime,startTime,runningNo,assignedBuses,stoppings){
+    console.log("previousTurnIndex:"+previousTurnIndex+" startTime:"+startTime);
+    var timetable = self.timetables[timetableIndex];
+    //const turn = timetable.turns.find(s => s.startTime === previousStartTime);
+   // console.log("## turn startTime:"+turn?.startTime);
+   // var index = timetable.turns.findIndex(turn);
+    
+    console.log("## index:"+previousTurnIndex);
+    timetable.turns.splice(previousTurnIndex+1, 0, {
+        onboardStartTime,startTime,runningNo,assignedBuses,stoppings
+    })
+  },
+
 }))
 
 

@@ -54,6 +54,7 @@ export const RouteBusJourneyDetailsScreen = ({ navigation }): React.ReactElement
 
 	const onBusAddPress = () => {
 		setAdd(!add);
+		appStore.routeBusTimetable.reset();
 		ref.current?.open();
 	};
 
