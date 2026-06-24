@@ -81,11 +81,15 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
        // setUploadPhotos(prevState => !prevState);
     };
 
-	const onEditModeAddTurn = (startTime: string) => () =>  {
-       console.log("Add after:"+startTime);
+	const onEditModeAddTurn = (tIndex: number) => () =>  {
+       console.log("Add after:"+timetableIndex);
 	  // appStore.routeBusTimetable.addTurn("",startTime,"",[],[]);
 	   setEditModeDatePickerVisibility(true);
-	  // JSON.stringify(toJS(appStore.routeBusTimetable));
+	   setTimetableIndex(tIndex);
+	   if(selectedTurn == -1 || timetableIndex != tIndex)
+	   	 setSelectedTurn(appStore.routeBus.journey.timetables[tIndex].turns.length);
+	   
+	   // JSON.stringify(toJS(appStore.routeBusTimetable));
 	  // setSelectedStopping(stopping);
        // setUploadPhotos(prevState => !prevState);
     };
@@ -175,7 +179,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const handleConfirm = (date) => {
 			
-			hideDatePicker();  
+			hideDatePicker(); 
 			console.warn("A date has been actualDate: ", date);
 			console.warn("A date has been actualDate: ", format(date, 'p'));
 			appStore.routeBusTimetable.addTurn("",format(date, 'HH:mm'),"",[],[]);	
@@ -183,6 +187,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const handleEditModeConfirm = (date) => {	
 			hideEditModeDatePicker();  
+			setSelectedTurn(selectedTurn+1); 
 			console.warn("A date has been actualDate: ", date);
 			console.warn("A date has been actualDate: ", format(date, 'p'));
 			appStore.routeBus.journey.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],[]);
@@ -301,6 +306,11 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 												}}
 										onLongPress={({ nativeEvent }) => {
 											   // setSelectedTurn(turn);
+											   console.log("selectedTurn:"+selectedTurn);
+												console.log("index:"+index);
+												if(selectedTurn == index){
+													setSelectedTurn(-1);
+												}
 												console.log('On Long Press action:', nativeEvent.event);
 												}}
 										delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
@@ -330,7 +340,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 						})}	
 						
 						
-							<AntDesign style={{top: 0}} name="plus" size={30} color="black" onPress={onEditModeAddTurn("")} />
+							<AntDesign style={{top: 0}} name="plus" size={30} color="black" onPress={onEditModeAddTurn(timetable_index)} />
 						
 						
 					</View>
