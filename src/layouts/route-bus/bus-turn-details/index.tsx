@@ -1,6 +1,6 @@
 import { Select, TopNavigationAction, IndexPath,SelectItem } from "@ui-kitten/components";
 import { Button, Card, CheckBox, List, Divider,Input } from "@ui-kitten/components";
-import React,{useState,useEffect,useRef} from "react";
+import React,{useState,useEffect,useReducer} from "react";
 import { useRoute } from "@react-navigation/native"
 import { StyleSheet, View , ListRenderItemInfo,Image, TouchableOpacity,Pressable, Text} from "react-native";
 import { Stopping } from "./extra/data";
@@ -20,12 +20,7 @@ import { PlusOutlineIcon } from "../../../components/icons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { format } from 'date-fns';
 
-import RBSheet from 'react-native-raw-bottom-sheet';
-
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-
-
-
+import { MenuView } from '@react-native-menu/menu';
 
 
 
@@ -36,7 +31,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const [data, setData] = useState([]);
 
-	const [edit, setEdit] = useState(false);
 
 	const [displaySelectedDays, setDisplaySelectedDays] = useState(false);
 
@@ -46,28 +40,16 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const [initialized, setInitialized] = React.useState(false);
 
-	const [selectedId, setSelectedId] = useState(null);
-
 	const [selectedDaysSelected, setSelectedDaysSelected] = React.useState(false);
-
-	const [selectedDaysSelectedEdit, setSelectedDaysSelectedEdit] = React.useState(false);
 
 	const [selectedTurn, setSelectedTurn] = React.useState<number>(-1);
 
 	const [timetableIndex, setTimetableIndex] = React.useState<number>(-1);
 
-	const refRBSheetActions = useRef();
-
-	const refRBSheetDeleteConfirm = useRef();
-
-	const refRBSheetEdit = useRef();
 	
 	
 	const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
   	const displayValue = routeBusTimetableTypes[selectedIndex.row];
-
-	const [selectedIndexEdit, setSelectedIndexEdit] = useState(new IndexPath(0));
-  	const displayValueEdit = routeBusTimetableTypes[selectedIndexEdit.row];
 
 	const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
@@ -86,15 +68,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		
 	};
 
-	//const onAddManuallyPress = async () => {
-	const onTimetableDetailsPress = async (timetable,index) => {
-		console.log(">>"+index);
-		setTimetableIndex(index);
-		//if(timetableIndex==index){
-		//	setTimetableIndex(-1);
-		//}
-		refRBSheetActions.current.open();
-		//navigation && navigation.navigate("RouteBusTimetableDetails", { "timetableType": timetable.type, "runningDays": timetable.runnningDays, index: index});
+	const onTimetableDetailsPress = (timetable,index): void => {
+		navigation && navigation.navigate("RouteBusTimetableDetails", { "timetableType": timetable.type, "runningDays": timetable.runnningDays, index: index});
 	};
 
 	const onAddTurn = (startTime: string) => () =>  {
@@ -165,59 +140,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	}
 
-	const onDeletePress = (): void => {
-		//appStore.transportService.deleteOwner(mobileNumber);
-		//resetValues();
-		refRBSheetDeleteConfirm.current.open()
-	};
-
-	const onDeleteConfirmCancelPress = (): void => {
-		refRBSheetDeleteConfirm.current.close()
-	};
-
-	const onDeleteConfirmPress = (): void => {
-		refRBSheetDeleteConfirm.current.close()
-	};
-
-	const onEditCancelPress = (): void => {
-		refRBSheetEdit.current.close();
-	};
-
-	const onEditConfirmPress = (): void => {
-		refRBSheetEdit.current.close();
-	};
-
-	const getIndexNumber = (timetableType): number => {	
-		var myindex = 0;
-		routeBusTimetableTypes.map(function(element, index){
-			if(element == timetableType){
-				myindex=index;
-			}
-		});
-		return myindex;
-	};
-	
-	const onEditPress = async() => {
-		//addCallback();
-		console.log(">"+appStore.routeBusTimetable.type);
-		console.log("Timetable Index:"+getIndexNumber(appStore.routeBus.journey.timetables.at(timetableIndex)?.type));
-		setSelectedIndex(new IndexPath(getIndexNumber(appStore.routeBus.journey.timetables.at(timetableIndex)?.type)));
-		if(appStore.routeBus.journey.timetables.at(timetableIndex)?.type == "Selected Days"){
-			setSelectedDaysSelected(true);
-		}else{
-			setSelectedDaysSelected(false);
-		}
-		var timetableRunningDays = appStore.routeBus.journey.timetables.at(timetableIndex)?.runningDays.split(',').map(function(item) {
-			return parseInt(item, 10);
-		});
-		
-		setRunningDays(timetableRunningDays);
-		setEdit(true);
-		//refRBSheetEdit.current.open();
-	};
-
-
-
 	const onTimetableAddPressbck = async() => {
 		
 		if(appStore.routeBusTimetable.type == ""){
@@ -271,33 +193,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			appStore.routeBus.journey.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],[]);
 			//appStore.routeBusTimetable.addTurn("",format(date, 'HH:mm'),"",[],[]);	
 	};
-
-	const onRouteTimetableTypeSelectEditbck = (index): void => {
-		setSelectedIndexEdit(index);
-		if(routeBusTimetableTypes[index-1] == "Selected Days"){
-			console.log(routeBusTimetableTypes[index-1]);
-			setSelectedDaysSelectedEdit(true);
-		}else{
-			setSelectedDaysSelectedEdit(false);
-		}
-	};
-
-
-	const onRouteTimetableTypeSelectEdit = async (index) => {
-		console.log("#####");
-		setSelectedIndexEdit(index);
-		refRBSheetActions.current.open();
-		refRBSheetEdit.current.open();
-
-	}
-
-	const onEditClosePress = (): void => {	
-		setSelectedIndex(new IndexPath(0));
-		setSelectedDaysSelected(false);
-		setRunningDays([2,3,4,5,6]);
-		setEdit(false);
-	};
-
 	
 	const onRouteTimetableTypeSelect = (index): void => {
 		setSelectedIndex(index);
@@ -326,9 +221,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		<ScrollView>
 			{add && (
 			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
-			    <View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>	
-					<AntDesign style={{top: 4}} name="close" size={18} color="#444" onPress={onAddClosePress} />
-				</View>
 				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
 					<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
 					<View style={{ margin: 10}}>
@@ -380,58 +272,12 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			</View>
 			
 			)}
-
-			{edit && (
-			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
-			    <View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>	
-					<AntDesign style={{top: 4}} name="close" size={18} color="#444" onPress={onEditClosePress} />
-				</View>
-				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
-					<View style={{ margin: 10}}>
-						
-						<Select
-							selectedIndex={selectedIndex}
-							onSelect={(index) => onRouteTimetableTypeSelect(index)}
-							value={displayValue}>
-							{routeBusTimetableTypes.map((title, index) => (
-							<SelectItem key={index} title={title} />
-							))}
-						</Select>
-					</View>
-					{selectedDaysSelected && (
-					<DayPicker
-						weekdays={runningDays}
-						setWeekdays={setSelectedDaysRunningDays}
-						activeColor='#142169'
-						textColor='white'
-						inactiveColor='grey'
-						
-						/>
-					)}
-					
-				</View>
-				
-				<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
-					<Button style={{ flex: 1 , margin: 2, borderRadius:50, margin: 10 }} onPress={()=>onTimetableAddPress()} >Edit Timetable</Button>
-				</View>
-			</View>
-			
-			)}
-
-
 			<View>	
 				{appStore.routeBus.journey.timetables.map((timetable,timetable_index) => (
 					
-					<Card key={timetable_index} 
-					style={[
-					timetableIndex == timetable_index? styles.item : styles.itemSelected
-					]}
-					//style={styles.itemSelected} 
-					onPress={()=>onTimetableDetailsPress(timetable,timetable_index)}>
+					<Card key={timetable_index} style={styles.item} onPress={()=>onTimetableDetailsPress(timetable,timetable_index)}>
 						<Text>{timetable.type}</Text>
 						{timetable.runningDays && (
-							
 							<DayPicker
 								weekdays={
 									timetable.runningDays.split(',').map(function(item) {
@@ -478,7 +324,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 								        style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
 										onPress={({ nativeEvent }) => {
 												console.log('On Press action:', nativeEvent.event);
-												navigation && navigation.navigate("RouteBusTurnDetails");
 												}}
 										onLongPress={({ nativeEvent }) => {
 												setSelectedTurn(index);
@@ -523,63 +368,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							onConfirm={handleEditModeConfirm}
 							onCancel={hideEditModeDatePicker}/>	
 
-
-					
-					<RBSheet ref={refRBSheetActions} draggable dragOnContent height={200}>
-					<View style={styles.listContainer}>
-						<View>
-								<TouchableOpacity
-								key="photo-camera"
-								style={styles.listButton}
-								onPress={() => onEditPress()}>
-									<AntDesign name="edit" size={24} color="black" style={styles.listIconEdit}/>
-								
-								<Text style={styles.listLabel}>Update</Text>
-							</TouchableOpacity>
-							<TouchableOpacity
-								key="upload"
-								style={styles.listButton}
-								onPress={() => onDeletePress()}>
-								<MaterialIcons name="delete" size={24} color="red" style={styles.listIconDelete} />
-								<Text style={styles.listLabel}>Delete</Text>
-							</TouchableOpacity>
-							</View>
-						</View>
-					<RBSheet draggable dragOnContent key="busTimetableDeleteConfirmActions" ref={refRBSheetDeleteConfirm} height={200}>
-						<View>
-							<Text style={{ fontSize: 15, padding: 15}} >Are you sure, you want to delete Timetable and content ?</Text>
-							<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
-								<Button size="giant" style={{ flex: 3 , margin: 5, backgroundColor: "#D69200" , borderRadius:50, margin: 10, borderColor: "#D69200" }} onPress={()=>onDeleteConfirmCancelPress()} >No</Button>
-								<Button size="giant" style={{ flex: 3 , margin: 5, backgroundColor: "#B12048", borderRadius:50, margin: 10, borderColor: "#B12048"}} onPress={()=>onDeleteConfirmPress()}>Delete</Button>
-							</View>
-						</View>
-					</RBSheet>
-					<RBSheet draggable dragOnContent key="busOwnerEdit" ref={refRBSheetEdit} height={300}>
-						
-							<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
-				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
-					<View style={{ margin: 10}}>
-						
-						<Select
-							selectedIndex={selectedIndexEdit}
-							onSelect={(index) => onRouteTimetableTypeSelectEdit(index)}
-							value={displayValueEdit}>
-							{routeBusTimetableTypes.map((title, index) => (
-							<SelectItem key={index}_2 title={title} />
-							))}
-						</Select>
-					</View>
-					
-					</View>
-							<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
-								<Button size="giant" style={{ flex: 3 , margin: 5, backgroundColor: "#D69200" , borderRadius:50, margin: 10, borderColor: "#D69200" }} onPress={()=>onEditCancelPress()} >Cancel</Button>
-								<Button size="giant" style={{ flex: 3 , margin: 5, backgroundColor: "#B12048", borderRadius:50, margin: 10, borderColor: "#B12048"}} onPress={()=>onEditConfirmPress()}>Update</Button>
-							</View>
-						</View>
-					</RBSheet>
-
-			</RBSheet>
+			
+	
 		
 		  
 			
@@ -597,44 +387,13 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 32,
 		paddingVertical: 8,
 	},
-	listContainer: {
-		flex: 1,
-		padding: 25,
-	},
 	button: {
 		marginVertical: 8,
-	},
-	listButton: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		paddingVertical: 10,
-	  },
-	  listLabel: {
-		fontSize: 16,
-	  },
-	listIconDelete: {
-		fontSize: 26,
-		color: '#710e07',
-		width: 60,
-	},
-	listIconEdit: {
-		fontSize: 26,
-		color: '#6a5703',
-		width: 60,
-	},
-
-	itemSelected: {
-		marginVertical: 8,
-		marginHorizontal: 10,
-		borderWidth: 1,
-		borderColor: "#aaa"
 	},
 
 	item: {
 		marginVertical: 8,
-		marginHorizontal: 10,
-		borderWidth: 1,
-		borderColor: "#000"
+		marginHorizontal: 10
 	},
 	
 	itemContent: {

@@ -9,19 +9,17 @@ import AppStore from "../../store/AppStore";
 import { useStore } from "mobx-store-provider";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { useRoute } from "@react-navigation/native";
-import ContentView from "../../layouts/route-bus/bus-timetable-details";
+import ContentView from "../../layouts/route-bus/bus-turn-details";
 import { PlusOutlineIcon } from "../../components/icons";
 
 
-export const RouteBusTimetableDetailsScreen = ({ navigation }): React.ReactElement => {
+export const RouteBusTurnDetailsScreen = ({ navigation }): React.ReactElement => {
 
 	const route = useRoute();
 
 	const appStore = useStore(AppStore);
 
 	const [add, setAdd] = React.useState<boolean>(false);
-
-	
 
 	const ref = useRef<typeof RBSheet>();
 
@@ -31,11 +29,8 @@ export const RouteBusTimetableDetailsScreen = ({ navigation }): React.ReactEleme
 
 	const setAddCallback = (localAdd): void => {
 		setAdd(localAdd);
-		//setEdit(false);
 		appStore.routeBusTimetable.reset();
 	}
-
-	
 
 
 	const renderAddAction = (): React.ReactElement => (
@@ -59,7 +54,7 @@ export const RouteBusTimetableDetailsScreen = ({ navigation }): React.ReactEleme
 
 	const onBusAddPress = () => {
 		setAdd(!add);
-		
+		appStore.routeBusTimetable.reset();
 		ref.current?.open();
 	};
 
@@ -67,7 +62,7 @@ export const RouteBusTimetableDetailsScreen = ({ navigation }): React.ReactEleme
 		<SafeAreaLayout style={styles.container} insets="top">
 			<TopNavigation title={props => (
 				<RNText {...props} style={{fontWeight: "500", fontSize: 18}}>
-					Bus Timetable
+					Bus Turn
 				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
 				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>
 			

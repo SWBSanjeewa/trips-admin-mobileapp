@@ -42,13 +42,20 @@ const Stopping = types.model({
   place: types.optional(types.string, ""),
   latitude: types.optional(types.string, "0.0"),
   longitude: types.optional(types.string, "0.0"),
-  plusDays: types.optional(types.string, "0"),
+  duration: types.string 
+})
+.actions((self) => ({
+  
+})
+);
+
+const StoppingTime = types.model({
+  place: types.optional(types.string, ""),
+  plusDays: types.optional(types.number, 0),
   time: types.string 
 })
 .actions((self) => ({
-  setTime(time) {
-    self.time = time;
-  }
+  
 })
 );
 
@@ -119,7 +126,7 @@ const Turn = types.model({
   startTime: types.string,
   runningNo: types.string,
   assignedBuses: types.array(AssignedBus),
-  stoppings: types.array(Stopping)
+  stoppingTimes: types.array(StoppingTime)
 })
 .actions((self) => ({
   
@@ -155,6 +162,8 @@ export const Timetable = types.model({
 }))
 
 const Route = types.model({
+  duration: types.optional(types.string, ""),
+  stoppings: types.array(Stopping),
   timetables: types.array(Timetable)
 })
 .actions((self) => ({

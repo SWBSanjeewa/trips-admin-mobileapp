@@ -46,7 +46,9 @@ import { RouteBusAddScreen } from "../scenes/route-bus/bus-add.component";
 import { RouteBusListScreen } from "../scenes/route-bus/bus-list.component";
 import { RouteBusDetailsScreen } from "../scenes/route-bus/bus-details.component";
 import { RouteBusJourneyDetailsScreen } from "../scenes/route-bus/bus-journey-details.component";
+import { RouteBusJourneyTimetablesScreen } from "../scenes/route-bus/bus-journey-timetables.component";
 import { RouteBusTimetableDetailsScreen } from "../scenes/route-bus/bus-timetable-details.component";
+import { RouteBusTurnDetailsScreen } from "../scenes/route-bus/bus-turn-details.component";
 
 import { TourAddScreen } from "../scenes/round-tour/tour-add.component";
 import { TourListScreen } from "../scenes/round-tour/tour-list.component";
@@ -126,7 +128,10 @@ export const AppNavigator = (): React.ReactElement => {
 				<Stack.Screen name="RouteBusList" component={RouteBusListScreen} />
 				<Stack.Screen name="RouteBusDetails" component={RouteBusDetailsScreen} />
 				<Stack.Screen name="RouteBusJourneyDetails" component={RouteBusJourneyDetailsScreen} />
+				<Stack.Screen name="RouteBusJourneyTimetables" component={RouteBusJourneyTimetablesScreen} />
+				<Stack.Screen name="RouteBusTurnDetails" component={RouteBusTurnDetailsScreen} />
 				<Stack.Screen name="RouteBusTimetableDetails" component={RouteBusTimetableDetailsScreen} />
+				
 
 				<Stack.Screen name="TourAdd" component={TourAddScreen} />
 				<Stack.Screen name="TourList" component={TourListScreen} />
