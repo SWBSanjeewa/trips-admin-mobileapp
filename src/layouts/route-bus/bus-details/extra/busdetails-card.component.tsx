@@ -218,7 +218,7 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	
 	const onEditPress = () => {
 		refStandard.current.close();
-		navigation.navigate("BusEdit");
+		navigation.navigate("RouteBusEdit");
 	};
 
 	const onDeletePress = () => {
@@ -374,6 +374,14 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusJourneyStoppings",{id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
 				</View>
 			</Card>
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.objectId})}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Timetables</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon}/>
+				</View>
+			</Card>
+
+			
 			
 		</Card>
 
@@ -429,6 +437,13 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Stoppings</Text>
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusReturnJourneyStoppings",{id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
+				</View>
+			</Card>
+
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("BusJourneyStoppings", {id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Timetables</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusJourneyStoppings",{id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
 				</View>
 			</Card>
 		

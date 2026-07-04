@@ -5,23 +5,21 @@ import { StyleSheet ,Text} from "react-native";
 import { ArrowIosBackIcon } from "../../components/icons";
 import { PlusOutlineIcon } from "../../components/icons";
 import { SafeAreaLayout } from "../../components/safe-area-layout.component";
-import ContentView from "../../layouts/route-bus/bus-add";
+import ContentView from "../../layouts/service-bus/bus-edit";
 import AppStore from "../../store/AppStore";
 import { observer, inject} from "mobx-react";
 import { useStore } from "mobx-store-provider";
 
-export const RouteBusAddScreen = ({ navigation }): React.ReactElement => {
+export const RouteBusEditScreen = ({ navigation }): React.ReactElement => {
 
 	const appStore = useStore(AppStore);
 
-	const onBackPress = () => {
-		//appStore.bus.reset();	
-		navigation.popTo('BusList', {reload: false, routeType: "route"});
-		
+	const onAddDriverPress = () => {
+		navigation.goBack();
 	};
 
 	const renderBackAction = (): React.ReactElement => (
-		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
+		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onAddDriverPress} />
 	);
 
 
@@ -29,7 +27,7 @@ export const RouteBusAddScreen = ({ navigation }): React.ReactElement => {
 		<SafeAreaLayout style={styles.container} insets="top">
 			<TopNavigation title={props => (
 				<Text {...props} style={{fontWeight: "500", fontSize: 18}}>
-				Add Route Bus
+				Edit Bus
 				</Text>)} accessoryLeft={renderBackAction} />
 			<ContentView navigation={navigation} />
 		</SafeAreaLayout>

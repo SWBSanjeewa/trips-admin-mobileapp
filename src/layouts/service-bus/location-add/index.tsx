@@ -58,13 +58,17 @@ export default ({ navigation }): React.ReactElement => {
 		console.log("route.params.parentReturnRoute:"+route.params.parentReturnRoute);
 		
 		//console.log("region.latitude:"+region.latitude);
+		console.log("regionChanged:"+regionChanged);
+		console.log("BOOL:"+(regionChanged == false && route.params.latitude !=0 && route.params.latitude != region.latitude));
 		if(regionChanged == false && route.params.latitude !=0 && route.params.latitude != region.latitude){
 		
 			//console.log("Setting location:::"+route.params.latitude);
 			setPlaceName(route.params.placeName);
 			//setTime(route.params.time);
-			setRegion({ latitude: route.params.latitude,longitude: route.params.longitude,latitudeDelta: 0.005,longitudeDelta: 0.005 });
+			setRegion({ latitude: Number(route.params.latitude),longitude: Number(route.params.longitude),latitudeDelta: 0.005,longitudeDelta: 0.005 });
+			console.log("***");
 		}
+
 		//setOldLatitude(route.params.oldLatitude);
 		//setOldLongitude(route.params.oldLongitude);
 	});
@@ -127,6 +131,12 @@ export default ({ navigation }): React.ReactElement => {
 		}else if(route.params.id == "stopping-edit"){	
 			console.log("&&"+region.latitude+":"+region.longitude);
 			navigation.navigate(route.params.returnroute, { id: route.params.id, latitude: region.latitude, longitude: region.longitude, place: placeName, oldLatitude: route.params.oldLatitude, oldLongitude: route.params.oldLongitude, time: route.params.time, parentReturnRoute: route.params.parentReturnRoute, journeyType: route.params.journeyType});
+		}else if(route.params.id == "routebus-stopping"){
+			console.log("Duration for place:"+route.params?.duration);
+			navigation.navigate(route.params.returnroute, { id: route.params.id, latitude: region.latitude, longitude: region.longitude, index: route.params.index, place: placeName,returnRoute: route.params.parentReturnRoute,journeyType: route.params.journeyType, duration:  route.params.duration});
+		}else if(route.params.id == "routebus-stopping-edit"){	
+			console.log("&&"+region.latitude+":"+region.longitude);
+			navigation.navigate(route.params.returnroute, { id: route.params.id, latitude: region.latitude, longitude: region.longitude, place: placeName, oldLatitude: route.params.oldLatitude, oldLongitude: route.params.oldLongitude, time: route.params.time, parentReturnRoute: route.params.parentReturnRoute, journeyType: route.params.journeyType, duration:  route.params.duration});
 		}
 		
 	};

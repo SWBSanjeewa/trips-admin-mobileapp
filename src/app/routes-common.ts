@@ -46,6 +46,22 @@ export const routeBusTimetableTypes = [
 		"Even Days"
 ]
 
+export const noOfDays = Array.from({ length: 5 }, (_, i) => ({
+	key: (i).toString(),
+	value: `${i} Days`
+}));
+
+export const noOfHours = Array.from({ length: 24 }, (_, i) => ({
+	key: (i).toString(),
+	value: `${i} Hours`
+}));
+
+export const noOfMinutes = Array.from({ length: 60 }, (_, i) => ({
+	key: (i + 1).toString(),
+	value: `${i + 1} Mins`
+}));
+
+
 
 export const getRouteColor = (routeType) => {
 	const rType = routeTypes.find(p => p.name === routeType);

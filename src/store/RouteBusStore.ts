@@ -171,6 +171,9 @@ const Route = types.model({
   reset(){  
 
   },
+  setDuration(duration){
+    self.duration = duration;
+  },
   addTimetable(type,runningDays, turns){
     console.log("addTimetable"+type);
     self.timetables.push({type,runningDays});
@@ -192,6 +195,38 @@ const Route = types.model({
     timetable.turns.splice(previousTurnIndex+1, 0, {
         onboardStartTime,startTime,runningNo,assignedBuses,stoppings
     })
+  },
+  addStopping(place,latitude, longitude,duration){
+      console.log("storing:"+place+","+latitude);
+      self.stoppings.push({
+        place,
+        latitude,
+        longitude,
+        duration,
+      })
+  },
+  updateStopping(oldLatitude, oldLongitude,place,latitude, longitude,duration){
+      const oldStopping = self.stoppings.find(s => s.latitude === oldLatitude && s.longitude === oldLongitude);
+      oldStopping.latitude = latitude;
+      oldStopping.longitude = longitude;
+      oldStopping.place = place;
+      oldStopping.duration = duration;
+  },
+  deleteStopping(stopping){
+      self.stoppings.remove(stopping);
+    },
+  deleteStoppingById(latitude, longitude){
+    const stopping = self.stoppings.find(s => s.latitude === latitude && s.longitude === longitude);
+    console.log("####"+stopping.latitude+","+stopping.longitude);
+    self.stoppings.remove(stopping);
+  },
+  addStoppingAtIndex(place,latitude, longitude,index,duration){
+    self.stoppings.splice(index, 0, {
+      place,
+      latitude,
+      longitude,
+      duration,
+    });
   },
 
 }))

@@ -13,7 +13,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
-import {routeBusTypes, getRouteColor, operatorTypes, transportAuthorityTypes}  from "../../../app/routes-common";
+import {routeBusTypes, getRouteColor, operatorTypes, transportAuthorityTypes, noOfDays}  from "../../../app/routes-common";
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
@@ -66,6 +66,10 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 
 	const [selectedStopping, setSelectedStopping] = React.useState<string>("");
+
+
+	const [selectedDaysIndex, setSelectedDaysIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
+	const selectedDays = noOfDays[selectedDaysIndex.row];
 	
 
 	const onBusTypeSelect = (index): void => {
@@ -155,6 +159,11 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 	
 
 	const onNavigateToJourney = (): void => {
+		setJourneyStoppingsErrorMessage("");
+		navigation.navigate("RouteBusJourneyAdd")
+	};
+
+	const onNavigateToReturnJourney = (): void => {
 		setJourneyStoppingsErrorMessage("");
 		navigation.navigate("BusJourneyList")
 	};
@@ -315,8 +324,6 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 					cursorColor:"#142169"
 				}}
 				minLength={2}
-				 
-
 				fetchDetails={true}
 				onPress={(data, details = null) => {
 					// 'details' is provided when fetchDetails = true
@@ -366,6 +373,26 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 				
 				
 			</View>
+
+			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToJourney}>	
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Journey</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToJourney}/>
+				</View>
+				{journeyStoppingsErrorMessage!="" && (
+						<Text style={styles.errorLabel}>{journeyStoppingsErrorMessage}</Text>	
+				)}
+			</Card>
+
+			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToReturnJourney}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Return Journey</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToReturnJourney}/>
+				</View>
+				{returnJourneyStoppingsErrorMessage!="" && (
+						<Text style={styles.errorLabel}>{returnJourneyStoppingsErrorMessage}</Text>	
+				)}
+			</Card>
 
 			
 		
