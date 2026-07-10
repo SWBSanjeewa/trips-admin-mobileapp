@@ -13,7 +13,7 @@ import ContentView from "../../layouts/route-bus/bus-journey-details_bck";
 import { PlusOutlineIcon } from "../../components/icons";
 
 
-export const RouteBusJourneyTimetablesScreen = ({ navigation }): React.ReactElement => {
+export const JourneyTurnCustomDurationListScreen = ({ navigation }): React.ReactElement => {
 
 	const route = useRoute();
 
@@ -62,7 +62,7 @@ export const RouteBusJourneyTimetablesScreen = ({ navigation }): React.ReactElem
 		<SafeAreaLayout style={styles.container} insets="top">
 			<TopNavigation title={props => (
 				<RNText {...props} style={{fontWeight: "500", fontSize: 18}}>
-					Route Bus Journey Timetables 
+					Custom Durations
 				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
 				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>
 			

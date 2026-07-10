@@ -43,7 +43,8 @@ export const routeBusTimetableTypes = [
 		"Weekends",
 		"Selected Days",
 		"Odd Days",
-		"Even Days"
+		"Even Days",
+		"Selected Dates"
 ]
 
 export const noOfDays = Array.from({ length: 5 }, (_, i) => ({

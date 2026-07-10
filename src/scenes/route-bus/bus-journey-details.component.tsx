@@ -9,7 +9,7 @@ import AppStore from "../../store/AppStore";
 import { useStore } from "mobx-store-provider";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { useRoute } from "@react-navigation/native";
-import ContentView from "../../layouts/route-bus/bus-journey-details";
+import ContentView from "../../layouts/route-bus/bus-journey-details_bck"
 import { PlusOutlineIcon } from "../../components/icons";
 
 

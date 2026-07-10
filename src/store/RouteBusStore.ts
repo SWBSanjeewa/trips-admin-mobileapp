@@ -55,7 +55,12 @@ const StoppingTime = types.model({
   time: types.string 
 })
 .actions((self) => ({
-  
+  setTime(time) {
+    self.time = time;
+  },
+  setPlusDays(plusDays) {
+    self.plusDays = plusDays;
+  }
 })
 );
 
@@ -133,6 +138,21 @@ const Turn = types.model({
   reset(){
     
   },
+  addStoppingTime(place,days,time){
+    self.stoppingTimes.push({place,days,time})
+  },
+  updateStoppingTime(place,days,time){
+    var stoppingTime = self.stoppingTimes.find(s => s.place === place);
+    stoppingTime?.setTime(time);
+    stoppingTime?.setPlusDays(days);
+  },
+  getStoppingTimeByPlace(place){
+    return self.stoppingTimes.find(s => s.place === place);
+  },
+  deleteStoppingTimeByPlace(place){
+    var stoppingTime = self.stoppingTimes.find(s => s.place === place);
+    self.stoppingTimes.remove(stoppingTime);
+  }
 }))
 
 
@@ -174,14 +194,19 @@ const Route = types.model({
   setDuration(duration){
     self.duration = duration;
   },
-  addTimetable(type,runningDays, turns){
+  addTimetable(type,runningDays){
     console.log("addTimetable"+type);
     self.timetables.push({type,runningDays});
-    console.log("end addTimetable"+turns.length);
+   
   },
   addTurn(onboardStartTime,startTime,runningNo,assignedBuses,stoppings){
     var timetable = self.timetables.pop();
     timetable?.addTurn(onboardStartTime,startTime,runningNo,assignedBuses,stoppings)
+  },
+  deleteTurnByIndex(timetableIndex, index){
+     var timetable = self.timetables[timetableIndex];
+     var turn = timetable.turns[index];
+     timetable.turns.remove(turn);
   },
 
   addTurnAfterIndex(timetableIndex,previousTurnIndex,onboardStartTime,startTime,runningNo,assignedBuses,stoppings){
@@ -214,7 +239,7 @@ const Route = types.model({
   },
   deleteStopping(stopping){
       self.stoppings.remove(stopping);
-    },
+  },
   deleteStoppingById(latitude, longitude){
     const stopping = self.stoppings.find(s => s.latitude === latitude && s.longitude === longitude);
     console.log("####"+stopping.latitude+","+stopping.longitude);
@@ -322,8 +347,9 @@ const NewRouteVirtualBusStore = types
        self.stoppingPlaces.remove(stoppingPlace);
     },
     addTimetable(type,runningDays){
-      console.log("addTimetable"+type);
-      self.journey.timetables.push({type,runningDays});
+      console.log("addTimetable::"+type);
+     // self.journey.timetables.push({type,runningDays,turns});
+      self.journey.addTimetable(type,runningDays);
       console.log("end addTimetable"+self.journey.timetables.length);
     }
   }))

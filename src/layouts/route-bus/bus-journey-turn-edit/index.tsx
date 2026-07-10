@@ -2,7 +2,7 @@ import { TopNavigation, TopNavigationAction } from "@ui-kitten/components";
 import { Button, Card, CheckBox, List, Divider,Input } from "@ui-kitten/components";
 import React,{useState,useEffect,useReducer} from "react";
 import { useRoute } from "@react-navigation/native"
-import { StyleSheet, View , ListRenderItemInfo,Image, TouchableOpacity,Pressable, Text} from "react-native";
+import { StyleSheet, View , TextInput,Image, TouchableOpacity,Pressable, Text} from "react-native";
 import { Stopping } from "./extra/data";
 import AppStore from "../../../store/AppStore";
 import { observer, inject} from "mobx-react";
@@ -24,7 +24,7 @@ const BusJourneyAdd = ({ navigation }): React.ReactElement => {
 
 	const [data, setData] = useState([]);
 
-	const [duration, setDuration ]= useState("");
+	const [runningNo, setRunningNo ]= useState("");
 	const [durationHours, setDurationHours ]= useState(2);
 	const [durationMinutes, setDurationMinutes ]= useState(0);
 
@@ -45,6 +45,9 @@ const BusJourneyAdd = ({ navigation }): React.ReactElement => {
 	const appStore = useStore(AppStore);
 
 	const [initialized, setInitialized] = React.useState(false);
+
+	const [runningNoFocus, setRunningNoFocus] = React.useState<boolean>(false);
+	const runningNoCustomStyle = runningNoFocus ? styles.inputContainerFocus : styles.inputContainer;
 
 	const [copyFromChecked, setCopyFromChecked] = React.useState(false);
 
@@ -105,6 +108,9 @@ const BusJourneyAdd = ({ navigation }): React.ReactElement => {
 									
 			  setInitialized(true);
 			}
+			console.log("timetableIndex:"+route.params.timetableIndex+" turnIndex:"+route.params.turnIndex);
+
+			//console.log("route.params.latitude:"+route.params.latitude);
 		
 	});
 
@@ -112,41 +118,55 @@ const BusJourneyAdd = ({ navigation }): React.ReactElement => {
 	return (
 	
 		<ScrollView>
-			<DayPicker
-						weekdays={runningDays}
-						setWeekdays={setRunningDays}
-						activeColor='#142169'
-						textColor='white'
-						inactiveColor='grey'
-						/>
+			
 			
 			<Card style={{ margin: 10, borderRadius:10}}>
 				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text style={{ padding: 5, paddingLeft: 10}}>Duration</Text>
+					<Text style={{ padding: 5, paddingLeft: 10}}>Start</Text>
 					<View style={{backgroundColor: "#F1F1F1"}}>
 						<Pressable onPress={() => onSetDurationPress()}>
 						<View pointerEvents="none">
-							<Input placeholder="Duration from start..." value={appStore.routeBus.journey.duration}/>
+							<Input placeholder="Start time..." value={appStore.routeBus.journey.duration}/>
 						</View>
 					</Pressable>
-					
 					</View>
-					
-					
 				</View>
 			</Card>
+
+			<Card style={{ margin: 10, borderRadius:10}}>
+				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+					<Text style={{ padding: 5, paddingLeft: 10}}>Onboard Start</Text>
+					<View style={{backgroundColor: "#F1F1F1"}}>
+						<Pressable onPress={() => onSetDurationPress()}>
+						<View pointerEvents="none">
+							<Input placeholder="Onboard start time..." value={appStore.routeBus.journey.duration}/>
+						</View>
+					</Pressable>
+					</View>
+				</View>
+			</Card>
+
+			<View style={{ margin: 10}}>
+				<View style={styles.labelContainer}>
+					<Text style={styles.label}>Running No</Text>
+				</View>
+				<View style={runningNoCustomStyle}>
+					<TextInput style={styles.captionText} placeholder="SLTB, G1, M1" onChangeText={setRunningNo} value={runningNo} onFocus={() => setRunningNoFocus(true)} onBlur={() => setRunningNoFocus(false)} />
+				</View>	
+				
+			</View>
 			
 
-			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppingsList", {id: appStore.bus.id})}>
+			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTurnCustomDurationsList", {timetableIndex: route.params.timetableIndex, turnIndex: route.params.turnIndex})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Stoppings</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusReturnJourneyStoppings",{id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
+					<Text>Stopping Times</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTurnCustomDurationsList",{timetableIndex: route.params.timetableIndex, turnIndex: route.params.turnIndex})}/>
 				</View>
 			</Card>
 
 			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.objectId})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Timetables</Text>
+					<Text>Assigned Busses</Text>
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.objectId})}/>
 				</View>
 			</Card>
@@ -234,7 +254,46 @@ const styles = StyleSheet.create({
 	itemContentIcon: {
 		fontSize: 20,
 		color: '#666',
-	}
+	},
+	captionText: {
+		fontFamily: 'opensans-regular',
+		color: '#333',
+		flex: 1 
+	},
+	label: {
+		color:"#142169"
+	},
+	labelContainer: {
+        backgroundColor: "white", // Same color as background
+        alignSelf: "flex-start", // Have View be same width as Text inside
+        paddingHorizontal: 3, // Amount of spacing between border and first/last letter
+        marginStart: 10, // How far right do you want the label to start
+        zIndex: 1, // Label must overlap border
+        elevation: 1, // Needed for android
+        shadowColor: "white", // Same as background color because elevation: 1 creates a shadow that we don't want
+        position: "absolute", // Needed to be able to precisely overlap label with border
+        top: -12, // Vertical position of label. Eyeball it to see where label intersects border.
+    },
+	inputContainer: {
+		flex: 1,
+		flexDirection: "row", 
+		justifyContent: "space-between",
+		borderColor: "#ddd",
+        borderWidth: 1, // Create border
+        borderRadius: 8, // Not needed. Just make it look nicer.
+        padding: 8, // Also used to make it look nicer
+        zIndex: 0, // Ensure border has z-index of 0
+    },
+	inputContainerFocus: {
+		flex: 1,
+		flexDirection: "row", 
+		justifyContent: "space-between",
+		borderColor: "#142169",
+        borderWidth: 1, // Create border
+        borderRadius: 8, // Not needed. Just make it look nicer.
+        padding: 8, // Also used to make it look nicer
+        zIndex: 0, // Ensure border has z-index of 0
+    }
 	
 });
 

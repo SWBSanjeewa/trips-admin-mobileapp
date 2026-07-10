@@ -55,15 +55,13 @@ const BusJourneyList = ({ navigation }): React.ReactElement => {
 		console.log("onCopyFromChecked>>"+appStore.routeBus.stoppingPlaces.length);
 		appStore.routeBus.stoppingPlaces.forEach(stoppingPlace => {
 			console.log(">>"+stoppingPlace);
-            appStore.routeBus.journey.addJourneyStopping(stoppingPlace.place,stoppingPlace.latitude,stoppingPlace.longitude,"0 Hours 0 Mins");
+            appStore.routeBus.journey.addStopping(stoppingPlace.place,stoppingPlace.latitude,stoppingPlace.longitude,"0 Hours 0 Mins");
         });
 		setCopyFromDisabled(true);
 	};
 
 	
-	const renderBackAction = (): React.ReactElement => (
-		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
-	);
+	
 
 	useEffect(() => {
 			if(initialized == false){
