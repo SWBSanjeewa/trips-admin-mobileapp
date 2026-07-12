@@ -168,6 +168,10 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 		navigation.navigate("BusJourneyList")
 	};
 
+	const onNavigateToAllowedBuses = (): void => {
+		navigation.navigate("RouteBusAllowedBusesList")
+	};
+
 	
 	const onAddStopping = (stopping: string) => () =>  {
        console.log(stopping);
@@ -392,6 +396,13 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 				{returnJourneyStoppingsErrorMessage!="" && (
 						<Text style={styles.errorLabel}>{returnJourneyStoppingsErrorMessage}</Text>	
 				)}
+			</Card>
+
+			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToAllowedBuses}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Allowed Buses</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToAllowedBuses}/>
+				</View>
 			</Card>
 
 			

@@ -111,14 +111,17 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		console.log("Date1"+oldDate);
 		const [hours, minutes] = appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime.split(':');
 		console.log("hours>>"+hours);
+		console.log("minutes>>"+minutes);
 		oldDate.setHours(hours, minutes, 0, 0); 
 
 		const hoursMatch = duration.match(/(\d+)h/);
-		const minsMatch = duration.match(/(\d+) mins/);
+		const minsMatch = duration.match(/(\d+)mins/);
+		console.log("duration>>"+duration);
+		
 					
 		const hr = hoursMatch ? parseInt(hoursMatch[1]) : 0;
 		const min = minsMatch ? parseInt(minsMatch[1]) : 0;	
-
+		console.log("hr>>"+hr+" mins>>"+min);
 		
 		var newDate = addHours(oldDate, hr);
 		console.log("Date3"+newDate);

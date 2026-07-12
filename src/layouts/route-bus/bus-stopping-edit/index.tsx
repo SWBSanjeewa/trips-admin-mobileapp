@@ -225,7 +225,7 @@ const BusStoppingEdit = ({ navigation }): React.ReactElement => {
 									setDuration(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
 								}else{
 									setInitialDuration({ hours: 0, minutes:pickedDuration.minutes});
-									setDuration(pickedDuration.minutes.toString()+" mins");
+									setDuration(pickedDuration.minutes.toString()+"mins");
 								}
 							}}
 							

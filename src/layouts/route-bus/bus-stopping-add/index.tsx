@@ -131,9 +131,9 @@ const BusStoppingAdd = ({ navigation }): React.ReactElement => {
 				setJourneyType(route.params.journeyType);	
 				
 			}
-			const hoursMatch = appStore.routeBus.journey.duration?.match(/(\d+)h/);	
-			const hr = hoursMatch ? parseInt(hoursMatch[1]) : 0;
-			console.log("Hours:"+hr);	
+			//const hoursMatch = appStore.routeBus.journey.duration?.match(/(\d+)h/);	
+			//const hr = hoursMatch ? parseInt(hoursMatch[1]) : 0;
+			//console.log("Hours:"+hr);	
 			
 			if(route.params?.duration != ""){
 			  const hoursMatch = route.params?.duration?.match(/(\d+)h/);
@@ -143,10 +143,11 @@ const BusStoppingAdd = ({ navigation }): React.ReactElement => {
 			  const min = minsMatch ? parseInt(minsMatch[1]) : 0;	
 			
 			  setInitialDuration({ hours: hr, minutes:min});
+			  setDurationHourLimit({ max: hr, min:0});
 
 			}
 				
-			setDurationHourLimit({ max: hr, min:0});
+			
 			setInitialized(true);
 		}
 	});
@@ -347,7 +348,7 @@ const BusStoppingAdd = ({ navigation }): React.ReactElement => {
 								}else{
 									setInitialDuration({ hours: 0, minutes:pickedDuration.minutes});
 									setDuration(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
-									setDuration(pickedDuration.minutes.toString()+" mins");
+									setDuration(pickedDuration.minutes.toString()+"mins");
 								}
 							}}
 							
