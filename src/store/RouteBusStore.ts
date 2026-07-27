@@ -115,14 +115,24 @@ const Timetable = new Schema({
 
 */
 
-const AssignedBus = types.model({
-  ntcNumber: types.string,
-  busRegNo: types.string
+const AllowedBus = types.model({
+  regNo: types.string,
+  licenseNo: types.string,
+  date: types.optional(types.string, ""),
 })
 .actions((self) => ({
   
   reset(){
     
+  },
+  setRegNo(regNo){
+    self.regNo = regNo;
+  },
+  setLicenseNo(licenseNo){
+    self.licenseNo = licenseNo;
+  },
+  setDate(date){
+    self.date = date;
   },
 }))
 
@@ -130,8 +140,12 @@ const Turn = types.model({
   onboardStartTime: types.string,
   startTime: types.string,
   runningNo: types.string,
-  assignedBuses: types.array(AssignedBus),
-  stoppingTimes: types.array(StoppingTime)
+  stoppingTimes: types.array(StoppingTime),
+  registrationNo: types.string,
+  licenseNo: types.string,
+  allowedBuses: types.array(AllowedBus),
+
+  //onboardStartTime,startTime,runningNo,registrationNo,licenseNo,stoppings
 })
 .actions((self) => ({
   
@@ -152,7 +166,40 @@ const Turn = types.model({
   deleteStoppingTimeByPlace(place){
     var stoppingTime = self.stoppingTimes.find(s => s.place === place);
     self.stoppingTimes.remove(stoppingTime);
+  },
+  updateOnboardStartTime(time){
+    self.onboardStartTime=time;
+  },
+  setRunningNo(runningNo){
+    self.runningNo=runningNo;
   }
+
+  ,
+   setRegistrationNo(registrationNo){
+    self.registrationNo=registrationNo;
+  },
+   setLicenseNo(licenseNo){
+    self.licenseNo=licenseNo;
+  },
+   addAllowedBus(regNo,licenseNo,date){
+      self.allowedBuses.push({regNo,licenseNo,date})
+    },
+    addAllowedBusAtIndex(regNo,licenseNo,date,index){
+      self.allowedBuses.splice(index, 0, {regNo,licenseNo,date});
+    },
+    deleteAllowedBusByIndex(index){
+      console.log("deleteAllowedBusByIndex:"+index);
+      self.allowedBuses.remove(self.allowedBuses[index]);
+    },
+    updateAllowedBusByIndex(regNo,licenseNo,date,index){
+      const allowedBus = self.allowedBuses[index];
+     // console.log("####"+stopping.latitude+","+stopping.longitude);
+     allowedBus.setRegNo(regNo);
+     allowedBus.setLicenseNo(licenseNo);
+     allowedBus.setDate(date);
+    }
+    
+  
 }))
 
 
@@ -169,9 +216,9 @@ export const Timetable = types.model({
     self.runningDays = "";
     self.turns=Turn[0];
   },
-  addTurn(onboardStartTime,startTime,runningNo,assignedBuses,stoppings){
+  addTurn(onboardStartTime,startTime,runningNo,stoppings){
     console.log("Add turns");
-    self.turns.push({onboardStartTime,startTime,runningNo,assignedBuses,stoppings})
+    self.turns.push({onboardStartTime,startTime,runningNo,stoppings})
   },
   setTimetableType(timetableType){
     self.type = timetableType;
@@ -182,7 +229,9 @@ export const Timetable = types.model({
 }))
 
 const Route = types.model({
-  duration: types.optional(types.string, ""),
+  runningTime: types.optional(types.string, ""),
+  onBoardDuration: types.optional(types.string, ""),
+  distance: types.optional(types.string, ""),
   stoppings: types.array(Stopping),
   timetables: types.array(Timetable)
 })
@@ -191,17 +240,20 @@ const Route = types.model({
   reset(){  
 
   },
-  setDuration(duration){
-    self.duration = duration;
+  setRunningTime(runningTime){
+    self.runningTime = runningTime;
+  },
+  setDistance(distance){
+    self.distance = distance;
   },
   addTimetable(type,runningDays){
     console.log("addTimetable"+type);
     self.timetables.push({type,runningDays});
    
   },
-  addTurn(onboardStartTime,startTime,runningNo,assignedBuses,stoppings){
+  addTurn(onboardStartTime,startTime,runningNo,stoppings){
     var timetable = self.timetables.pop();
-    timetable?.addTurn(onboardStartTime,startTime,runningNo,assignedBuses,stoppings)
+    timetable?.addTurn(onboardStartTime,startTime,runningNo,stoppings)
   },
   deleteTurnByIndex(timetableIndex, index){
      var timetable = self.timetables[timetableIndex];
@@ -209,7 +261,7 @@ const Route = types.model({
      timetable.turns.remove(turn);
   },
 
-  addTurnAfterIndex(timetableIndex,previousTurnIndex,onboardStartTime,startTime,runningNo,assignedBuses,stoppings){
+  addTurnAfterIndex(timetableIndex,previousTurnIndex,onboardStartTime,startTime,runningNo,stoppingTimes,registrationNo,licenseNo){
     console.log("previousTurnIndex:"+previousTurnIndex+" startTime:"+startTime);
     var timetable = self.timetables[timetableIndex];
     //const turn = timetable.turns.find(s => s.startTime === previousStartTime);
@@ -217,8 +269,9 @@ const Route = types.model({
    // var index = timetable.turns.findIndex(turn);
     
     console.log("## index:"+previousTurnIndex);
+    console.log(previousTurnIndex+1+"0"+onboardStartTime+":"+startTime+":"+runningNo+":"+stoppingTimes);
     timetable.turns.splice(previousTurnIndex+1, 0, {
-        onboardStartTime,startTime,runningNo,assignedBuses,stoppings
+        onboardStartTime,startTime,runningNo,stoppingTimes,registrationNo,licenseNo
     })
   },
   addStopping(place,latitude, longitude,duration){
@@ -256,22 +309,7 @@ const Route = types.model({
 
 }))
 
-const AllowedBus = types.model({
-  ntcNumber: types.string,
-  busRegNo: types.string
-})
-.actions((self) => ({
-  
-  reset(){
-    
-  },
-  setRegNo(regNo){
-    self.busRegNo = regNo;
-  },
-  setLicenseNo(licenseNo){
-    self.ntcNumber = licenseNo;
-  },
-}))
+
 
 
 
@@ -285,7 +323,6 @@ const NewRouteVirtualBusStore = types
     typeOfService: types.optional(types.string, ""),   // Normal, Luxury, Super Luxury
     duration: types.optional(types.string, ""), // 90 Minutes - Makumbura-Galle
     stoppingPlaces: types.array(StoppingPlace),
-    allowedBuses: types.array(AllowedBus),
     journey: types.optional(Route, {
       timetables: []
     }),
@@ -304,7 +341,6 @@ const NewRouteVirtualBusStore = types
       self.transportAuthority = "";
       self.typeOfService = "";
       self.stoppingPlaces= StoppingPlace[0];
-      self.allowedBuses= AllowedBus[0];
     },
     populate(bus) {
       self.objectId = bus._id;
@@ -370,24 +406,7 @@ const NewRouteVirtualBusStore = types
      // self.journey.timetables.push({type,runningDays,turns});
       self.journey.addTimetable(type,runningDays);
       console.log("end addTimetable"+self.journey.timetables.length);
-    },
-  
-    addAllowedBus(busRegNo,ntcNumber){
-      self.allowedBuses.push({busRegNo,ntcNumber})
-    },
-    addAllowedBusAtIndex(busRegNo,ntcNumber,index){
-      self.allowedBuses.splice(index, 0, {busRegNo,ntcNumber});
-    },
-    deleteAllowedBusByIndex(index){
-      //const s = self.stoppings.find(s => s === stopping);
-      self.allowedBuses.remove(self.allowedBuses[index]);
-    },
-    updateAllowedBusByIndex(regNo,licenseNo,index){
-      const allowedBus = self.allowedBuses[index];
-     // console.log("####"+stopping.latitude+","+stopping.longitude);
-     allowedBus.setRegNo(regNo);
-     allowedBus.setLicenseNo(licenseNo);
-    },
+    }
   }))
   .views((self) => ({
     

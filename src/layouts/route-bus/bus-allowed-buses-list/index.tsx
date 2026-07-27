@@ -1,24 +1,29 @@
 import { Button, Card, Text,Input } from "@ui-kitten/components";
-import React,{useRef,useEffect} from "react";
-import { StyleSheet, View, TouchableOpacity, TextInput,ScrollView} from "react-native";
+import React,{useRef,useState} from "react";
+import { StyleSheet, View, TouchableOpacity, TextInput,ScrollView,Pressable} from "react-native";
 import AppStore from "../../../store/AppStore";
 import { observer, inject} from "mobx-react";
 import { useStore } from "mobx-store-provider";
 import { toJS } from "mobx";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useRoute } from "@react-navigation/native"
 
 import {
 	MaterialIcons as MDIcon
 } from '@expo/vector-icons';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { format } from 'date-fns'
 
 
 export default observer(React.forwardRef(({ navigation,addCallback, add },ref) => {
 
 	const appStore = useStore(AppStore);
+	const route = useRoute();
 
 	const [regNo, setRegNo] = React.useState<string>("");
+	const [date, setDate] = React.useState<string>("");
 	const [regNoFocus, setRegNoFocus] = React.useState<boolean>(false);
 	const regNoCustomStyle = regNoFocus ? styles.inputContainerFocus : styles.inputContainer;
 	const [regNoErrorMessage, setRegNoErrorMessage] = React.useState<string>("");
@@ -37,7 +42,13 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const refRBSheetEdit = useRef();
 
-	
+	const [startDate, setStartDate] = useState();
+
+	const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+
+	const hideDatePicker = () => {
+		setDatePickerVisible(false);
+	};
 
 
 	const isValidValues = (): any => {
@@ -54,10 +65,19 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	
 	const onCreatePress = async() => {
-		isValidValues()
-		appStore.routeBus.addAllowedBus(regNo,licenseNo);
-		console.log(JSON.stringify(toJS(appStore.routeBus)));	
-		addCallback(false);
+		
+		if(appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].allowedBuses.length < 2){
+			isValidValues()
+			appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].addAllowedBus(regNo,licenseNo,date);
+			console.log(JSON.stringify(toJS(appStore.routeBus)));	
+			setRegNo("");
+			setLicenseNo("");
+			setDate("");
+			addCallback(false);
+		}else{
+			console.log("Maximum 2 allowed");
+			addCallback(false);
+		}
 
 	}
 
@@ -89,10 +109,11 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	}
 
 	
-	const onAllowedBusPress = async (regNo,licenseNo,index) => {
+	const onAllowedBusPress = async (regNo,licenseNo,date,index) => {
 		setAllowedBusIndex(index);
 		setRegNo(regNo);
 		setLicenseNo(licenseNo);
+		setDate(date);
 		refRBSheetActions.current.open();
 	};
 
@@ -105,9 +126,11 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	const onUpdatePress = (): void => {
-		appStore.routeBus.updateAllowedBusByIndex(regNo, licenseNo, allowedBusIndex);
+		//appStore.routeBus.updateAllowedBusByIndex(regNo, licenseNo, allowedBusIndex);
+		appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateAllowedBusByIndex(regNo, licenseNo, date, allowedBusIndex);
 		setRegNo("");
 		setLicenseNo("");
+		setDate("");
 		refRBSheetEdit.current.close();
 		refRBSheetActions.current.close();
 	};
@@ -117,12 +140,40 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	const onDeleteConfirmPress = (): void => {
-		appStore.routeBus.deleteAllowedBusByIndex(allowedBusIndex);
+		appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].deleteAllowedBusByIndex(allowedBusIndex);
 		setRegNo("");
 		setLicenseNo("");
 		refRBSheetDeleteConfirm.current.close();
 		refRBSheetActions.current.close();
 	};
+
+	const handleConfirm = (date) => {
+		//console.warn("A date has been picked: ", date);
+		//setTime(date);
+	//	var newdate  = new TZDate("2024-09-12T00:00:00Z", "Asia/Singapore");
+
+		hideDatePicker();  
+		//const timeZoneOffsetInMinutes = date.getTimezoneOffset();
+		//console.log(">>"+timeZoneOffsetInMinutes);
+		//const utcTime = date.getTime() - (timeZoneOffsetInMinutes * 60000);
+		//const actualDate = new Date(utcTime); //setting the actual date on dateTimePicker renders the correct date on calendar.
+		console.warn("A date has been actualDate: ", date);
+		console.warn("A date has been actualDate: ", format(date, 'yyyy-MM-dd'));
+
+		//console.warn("A date has been actualDate +2 : ", add(date, { days: 2 }));
+
+		//appStore.tour.addSchedule("","",format(date, 'yyyy-MM-dd'), format(date, 'yyyy-MM-dd'),format(date, 'yyyy-MM-dd'),format(date, 'yyyy-MM-dd'),"",[]);
+		//appStore.tour.addSc.setTime(format(date, 'hh:mm a'));
+		console.warn("A date has been actualDate: XXX", format(date, 'yyyy-MM-dd'));
+		setDate(format(date, 'yyyy-MM-dd'));
+		
+	};
+
+	const onSetRunningDatePress = (): void => {
+		setDatePickerVisible(true);
+	};
+
+	
 	
 	return (
 		
@@ -135,13 +186,27 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				</View>
 			
 			<View>
+
+				<Card style={{ margin: 10, borderRadius:10}}>
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Running Date</Text>
+						<View style={{backgroundColor: "#F1F1F1"}}>
+							<Pressable onPress={() => onSetRunningDatePress()}>
+							<View pointerEvents="none">
+								<Input placeholder="Date..." value={date}/>
+							</View>
+						</Pressable>
+						</View>
+					</View>
+				</Card>
+				
 				
 				<View style={{ margin: 10}}>
 					<View style={styles.labelContainer}>
 						<Text style={styles.label}>RegNo</Text>
 					</View>
 					<View style={regNoCustomStyle}>
-						<TextInput placeholder="NB-2222" onChangeText={setRegNo} value={regNo} />
+						<TextInput key="regno" placeholder="NB-2222" onChangeText={setRegNo} value={regNo} />
 					</View>
 				</View>
 				<View style={{ margin: 10}}>
@@ -166,29 +231,41 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 
 			<View>	
-				{appStore.routeBus.allowedBuses.map((allowedBus,index) => (
+				
+				{appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex]?.allowedBuses?.map((allowedBus,index) => (
 					
 					<Card key={index} 
 					style={[
 				     allowedBusIndex != index? styles.item : styles.itemSelected
 					]}
-					onPress={()=>onAllowedBusPress(allowedBus.busRegNo,allowedBus.ntcNumber,index)}>
+					onPress={()=>onAllowedBusPress(allowedBus.regNo,allowedBus.licenseNo,allowedBus.date,index)}>
 						
 						<Card style={{ margin: 10}}>
 							<Text style={styles.itemHeader}>Reg No</Text>
 							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-								<Text>{allowedBus.busRegNo}</Text>
-								<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => refRBSheetNameEdit.current.open()}/>
+								<Text>{allowedBus.regNo}</Text>
+								
 							</View>
 						</Card>
 
-						{allowedBus.ntcNumber!= "" && (
+						{allowedBus.licenseNo!= "" && (
 						
 						<Card style={{ margin: 10}}>
 							<Text style={styles.itemHeader}>License No</Text>
 							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-								<Text>{allowedBus.ntcNumber}</Text>
-								<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => refRBSheetNameEdit.current.open()}/>
+								<Text>{allowedBus.licenseNo}</Text>
+								
+							</View>
+						</Card>
+						)}
+
+						{allowedBus.date!= "" && (
+						
+						<Card style={{ margin: 10}}>
+							<Text style={styles.itemHeader}>Date</Text>
+							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+								<Text>{allowedBus.date}</Text>
+								
 							</View>
 						</Card>
 						)}
@@ -234,7 +311,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					
 
 			</RBSheet>
-			<RBSheet draggable dragOnContent key="" ref={refRBSheetEdit} height={400}>
+			<RBSheet draggable dragOnContent key="" ref={refRBSheetEdit} height={500}>
 				<View>
 				
 				<View style={{ margin: 10}}>
@@ -256,8 +333,21 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				
 			</View>
 			</RBSheet>
-			<RBSheet draggable dragOnContent key="busAllowedBusEdit" ref={refRBSheetEdit} height={350}>
+			<RBSheet draggable dragOnContent key="busAllowedBusEdit" ref={refRBSheetEdit} height={450}>
 					<View>
+						<Card style={{ margin: 10, borderRadius:10}}>
+						<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+							<Text style={{ padding: 5, paddingLeft: 10}}>Running Date</Text>
+							<View style={{backgroundColor: "#F1F1F1"}}>
+								<Pressable onPress={() => onSetRunningDatePress()}>
+								<View pointerEvents="none">
+									<Input placeholder="Date..." value={date}/>
+								</View>
+							</Pressable>
+							</View>
+						</View>
+					</Card>
+
 						<View style={{padding: 10}}>
 							<Text style={{padding: 15}}>Reg No</Text>
 						
@@ -289,6 +379,13 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 						</View>
 					</View>
 				</RBSheet>
+
+				<DateTimePickerModal
+							isVisible= {isDatePickerVisible}
+							date={startDate}
+							mode="date"
+							onConfirm={handleConfirm}
+							onCancel={hideDatePicker}/>	
 			
 		</ScrollView>
 		
@@ -363,7 +460,7 @@ const styles = StyleSheet.create({
     },
 	item: {
 		marginVertical: 8,
-		padding: 0,
+		marginHorizontal: 10
 	},
 	itemHeader: {
 		fontWeight: "500",

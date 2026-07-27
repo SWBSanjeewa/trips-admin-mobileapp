@@ -9,8 +9,12 @@ import ContentView from "../../layouts/route-bus/bus-journey-add";
 
 export const RouteBusJourneyAddScreen = ({ navigation }): React.ReactElement => {
 	const renderBackAction = (): React.ReactElement => (
-		<TopNavigationAction icon={ArrowIosBackIcon} onPress={navigation.goBack} />
+		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
 	);
+
+	const onBackPress = (): void => {
+		navigation && navigation.navigate("RouteBusAdd");
+	};
 
 
 	return (

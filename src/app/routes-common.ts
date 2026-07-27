@@ -16,6 +16,7 @@ export const routeBusTypes = [
 
 export const transportAuthorityTypes = [
 		{name: "NTC", themeColor: "#483248", details: "National Transport Commission"},
+		{name: "WP-RPTA", themeColor: "#23a038", ac: false, details: "Western Province Road Passenger Transport Authority"},
 		{name: "CP-TSA", themeColor: "#00008B", details: "Central Province Transport Service Authority"},
 		{name: "SP-RPTA", themeColor: "#A9A9A9", ac: false, details: "Southern Province Road Passenger Transport Authority"}
 ]

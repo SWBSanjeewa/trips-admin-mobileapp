@@ -1,9 +1,16 @@
-import { ImageSourcePropType } from "react-native";
 
-export class Stopping {
+
+export class Passenger {
 	constructor(
-		readonly time: string,
-		readonly place: string
+		readonly name: string,
+		readonly mobileNumber: string
+	) {}
+}
+
+export class Owner {
+	constructor(
+		readonly name: string,
+		readonly mobileNumber: string
 	) {}
 
 }

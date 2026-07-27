@@ -33,12 +33,6 @@ export const JourneyTurnCustomDurationsListScreen = ({ navigation }): React.Reac
 	}
 
 
-	const renderAddAction = (): React.ReactElement => (
-			<>
-			<TopNavigationAction icon={PlusOutlineIcon} onPress={onBusAddPress} />
-			</>		
-		);
-
 	const MenuIcon = (props): IconElement => (
 		<MaterialIcons name="more-vert" size={24} color="black" />
 	);
@@ -63,7 +57,7 @@ export const JourneyTurnCustomDurationsListScreen = ({ navigation }): React.Reac
 			<TopNavigation title={props => (
 				<RNText {...props} style={{fontWeight: "500", fontSize: 18}}>
 					Custom Durations
-				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
+				</RNText>)} accessoryLeft={renderBackAction} />
 				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>
 			
 		</SafeAreaLayout>	

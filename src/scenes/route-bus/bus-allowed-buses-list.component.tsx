@@ -62,7 +62,7 @@ export const RouteBusAllowedBusesListScreen = ({ navigation }): React.ReactEleme
 		<SafeAreaLayout style={styles.container} insets="top">
 			<TopNavigation title={props => (
 				<RNText {...props} style={{fontWeight: "500", fontSize: 18}}>
-					Route Bus Allowed Buses
+					Route Bus Swap Buses
 				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
 				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>
 			

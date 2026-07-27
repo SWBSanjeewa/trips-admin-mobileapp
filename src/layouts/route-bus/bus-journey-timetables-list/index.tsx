@@ -247,7 +247,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			setSelectedTurn(selectedTurn+1); 
 			console.warn("A date has been actualDate: ", date);
 			console.warn("A date has been actualDate: ", format(date, 'p'));
-			appStore.routeBus.journey.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],[]);
+			appStore.routeBus.journey.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
 			//appStore.routeBusTimetable.addTurn("",format(date, 'HH:mm'),"",[],[]);	
 	};
 

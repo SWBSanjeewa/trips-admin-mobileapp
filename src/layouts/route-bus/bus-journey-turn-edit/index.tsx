@@ -1,132 +1,79 @@
-import { TopNavigation, TopNavigationAction } from "@ui-kitten/components";
-import { Button, Card, CheckBox, List, Divider,Input } from "@ui-kitten/components";
-import React,{useState,useEffect,useReducer} from "react";
-import { useRoute } from "@react-navigation/native"
-import { StyleSheet, View , TextInput,Image, TouchableOpacity,Pressable, Text} from "react-native";
-import { Stopping } from "./extra/data";
+import { Button, Card, Text,Input } from "@ui-kitten/components";
+import React,{useRef,useState} from "react";
+import { StyleSheet, View, Pressable, TextInput,ScrollView} from "react-native";
 import AppStore from "../../../store/AppStore";
 import { observer, inject} from "mobx-react";
 import { useStore } from "mobx-store-provider";
-import { DayPicker } from '@routeslk/react-native-picker-weekday'
-import { ScrollView } from 'react-native-virtualized-view';
-import { TimerPickerModal } from "react-native-timer-picker";
-import { LinearGradient } from "expo-linear-gradient";
+import { toJS } from "mobx";
+import { useRoute } from "@react-navigation/native"
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+
 import {
-	MaterialIcons as MDIcon,
+	MaterialIcons as MDIcon
 } from '@expo/vector-icons';
-import { ArrowIosBackIcon } from "../../../components/icons";
+import { format } from 'date-fns';
 
 
-
-const BusJourneyAdd = ({ navigation }): React.ReactElement => {
-
+export default observer(React.forwardRef(({ navigation,addCallback, add },ref) => {
 	const route = useRoute();
 
-	const [data, setData] = useState([]);
-
-	const [runningNo, setRunningNo ]= useState("");
-	const [durationHours, setDurationHours ]= useState(2);
-	const [durationMinutes, setDurationMinutes ]= useState(0);
-
-	const [initialDuration, setInitialDuration] = useState
-	({
-		hours: 0,
-		minutes: 0,
-	});
-
-	const [isDurationPickerVisible, setDurationPickerVisible] = useState(false);
-	
-
-
-	const [updated, setUpdated] = useState(false);
-
-	const [runningDays, setRunningDays] = React.useState([2,3,4,5,6])
-	
 	const appStore = useStore(AppStore);
 
-	const [initialized, setInitialized] = React.useState(false);
-
+	//const [runningNo, setRunningNo ]= useState("");
 	const [runningNoFocus, setRunningNoFocus] = React.useState<boolean>(false);
 	const runningNoCustomStyle = runningNoFocus ? styles.inputContainerFocus : styles.inputContainer;
-
-	const [copyFromChecked, setCopyFromChecked] = React.useState(false);
-
-	const [copyFromDisabled, setCopyFromDisabled] = React.useState(appStore.bus.journey.stoppings.length >0 );
 	
+	const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 
-	const onStoppingEditPress = (stopping,index): void => {
-		navigation && navigation.navigate("BusStoppingEditScreen", {id: "stopping-edit", "journeyType": "Journey","returnRoute": "Journey", oldLatitude: stopping.latitude, oldLongitude: stopping.longitude, place: stopping.place, latitude: stopping.latitude, longitude: stopping.longitude, time: stopping.time, index: index});
-	};
+	const [allowedBusIndex, setAllowedBusIndex] = React.useState<number>(-1);
+	
+	const refRBSheetActions = useRef();
+	
+	const refRBSheetDeleteConfirm = useRef();
 
+	const [defaultDate, setDefaultDate] = React.useState<Date>(new Date());
 
-	const onStoppingAddPress = (): void => {
-		appStore.bus.setJourneyRunningDays(runningDays.toString());
-		navigation && navigation.navigate("BusStoppingAddScreen",{ "journeyType": "Journey"});
-	};
+	const refRBSheetEdit = useRef();
 
-
-	const onBackPress = (): void => {
-		appStore.bus.setJourneyRunningDays(runningDays.toString());
-		navigation && navigation.goBack();
-	};
-
-	const onCopyFromChecked = (): void => {
-		setCopyFromChecked(!copyFromChecked);
-		appStore.bus.stoppings.forEach(stopping => {
-			console.log(">>"+stopping);
-            appStore.bus.addJourneyStopping(stopping.place,stopping.latitude,stopping.longitude,"00.00 AM");
-        });
-		setCopyFromDisabled(true);
-	};
-
-	const onSetDurationPress = (): void => {
-		setDurationPickerVisible(true);
+	const onSetOnboardStartPress = (): void => {
+		setDatePickerVisible(true);
 	};
 
 	
-	const renderBackAction = (): React.ReactElement => (
-		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
-	);
+
+	const handleEditModeConfirm = (date) => {	
+		setDatePickerVisible(false);
+		console.warn("A date has been actualDate: ", date);
+		appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateOnboardStartTime(format(date, 'HH:mm'));
+	};
+
+
+	const hideEditModeDatePicker = () => {
+		setDatePickerVisible(false);
+	}
+
+	const onNavigateToAllowedBuses = (): void => {
+		navigation.navigate("RouteBusAllowedBusesList", {timetableIndex: route.params.timetableIndex, turnIndex: route.params.turnIndex})
+	};
+
 
 	
-
-	useEffect(() => {
-			if(initialized == false){
-			  var journeyWorkdaysNumbers = appStore.bus.journey.runningDays.split(',').map(function(item) {
-				return parseInt(item, 10);
-			  });
-			  setRunningDays(journeyWorkdaysNumbers);
-			  console.log("##"+appStore.routeBus.journey.duration);
-			  const hoursMatch = appStore.routeBus.journey.duration?.match(/(\d+)h/);
-			  const minsMatch = appStore.routeBus.journey.duration?.match(/(\d+)mins/);
-
-			  const hr = hoursMatch ? parseInt(hoursMatch[1]) : 0;
-			  const min = minsMatch ? parseInt(minsMatch[1]) : 0;	
-			  console.log("Hours:"+hr);			
-			  console.log("Mins:"+min);			
-			  setInitialDuration({ hours: hr, minutes:min});
-									
-			  setInitialized(true);
-			}
-			console.log("timetableIndex:"+route.params.timetableIndex+" turnIndex:"+route.params.turnIndex);
-
-			//console.log("route.params.latitude:"+route.params.latitude);
-		
-	});
-
-
+	// navigation && navigation.navigate("RouteBusJourneyTurnEdit",{ "timetableIndex": timetable_index, "turnIndex": index});
+	
 	return (
-	
+		
 		<ScrollView>
+
+				
 			
-			
-			<Card style={{ margin: 10, borderRadius:10}}>
+			<View>
+				 <Card style={{ margin: 10, borderRadius:10}}>
 				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
 					<Text style={{ padding: 5, paddingLeft: 10}}>Start</Text>
 					<View style={{backgroundColor: "#F1F1F1"}}>
-						<Pressable onPress={() => onSetDurationPress()}>
+						<Pressable>
 						<View pointerEvents="none">
-							<Input placeholder="Start time..." value={appStore.routeBus.journey.duration}/>
+							<Input placeholder="Start time..." value={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime}/>
 						</View>
 					</Pressable>
 					</View>
@@ -137,91 +84,71 @@ const BusJourneyAdd = ({ navigation }): React.ReactElement => {
 				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
 					<Text style={{ padding: 5, paddingLeft: 10}}>Onboard Start</Text>
 					<View style={{backgroundColor: "#F1F1F1"}}>
-						<Pressable onPress={() => onSetDurationPress()}>
+						<Pressable onPress={() => onSetOnboardStartPress()}>
 						<View pointerEvents="none">
-							<Input placeholder="Onboard start time..." value={appStore.routeBus.journey.duration}/>
+							<Input placeholder="Onboard start time..." value={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].onboardStartTime}/>
 						</View>
 					</Pressable>
 					</View>
 				</View>
 			</Card>
 
+				
 			<View style={{ margin: 10}}>
 				<View style={styles.labelContainer}>
 					<Text style={styles.label}>Running No</Text>
 				</View>
 				<View style={runningNoCustomStyle}>
-					<TextInput style={styles.captionText} placeholder="SLTB, G1, M1" onChangeText={setRunningNo} value={runningNo} onFocus={() => setRunningNoFocus(true)} onBlur={() => setRunningNoFocus(false)} />
-				</View>	
-				
+					<TextInput placeholder="KDW1" onChangeText={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].setRunningNo} value={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].runningNo} />
+				</View>
 			</View>
-			
 
+			<Card style={{ margin: 10, borderRadius:10}}>
+				<Text style={{ padding: 5, paddingLeft: 10}}>Assigned Bus</Text>
+				<View style={{ margin: 10}}>
+					<View style={styles.labelContainer}>
+						<Text style={styles.label}>Reg. No</Text>
+					</View>
+					<View style={runningNoCustomStyle}>
+						<TextInput placeholder="NB-2323" onChangeText={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].setRegistrationNo} value={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].registrationNo} />
+					</View>
+				</View>
+				<View style={{ margin: 10}}>
+					<View style={styles.labelContainer}>
+						<Text style={styles.label}>License No</Text>
+					</View>
+					<View style={runningNoCustomStyle}>
+						<TextInput placeholder="12345" onChangeText={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].setLicenseNo} value={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].licenseNo} />
+					</View>
+				</View>
+			</Card>
+
+			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToAllowedBuses}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Swap Buses</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToAllowedBuses}/>
+				</View>
+			</Card>
+			
 			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTurnCustomDurationsList", {timetableIndex: route.params.timetableIndex, turnIndex: route.params.turnIndex})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Stopping Times</Text>
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTurnCustomDurationsList",{timetableIndex: route.params.timetableIndex, turnIndex: route.params.turnIndex})}/>
 				</View>
 			</Card>
+				
+			</View>
 
-			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.objectId})}>
-				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Assigned Busses</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.objectId})}/>
-				</View>
-			</Card>
+			<DateTimePickerModal
+							isVisible={isDatePickerVisible}
+							mode="time"
+							date={defaultDate} 
+							timeZoneName={'Asia/Colombo'} 
+							onConfirm={handleEditModeConfirm}
+							onCancel={hideEditModeDatePicker}/>	
 
-			<TimerPickerModal
-						    visible={isDurationPickerVisible}
-              				setIsVisible={setDurationPickerVisible}
-							hideDays={true}
-							hideSeconds
-							LinearGradient={LinearGradient}
-							minuteLabel="mins"
-							initialValue={initialDuration}
-							padWithNItems={1}
-							hourLabel="h"
-							onConfirm={(pickedDuration) => {
-								console.log("pickedDuration::"+pickedDuration.minutes);
-								setDurationPickerVisible(false);
-								if(pickedDuration.hours > 0){
-									setInitialDuration({ hours: pickedDuration.hours, minutes:pickedDuration.minutes});
-									//setDuration(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
-									appStore.routeBus.journey.setDuration(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
-								}else{
-									setInitialDuration({ hours: 0, minutes:pickedDuration.minutes});
-									//setDuration(pickedDuration.minutes.toString()+" mins");
-									//initialDuration.minutes=pickedDuration.minutes;
-									appStore.routeBus.journey.setDuration(pickedDuration.minutes.toString()+" mins");
-								}
-							}}
-							
-							
-							styles={{
 
-								button:{
-								  fontSize: 10,
-								  fontWeight: "bold"
-								},
-								
-								pickerLabel: {
-									fontSize: 16,
-									fontWeight: "600",
-									color: "#888888",
-								},
-								
-								pickerItem: {
-									fontSize: 24,
-									color: "#cccccc",
-								},
-								
-								selectedPickerItem: {
-									fontSize: 28,
-									fontWeight: "bold",
-									color: "#000000",
-								}
-							}}
-						/>
+		
 
 			
 		</ScrollView>
@@ -229,31 +156,32 @@ const BusJourneyAdd = ({ navigation }): React.ReactElement => {
 		
 		
 	);
-};
+}));
 
 const styles = StyleSheet.create({
-
-	
 	listContent: {
 		paddingHorizontal: 32,
 		paddingVertical: 8,
 	},
+	listContainer: {
+		flex: 1,
+		padding: 25,
+	},
 	button: {
 		marginVertical: 8,
 	},
-
-	item: {
-		marginVertical: 8,
-		marginHorizontal: 10
+	listButton: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		paddingVertical: 10,
 	},
-	
-	itemContent: {
-		marginVertical: 8,
+		listLabel: {
+		fontSize: 16,
 	},
-
-	itemContentIcon: {
-		fontSize: 20,
-		color: '#666',
+	errorLabel: {
+		color: "#8B0000", 
+		fontSize:12,
+		padding: 10
 	},
 	captionText: {
 		fontFamily: 'opensans-regular',
@@ -274,7 +202,7 @@ const styles = StyleSheet.create({
         position: "absolute", // Needed to be able to precisely overlap label with border
         top: -12, // Vertical position of label. Eyeball it to see where label intersects border.
     },
-	inputContainer: {
+    inputContainer: {
 		flex: 1,
 		flexDirection: "row", 
 		justifyContent: "space-between",
@@ -293,9 +221,35 @@ const styles = StyleSheet.create({
         borderRadius: 8, // Not needed. Just make it look nicer.
         padding: 8, // Also used to make it look nicer
         zIndex: 0, // Ensure border has z-index of 0
-    }
+    },
+	item: {
+		marginVertical: 8,
+		marginHorizontal: 10
+	},
+	itemHeader: {
+		fontWeight: "500",
+		fontSize: 18
+	},
+	listIconDelete: {
+		fontSize: 26,
+		color: '#710e07',
+		width: 60,
+	},
+	listIconEdit: {
+		fontSize: 26,
+		color: '#6a5703',
+		width: 60,
+	},
+
+	itemSelected: {
+		marginVertical: 8,
+		marginHorizontal: 10,
+		borderWidth: 1,
+		borderColor: "#aaa"
+	},
+	itemContentIcon: {
+		fontSize: 20,
+		color: '#666',
+	}
 	
 });
-
-
-export default observer(BusJourneyAdd);

@@ -1,84 +1,153 @@
-import { Button, Card, Text,Input } from "@ui-kitten/components";
-import React,{useRef,useState} from "react";
-import { StyleSheet, View, Pressable, TextInput,ScrollView} from "react-native";
+import { TopNavigation, TopNavigationAction } from "@ui-kitten/components";
+import { Button, Card, CheckBox, List, Divider,Input } from "@ui-kitten/components";
+import React,{useState,useEffect,useReducer} from "react";
+import { useRoute } from "@react-navigation/native"
+import { StyleSheet, View , TextInput,Image, TouchableOpacity,Pressable, Text} from "react-native";
+import { Stopping } from "./extra/data";
 import AppStore from "../../../store/AppStore";
 import { observer, inject} from "mobx-react";
 import { useStore } from "mobx-store-provider";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRoute } from "@react-navigation/native"
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { DayPicker } from '@routeslk/react-native-picker-weekday'
+import { ScrollView } from 'react-native-virtualized-view';
 import { TimerPickerModal } from "react-native-timer-picker";
-
+import { LinearGradient } from "expo-linear-gradient";
 import {
-	MaterialIcons as MDIcon
+	MaterialIcons as MDIcon,
 } from '@expo/vector-icons';
-import { format } from 'date-fns';
+import { ArrowIosBackIcon } from "../../../components/icons";
 
 
-export default observer(React.forwardRef(({ navigation,addCallback, add },ref) => {
+
+const BusJourneyAdd = ({ navigation }): React.ReactElement => {
+
 	const route = useRoute();
 
-	const appStore = useStore(AppStore);
+	const [data, setData] = useState([]);
 
-	//const [runningNo, setRunningNo ]= useState("");
-	const [runningNoFocus, setRunningNoFocus] = React.useState<boolean>(false);
-	const runningNoCustomStyle = runningNoFocus ? styles.inputContainerFocus : styles.inputContainer;
-	
-	const [isDatePickerVisible, setDatePickerVisible] = useState(false);
-
-	const [isRunningTimePickerVisible, setRunningTimePickerVisible] = useState(false);
-		
-
-	const [defaultDate, setDefaultDate] = React.useState<Date>(new Date());
-
-	const refRBSheetEdit = useRef();
+	const [runningTime, setRunningTime ]= useState("");
+	const [runningTimeHours, setDRunningTimeHours ]= useState(2);
+	const [drunningTimeMinutes, setRunningTimeMinutes ]= useState(0);
 
 	const [initialRunningTime, setInitialRunningTime] = useState
-		({
-			hours: 0,
-			minutes: 0,
-		});
+	({
+		hours: 0,
+		minutes: 0,
+	});
+
+	const [isRunningTimePickerVisible, setRunningTimePickerVisible] = useState(false);
 	
 
+
+	const [updated, setUpdated] = useState(false);
+
+	const [distance, setDistance] = React.useState<string>("");
+	const [distanceFocus, setDistanceFocus] = React.useState<boolean>(false);
+	const distanceCustomStyle = distanceFocus ? styles.inputContainerFocus : styles.inputContainer;
+
+	const [runningDays, setRunningDays] = React.useState([2,3,4,5,6])
+	
+	const appStore = useStore(AppStore);
+
+	const [initialized, setInitialized] = React.useState(false);
+
+	const [copyFromChecked, setCopyFromChecked] = React.useState(false);
+
+	const [copyFromDisabled, setCopyFromDisabled] = React.useState(appStore.bus.journey.stoppings.length >0 );
 	
 
-	const onSetOnboardStartPress = (): void => {
-		setDatePickerVisible(true);
+	const onStoppingEditPress = (stopping,index): void => {
+		navigation && navigation.navigate("BusStoppingEditScreen", {id: "stopping-edit", "journeyType": "Journey","returnRoute": "Journey", oldLatitude: stopping.latitude, oldLongitude: stopping.longitude, place: stopping.place, latitude: stopping.latitude, longitude: stopping.longitude, time: stopping.time, index: index});
 	};
 
-	
 
-	const handleEditModeConfirm = (date) => {	
-		setDatePickerVisible(false);
-		console.warn("A date has been actualDate: ", date);
-		appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateOnboardStartTime(format(date, 'HH:mm'));
+	const onStoppingAddPress = (): void => {
+		appStore.bus.setJourneyRunningDays(runningDays.toString());
+		navigation && navigation.navigate("BusStoppingAddScreen",{ "journeyType": "Journey"});
 	};
 
 
-	const hideEditModeDatePicker = () => {
-		setDatePickerVisible(false);
-	}
+	const onBackPress = (): void => {
+		appStore.bus.setJourneyRunningDays(runningDays.toString());
+		navigation && navigation.goBack();
+	};
+
+	const onCopyFromChecked = (): void => {
+		setCopyFromChecked(!copyFromChecked);
+		appStore.bus.stoppings.forEach(stopping => {
+			console.log(">>"+stopping);
+            appStore.bus.addJourneyStopping(stopping.place,stopping.latitude,stopping.longitude,"00.00 AM");
+        });
+		setCopyFromDisabled(true);
+	};
 
 	const onRunningTimePress = (): void => {
 		setRunningTimePickerVisible(true);
 	};
 
 	
-	// navigation && navigation.navigate("RouteBusJourneyTurnEdit",{ "timetableIndex": timetable_index, "turnIndex": index});
+	const renderBackAction = (): React.ReactElement => (
+		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
+	);
+
 	
-	return (
+
+	useEffect(() => {
+			if(initialized == false){
+			  var journeyWorkdaysNumbers = appStore.bus.journey.runningDays.split(',').map(function(item) {
+				return parseInt(item, 10);
+			  });
+			  setRunningDays(journeyWorkdaysNumbers);
+			  console.log("##"+appStore.routeBus.journey.runningTime);
+			  const hoursMatch = appStore.routeBus.journey.runningTime?.match(/(\d+)h/);
+			  const minsMatch = appStore.routeBus.journey.runningTime?.match(/(\d+)mins/);
+
+			  const hr = hoursMatch ? parseInt(hoursMatch[1]) : 0;
+			  const min = minsMatch ? parseInt(minsMatch[1]) : 0;	
+			  console.log("Hours:"+hr);			
+			  console.log("Mins:"+min);			
+			  setInitialRunningTime({ hours: hr, minutes:min});
+									
+			  setInitialized(true);
+			}
 		
+	});
+
+
+	return (
+	
 		<ScrollView>
-
-
+			<DayPicker
+						weekdays={runningDays}
+						setWeekdays={setRunningDays}
+						activeColor='#142169'
+						textColor='white'
+						inactiveColor='grey'
+						/>
+			<Card style={{ margin: 10, borderRadius:10}}>
 			<View style={{ margin: 10}}>
-					<View style={styles.labelContainer}>
-						<Text style={styles.label}>Distance (km)</Text>
+								<View style={styles.labelContainer}>
+									<Text style={styles.label}>Distance</Text>
+								</View>
+								<View style={distanceCustomStyle}>
+									<TextInput placeholder="100" onChangeText={setDistance} value={distance} />
+								</View>
+							</View>
+			</Card>
+			<Card style={{ margin: 10, borderRadius:10}}>
+				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+					<Text style={{ padding: 5, paddingLeft: 10}}>Onbaord duration</Text>
+					<View style={{backgroundColor: "#F1F1F1"}}>
+						<Pressable onPress={() => onRunningTimePress()}>
+						<View pointerEvents="none">
+							<Input placeholder="Onboard duration..." value={appStore.routeBus.journey.runningTime}/>
+						</View>
+					</Pressable>
+					
 					</View>
-					<View style={runningNoCustomStyle}>
-						<TextInput placeholder="100" onChangeText={appStore.routeBus.journey.setDistance} value={appStore.routeBus.journey.distance} />
-					</View>
+					
+					
 				</View>
+			</Card>
 
 			<Card style={{ margin: 10, borderRadius:10}}>
 				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
@@ -111,17 +180,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				</View>
 			</Card>
 
-				
-			
-
-			<DateTimePickerModal
-							isVisible={isDatePickerVisible}
-							mode="time"
-							date={defaultDate} 
-							timeZoneName={'Asia/Colombo'} 
-							onConfirm={handleEditModeConfirm}
-							onCancel={hideEditModeDatePicker}/>	
-			
 			<TimerPickerModal
 						    visible={isRunningTimePickerVisible}
               				setIsVisible={setRunningTimePickerVisible}
@@ -174,48 +232,32 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							}}
 						/>
 
-		
-
 			
 		</ScrollView>
 		
 		
 		
 	);
-}));
+};
 
 const styles = StyleSheet.create({
+
+	
 	listContent: {
 		paddingHorizontal: 32,
 		paddingVertical: 8,
 	},
-	listContainer: {
-		flex: 1,
-		padding: 25,
-	},
 	button: {
 		marginVertical: 8,
 	},
-	listButton: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		paddingVertical: 10,
+
+	item: {
+		marginVertical: 8,
+		marginHorizontal: 10
 	},
-		listLabel: {
-		fontSize: 16,
-	},
-	errorLabel: {
-		color: "#8B0000", 
-		fontSize:12,
-		padding: 10
-	},
-	captionText: {
-		fontFamily: 'opensans-regular',
-		color: '#333',
-		flex: 1 
-	},
-	label: {
-		color:"#142169"
+	
+	itemContent: {
+		marginVertical: 8,
 	},
 	labelContainer: {
         backgroundColor: "white", // Same color as background
@@ -248,34 +290,16 @@ const styles = StyleSheet.create({
         padding: 8, // Also used to make it look nicer
         zIndex: 0, // Ensure border has z-index of 0
     },
-	item: {
-		marginVertical: 8,
-		marginHorizontal: 10
-	},
-	itemHeader: {
-		fontWeight: "500",
-		fontSize: 18
-	},
-	listIconDelete: {
-		fontSize: 26,
-		color: '#710e07',
-		width: 60,
-	},
-	listIconEdit: {
-		fontSize: 26,
-		color: '#6a5703',
-		width: 60,
-	},
 
-	itemSelected: {
-		marginVertical: 8,
-		marginHorizontal: 10,
-		borderWidth: 1,
-		borderColor: "#aaa"
-	},
 	itemContentIcon: {
 		fontSize: 20,
 		color: '#666',
+	},
+	label: {
+		color:"#142169"
 	}
 	
 });
+
+
+export default observer(BusJourneyAdd);
