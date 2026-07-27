@@ -179,6 +179,10 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 		appStore.routeBus.deleteStoppingPlaceByPlace(stopping);
 	};
 
+	const onNavigateToRotationBuses = (): void => {
+		navigation.navigate("RouteBusRotationBusesList")
+	};
+
 	
 	
 	return (
@@ -373,6 +377,13 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 				
 				
 			</View>
+
+			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToRotationBuses}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Rotation Buses</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToRotationBuses}/>
+				</View>
+			</Card>
 
 			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToJourney}>	
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>

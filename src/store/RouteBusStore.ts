@@ -311,7 +311,22 @@ const Route = types.model({
 
 
 
-
+const RotationBus = types.model({
+  regNo: types.string,
+  licenseNo: types.string
+})
+.actions((self) => ({
+  
+  reset(){
+    
+  },
+  setRegNo(regNo){
+    self.regNo = regNo;
+  },
+  setLicenseNo(licenseNo){
+    self.licenseNo = licenseNo;
+  }
+}))
 
 const NewRouteVirtualBusStore = types
   .model({
@@ -323,6 +338,7 @@ const NewRouteVirtualBusStore = types
     typeOfService: types.optional(types.string, ""),   // Normal, Luxury, Super Luxury
     duration: types.optional(types.string, ""), // 90 Minutes - Makumbura-Galle
     stoppingPlaces: types.array(StoppingPlace),
+    rotationBuses: types.array(RotationBus),
     journey: types.optional(Route, {
       timetables: []
     }),
@@ -341,6 +357,7 @@ const NewRouteVirtualBusStore = types
       self.transportAuthority = "";
       self.typeOfService = "";
       self.stoppingPlaces= StoppingPlace[0];
+      self.rotationBuses= RotationBus[0];
     },
     populate(bus) {
       self.objectId = bus._id;
@@ -406,6 +423,21 @@ const NewRouteVirtualBusStore = types
      // self.journey.timetables.push({type,runningDays,turns});
       self.journey.addTimetable(type,runningDays);
       console.log("end addTimetable"+self.journey.timetables.length);
+    },
+    addRotationBus(regNo,licenseNo){
+      self.rotationBuses.push({regNo,licenseNo})
+    },
+    addRotationBusAtIndex(regNo,licenseNo,index){
+      self.rotationBuses.splice(index, 0, {regNo,licenseNo});
+    },
+    deleteRotationBusByIndex(index){
+      self.rotationBuses.remove(self.rotationBuses[index]);
+    },
+    updateRotationBusByIndex(regNo,licenseNo,index){
+      const rotationBuses = self.rotationBuses[index];
+     // console.log("####"+stopping.latitude+","+stopping.longitude);
+     rotationBuses.setRegNo(regNo);
+     rotationBuses.setLicenseNo(licenseNo);
     }
   }))
   .views((self) => ({
