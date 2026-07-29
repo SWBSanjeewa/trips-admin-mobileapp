@@ -62,7 +62,13 @@ export const RouteBusJourneyTimetablesScreen = ({ navigation }): React.ReactElem
 		<SafeAreaLayout style={styles.container} insets="top">
 			<TopNavigation title={props => (
 				<RNText {...props} style={{fontWeight: "500", fontSize: 18}}>
-					Route Bus Journey Timetables 
+					{route.params?.journeyType == "RouteBusReturnJourney" && (
+						<>Route Bus Return Journey Timetables </>
+					)}
+					{route.params?.journeyType == "RouteBusJourney" && (
+						<>Route Bus Journey Timetables </>
+					)}
+					
 				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
 				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>
 			

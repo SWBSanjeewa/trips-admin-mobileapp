@@ -93,33 +93,65 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	const onDeleteTurn = (tIndex: number,index: number) => () =>  {
-		appStore.routeBus.journey.deleteTurnByIndex(tIndex,index);
+		if(route.params?.journeyType=="RouteBusJourney"){
+			appStore.routeBus.journey.deleteTurnByIndex(tIndex,index);
+		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+			appStore.routeBus.returnJourney.deleteTurnByIndex(tIndex,index);
+		}
 		setSelectedTurn(-1);
 	}
+
+	
 	
 	const onEditModeAddTurn = (tIndex: number) => () =>  {
        console.log("tIndex:"+tIndex+" selectedTurn:"+selectedTurn);
-	   if(tIndex > -1){
-			
-			if(selectedTurn > -1){
-				const [hours, minutes] = appStore.routeBus.journey.timetables[timetableIndex].turns[selectedTurn].startTime.split(':');
-				console.log("hours>>"+hours);
-				defaultDate.setHours(hours, minutes, 0, 0); 
-			}else{
-				var turnsSize=appStore.routeBus.journey.timetables[timetableIndex]?.turns.length;
-				if(turnsSize>0){
-					const [hours, minutes] = appStore.routeBus.journey.timetables[timetableIndex]?.turns[turnsSize-1].startTime.split(':');
+
+	   if(route.params?.journeyType=="RouteBusJourney"){
+		if(tIndex > -1){
+				
+				if(selectedTurn > -1){
+					const [hours, minutes] = appStore.routeBus.journey.timetables[timetableIndex].turns[selectedTurn].startTime.split(':');
 					console.log("hours>>"+hours);
 					defaultDate.setHours(hours, minutes, 0, 0); 
+				}else{
+					var turnsSize=appStore.routeBus.journey.timetables[timetableIndex]?.turns.length;
+					if(turnsSize>0){
+						const [hours, minutes] = appStore.routeBus.journey.timetables[timetableIndex]?.turns[turnsSize-1].startTime.split(':');
+						console.log("hours>>"+hours);
+						defaultDate.setHours(hours, minutes, 0, 0); 
+					}
+
 				}
-
 			}
-		}
 
-	   setEditModeDatePickerVisibility(true);
-	   setTimetableIndex(tIndex);
-	   if(selectedTurn == -1 || timetableIndex != tIndex)
-	   	 setSelectedTurn(appStore.routeBus.journey.timetables[tIndex].turns.length-1);
+		setEditModeDatePickerVisibility(true);
+		setTimetableIndex(tIndex);
+		if(selectedTurn == -1 || timetableIndex != tIndex)
+			setSelectedTurn(appStore.routeBus.journey.timetables[tIndex].turns.length-1);
+	
+	   }else if(route.params?.journeyType=="RouteBusReturnJourney"){
+			if(tIndex > -1){
+				
+				if(selectedTurn > -1){
+					const [hours, minutes] = appStore.routeBus.returnJourney.timetables[timetableIndex].turns[selectedTurn].startTime.split(':');
+					console.log("hours>>"+hours);
+					defaultDate.setHours(hours, minutes, 0, 0); 
+				}else{
+					var turnsSize=appStore.routeBus.returnJourney.timetables[timetableIndex]?.turns.length;
+					if(turnsSize>0){
+						const [hours, minutes] = appStore.routeBus.returnJourney.timetables[timetableIndex]?.turns[turnsSize-1].startTime.split(':');
+						console.log("hours>>"+hours);
+						defaultDate.setHours(hours, minutes, 0, 0); 
+					}
+
+				}
+			}
+
+		setEditModeDatePickerVisibility(true);
+		setTimetableIndex(tIndex);
+		if(selectedTurn == -1 || timetableIndex != tIndex)
+			setSelectedTurn(appStore.routeBus.returnJourney.timetables[tIndex].turns.length-1);
+	   }
 	   
     };
 
@@ -171,7 +203,11 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		}
 		
 		console.log(appStore.routeBusTimetable.type+"::"+appStore.routeBusTimetable.runningDays.toString());
-		appStore.routeBus.addTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
+		if(route.params?.journeyType=="RouteBusJourney"){
+		    appStore.routeBus.addJourneyTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
+		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+			appStore.routeBus.addReturnJourneyTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
+		}
 		console.log("*****");
 		setDefaultDate(new Date());
 		setSelectedTurn(-1);
@@ -181,10 +217,16 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	
 	const onTimetableEditPress = (): void => {	
-		const timetable = appStore.routeBus.journey.timetables[timetableIndex];
+		let timetable;
+		if(route.params?.journeyType=="RouteBusJourney"){
+		    timetable = appStore.routeBus.journey.timetables[timetableIndex];
+		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+			timetable = appStore.routeBus.returnJourney.timetables[timetableIndex];
+		}
+		 
 	
-		timetable.setTimetableType(routeBusTimetableTypes[selectedIndexEdit-1]);
-		if(timetable.type == "Selected Days"){
+		timetable?.setTimetableType(routeBusTimetableTypes[selectedIndexEdit-1]);
+		if(timetable?.type == "Selected Days"){
 			timetable.setRunningDays(runningDays.toString());
 		}
 		setTimetableIndex(-1);
@@ -220,19 +262,35 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	
 	const onEditPress = async() => {
 		//addCallback();
-		console.log(">"+appStore.routeBusTimetable.type);
-		console.log("Timetable Index:"+getIndexNumber(appStore.routeBus.journey.timetables.at(timetableIndex)?.type));
-		setSelectedIndex(new IndexPath(getIndexNumber(appStore.routeBus.journey.timetables.at(timetableIndex)?.type)));
-		if(appStore.routeBus.journey.timetables.at(timetableIndex)?.type == "Selected Days"){
-			setSelectedDaysSelected(true);
-		}else{
-			setSelectedDaysSelected(false);
-		}
-		var timetableRunningDays = appStore.routeBus.journey.timetables.at(timetableIndex)?.runningDays.split(',').map(function(item) {
-			return parseInt(item, 10);
-		});
 		
-		setRunningDays(timetableRunningDays);
+		var timetableRunningDays;
+
+		//console.log(">"+appStore.routeBusTimetable.type);
+		//console.log("Timetable Index:"+getIndexNumber(appStore.routeBus.journey.timetables.at(timetableIndex)?.type));
+		if(route.params?.journeyType=="RouteBusJourney"){
+			setSelectedIndex(new IndexPath(getIndexNumber(appStore.routeBus.journey.timetables.at(timetableIndex)?.type)));
+			if(appStore.routeBus.journey.timetables.at(timetableIndex)?.type == "Selected Days"){
+				setSelectedDaysSelected(true);
+			}else{
+				setSelectedDaysSelected(false);
+			}
+		    timetableRunningDays = appStore.routeBus.journey.timetables.at(timetableIndex)?.runningDays.split(',').map(function(item) {
+				return parseInt(item, 10);
+			});
+		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+			setSelectedIndex(new IndexPath(getIndexNumber(appStore.routeBus.returnJourney.timetables.at(timetableIndex)?.type)));
+			if(appStore.routeBus.returnJourney.timetables.at(timetableIndex)?.type == "Selected Days"){
+				setSelectedDaysSelected(true);
+			}else{
+				setSelectedDaysSelected(false);
+			}
+			timetableRunningDays = appStore.routeBus.returnJourney.timetables.at(timetableIndex)?.runningDays.split(',').map(function(item) {
+				return parseInt(item, 10);
+			});
+		}
+		if(timetableRunningDays){
+			setRunningDays(timetableRunningDays);
+		}
 		setEdit(true);
 		
 	};
@@ -247,7 +305,12 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			setSelectedTurn(selectedTurn+1); 
 			console.warn("A date has been actualDate: ", date);
 			console.warn("A date has been actualDate: ", format(date, 'p'));
-			appStore.routeBus.journey.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
+			if(route.params?.journeyType=="RouteBusJourney"){
+				appStore.routeBus.journey.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
+			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+				appStore.routeBus.returnJourney.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
+			}
+			
 			//appStore.routeBusTimetable.addTurn("",format(date, 'HH:mm'),"",[],[]);	
 	};
 
@@ -361,7 +424,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			
 			)}
 
-
+			{route.params?.journeyType == "RouteBusJourney" && (
 			<View>	
 				{appStore.routeBus.journey.timetables.map((timetable,timetable_index) => (
 					
@@ -426,7 +489,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 								        style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
 										onPress={({ nativeEvent }) => {
 												console.log('On Press action:', nativeEvent.event);
-												navigation && navigation.navigate("RouteBusJourneyTurnEdit",{ "timetableIndex": timetable_index, "turnIndex": index});
+												navigation && navigation.navigate("RouteBusJourneyTurnEdit",{ "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
 												}}
 										onLongPress={({ nativeEvent }) => {
 												setSelectedTurn(index);
@@ -456,6 +519,104 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 			
 			</View>
+			)}
+
+			{route.params?.journeyType == "RouteBusReturnJourney" && (
+			<View>	
+				{appStore.routeBus.returnJourney.timetables.map((timetable,timetable_index) => (
+					
+					<Card key={timetable_index} 
+					style={[
+					timetableIndex == timetable_index? styles.item : styles.itemSelected
+					]}
+					//style={styles.itemSelected} 
+					onPress={()=>onTimetableDetailsPress(timetable,timetable_index)}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
+						<View>
+							<Select value={timetable.type}>
+							</Select>
+						</View>
+						{timetable.runningDays && (
+							
+							<DayPicker
+								weekdays={
+									timetable.runningDays.split(',').map(function(item) {
+										return parseInt(item, 10);
+								})}
+								setWeekdays={setSelectedDaysRunningDays}
+								activeColor='#142169'
+								textColor='white'
+								inactiveColor='grey'
+								itemStyles={{width: 35, height:35, color: "red", paddingHorizontal: 0, marginHorizontal: 5 ,marginVertical : 5}}
+								dayTextStyle={{ fontSize: 10 }}
+								wrapperStyles={{ marginVertical: 10, justifyContent: 'space-left' }}
+							/>
+						)}
+						<Text style={{ padding: 5, paddingLeft: 10}}>Turns</Text>
+					<View style={styles.inputContainer}>
+						<View style={{flexDirection: "row", flexWrap: "wrap"}}>
+							
+						{timetable.turns.map(function(turn, index){
+							
+							if(index == selectedTurn && timetable_index == timetableIndex){
+								return <Pressable 
+								         style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#000"}}
+										onPress={({ nativeEvent }) => {
+												console.log('On Press action:', nativeEvent.event);
+												}}
+										onLongPress={({ nativeEvent }) => {
+											   // setSelectedTurn(turn);
+											   console.log("selectedTurn:"+selectedTurn);
+												console.log("index:"+index);
+												if(selectedTurn == index){
+													setSelectedTurn(-1);
+												}
+												
+												console.log('On Long Press action:', nativeEvent.event);
+												}}
+										delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
+										>
+											<View style={{flexDirection: "row", flexWrap: "wrap"}}>
+											<Text style={{padding: 2,paddingHorizontal: 10}}>{turn.startTime}</Text>
+											<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteTurn(timetable_index,index)} />
+											</View>
+									</Pressable>
+							}else{
+								return <Pressable 
+								        style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
+										onPress={({ nativeEvent }) => {
+												console.log('On Press action:', nativeEvent.event);
+												navigation && navigation.navigate("RouteBusJourneyTurnEdit",{ "timetableIndex": timetable_index, "turnIndex": index,"journeyType": route.params?.journeyType});
+												}}
+										onLongPress={({ nativeEvent }) => {
+												setSelectedTurn(index);
+												setTimetableIndex(timetable_index);
+												console.log("##"+turn.startTime);
+												console.log('On Long Press action:', nativeEvent.event);
+												}}
+										delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
+										>
+											<Text style={{padding: 2, paddingHorizontal: 10}}>{turn.startTime}</Text>
+									</Pressable>
+							}
+							
+						})}	
+						
+						
+						<AntDesign style={{top: 0}} name="plus" size={30} color="black" onPress={onEditModeAddTurn(timetable_index)} />
+						
+						
+					</View>
+					</View>
+					
+					</Card>
+				))}
+
+				 
+
+			
+			</View>
+			)}
 
 	
 

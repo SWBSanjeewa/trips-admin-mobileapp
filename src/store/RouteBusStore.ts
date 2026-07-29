@@ -418,11 +418,17 @@ const NewRouteVirtualBusStore = types
        const stoppingPlace = self.stoppingPlaces.find(p => p.place === place);
        self.stoppingPlaces.remove(stoppingPlace);
     },
-    addTimetable(type,runningDays){
+    addJourneyTimetable(type,runningDays){
       console.log("addTimetable::"+type);
      // self.journey.timetables.push({type,runningDays,turns});
       self.journey.addTimetable(type,runningDays);
       console.log("end addTimetable"+self.journey.timetables.length);
+    },
+    addReturnJourneyTimetable(type,runningDays){
+      console.log("addTimetable::"+type);
+     // self.journey.timetables.push({type,runningDays,turns});
+      self.returnJourney.addTimetable(type,runningDays);
+      console.log("end addTimetable"+self.returnJourney.timetables.length);
     },
     addRotationBus(regNo,licenseNo){
       self.rotationBuses.push({regNo,licenseNo})

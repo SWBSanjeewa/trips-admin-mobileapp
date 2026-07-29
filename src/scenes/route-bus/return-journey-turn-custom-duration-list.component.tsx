@@ -9,11 +9,11 @@ import AppStore from "../../store/AppStore";
 import { useStore } from "mobx-store-provider";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { useRoute } from "@react-navigation/native";
-import ContentView from "../../layouts/route-bus/bus-journey-timetables-list";
+import ContentView from "../../layouts/route-bus/return-journey-turn-custom-duration-list";
 import { PlusOutlineIcon } from "../../components/icons";
 
 
-export const RouteBusJourneyTimetablesListScreen = ({ navigation }): React.ReactElement => {
+export const ReturnJourneyTurnCustomDurationsListScreen = ({ navigation }): React.ReactElement => {
 
 	const route = useRoute();
 
@@ -32,12 +32,6 @@ export const RouteBusJourneyTimetablesListScreen = ({ navigation }): React.React
 		appStore.routeBusTimetable.reset();
 	}
 
-
-	const renderAddAction = (): React.ReactElement => (
-			<>
-			<TopNavigationAction icon={PlusOutlineIcon} onPress={onBusAddPress} />
-			</>		
-		);
 
 	const MenuIcon = (props): IconElement => (
 		<MaterialIcons name="more-vert" size={24} color="black" />
@@ -62,13 +56,8 @@ export const RouteBusJourneyTimetablesListScreen = ({ navigation }): React.React
 		<SafeAreaLayout style={styles.container} insets="top">
 			<TopNavigation title={props => (
 				<RNText {...props} style={{fontWeight: "500", fontSize: 18}}>
-					{route.params?.journeyType == "RouteBusReturnJourney" && (
-						<>Route Bus Return Journey Timetables</>
-					)}
-					{route.params?.journeyType == "RouteBusJourney" && (
-						<>Route Bus Journey Timetables</>
-					)}
-				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
+					Custom Durations
+				</RNText>)} accessoryLeft={renderBackAction} />
 				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>
 			
 		</SafeAreaLayout>	

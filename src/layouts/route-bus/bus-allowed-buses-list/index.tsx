@@ -65,18 +65,32 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	
 	const onCreatePress = async() => {
-		
-		if(appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].allowedBuses.length < 2){
-			isValidValues()
-			appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].addAllowedBus(regNo,licenseNo,date);
-			console.log(JSON.stringify(toJS(appStore.routeBus)));	
-			setRegNo("");
-			setLicenseNo("");
-			setDate("");
-			addCallback(false);
-		}else{
-			console.log("Maximum 2 allowed");
-			addCallback(false);
+		if(route.params?.journeyType=="RouteBusJourney"){
+			if(appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].allowedBuses.length < 2){
+				isValidValues()
+				appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].addAllowedBus(regNo,licenseNo,date);
+				console.log(JSON.stringify(toJS(appStore.routeBus)));	
+				setRegNo("");
+				setLicenseNo("");
+				setDate("");
+				addCallback(false);
+			}else{
+				console.log("Maximum 2 allowed");
+				addCallback(false);
+			}
+		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+			if(appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].allowedBuses.length < 2){
+				isValidValues()
+				appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].addAllowedBus(regNo,licenseNo,date);
+				console.log(JSON.stringify(toJS(appStore.routeBus)));	
+				setRegNo("");
+				setLicenseNo("");
+				setDate("");
+				addCallback(false);
+			}else{
+				console.log("Maximum 2 allowed");
+				addCallback(false);
+			}
 		}
 
 	}
@@ -230,6 +244,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			)}
 
 
+			{route.params?.journeyType == "RouteBusJourney" && (
 			<View>	
 				
 				{appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex]?.allowedBuses?.map((allowedBus,index) => (
@@ -274,10 +289,58 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					</Card>
 				))}
 
-				 
-
-			
 			</View>
+			)}
+
+			{route.params?.journeyType == "RouteBusReturnJourney" && (
+			<View>	
+				
+				{appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex]?.allowedBuses?.map((allowedBus,index) => (
+					
+					<Card key={index} 
+					style={[
+				     allowedBusIndex != index? styles.item : styles.itemSelected
+					]}
+					onPress={()=>onAllowedBusPress(allowedBus.regNo,allowedBus.licenseNo,allowedBus.date,index)}>
+						
+						<Card style={{ margin: 10}}>
+							<Text style={styles.itemHeader}>Reg No</Text>
+							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+								<Text>{allowedBus.regNo}</Text>
+								
+							</View>
+						</Card>
+
+						{allowedBus.licenseNo!= "" && (
+						
+						<Card style={{ margin: 10}}>
+							<Text style={styles.itemHeader}>License No</Text>
+							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+								<Text>{allowedBus.licenseNo}</Text>
+								
+							</View>
+						</Card>
+						)}
+
+						{allowedBus.date!= "" && (
+						
+						<Card style={{ margin: 10}}>
+							<Text style={styles.itemHeader}>Date</Text>
+							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+								<Text>{allowedBus.date}</Text>
+								
+							</View>
+						</Card>
+						)}
+						
+					
+					</Card>
+				))}
+
+			</View>
+			)}
+
+
 
 			<RBSheet ref={refRBSheetActions} draggable dragOnContent height={200}>
 					<View style={styles.listContainer}>
