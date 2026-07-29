@@ -125,10 +125,10 @@ const BusStoppingEdit = ({ navigation }): React.ReactElement => {
 		if(isValidValues()){
 			if(route.params.journeyType == "RouteBusJourney"){
 				appStore.routeBus.journey.updateStopping(oldLatitude, oldLongitude, place,latitude.toString(),longitude.toString(),duration);
-				navigation.navigate('RouteBusJourneyStoppingsList');
+				navigation.navigate('RouteBusJourneyStoppingsList',{"journeyType": route.params.journeyType});
 			} else if(route.params.journeyType == "RouteBusReturnJourney"){
-				appStore.routeBus.journey.updateReturnJourneyStopping(oldLatitude, oldLongitude, place,latitude,longitude,duration);
-				navigation.navigate('RouteBusReturnJourneyList');
+				appStore.routeBus.returnJourney.updateStopping(oldLatitude, oldLongitude, place,latitude.toString(),longitude.toString(),duration);
+				navigation.navigate('RouteBusJourneyStoppingsList',{"journeyType": route.params.journeyType});
 			}
 		}
 	};
@@ -141,10 +141,10 @@ const BusStoppingEdit = ({ navigation }): React.ReactElement => {
 	const onStoppingDeletePress = (): void => {
 		if(route.params.journeyType == "RouteBusJourney"){
 			appStore.routeBus.journey.deleteStoppingById(oldLatitude,oldLongitude);
-			navigation.navigate('RouteBusJourneyStoppingsList');
+			navigation.navigate('RouteBusJourneyStoppingsList',{"journeyType": route.params.journeyType});
 		} else if(route.params.journeyType == "RouteBusReturnJourney"){
 			appStore.routeBus.returnJourney.deleteStoppingById(oldLatitude,oldLongitude);
-			navigation.navigate('RouteBusReturnJourneyStoppingsList');
+			navigation.navigate('RouteBusJourneyStoppingsList',{"journeyType": route.params.journeyType});
 		}
 	};
 
@@ -159,7 +159,13 @@ const BusStoppingEdit = ({ navigation }): React.ReactElement => {
 	return (
 		
 		<ScrollView>
-			<TopNavigation accessoryLeft={renderBackAction} title="Route Bus Edit Stopping"/>
+			{route.params?.journeyType == "RouteBusReturnJourney" && (
+				<TopNavigation accessoryLeft={renderBackAction} title="Route Bus Edit Return Stopping"/>
+			)}
+			{route.params?.journeyType == "RouteBusJourney" && (
+				<TopNavigation accessoryLeft={renderBackAction} title="Route Bus Edit Stopping"/>
+			)}
+			
 
 			
 			<Card style={{ margin: 5}}>

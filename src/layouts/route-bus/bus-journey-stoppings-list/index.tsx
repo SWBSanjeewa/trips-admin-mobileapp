@@ -31,17 +31,21 @@ const BusJourneyList = ({ navigation }): React.ReactElement => {
 
 	const [copyFromChecked, setCopyFromChecked] = React.useState(false);
 
-	const [copyFromDisabled, setCopyFromDisabled] = React.useState(appStore.bus.journey.stoppings.length >0 );
+	const [copyFromDisabled, setCopyFromDisabled] = React.useState(appStore.routeBus.journey.stoppings.length >0 );
+
+	const [copyFromCheckedReturnJourney, setCopyFromCheckedReturnJourney] = React.useState(false);
+
+	const [copyFromDisabledReturnJourney, setCopyFromDisabledReturnJourney] = React.useState(appStore.routeBus.returnJourney.stoppings.length >0 );
 	
 
 	const onStoppingEditPress = (stopping,index): void => {
-		navigation && navigation.navigate("RouteBusStoppingEditScreen", {id: "routebus-stopping-edit", "journeyType": "RouteBusJourney","returnRoute": "RouteBusJourney", oldLatitude: stopping.latitude, oldLongitude: stopping.longitude, place: stopping.place, latitude: stopping.latitude, longitude: stopping.longitude, duration: stopping.duration, index: index});
+		navigation && navigation.navigate("RouteBusStoppingEditScreen", {id: "routebus-stopping-edit", "journeyType": route.params?.journeyType,"returnRoute": "RouteBusJourney", oldLatitude: stopping.latitude, oldLongitude: stopping.longitude, place: stopping.place, latitude: stopping.latitude, longitude: stopping.longitude, duration: stopping.duration, index: index});
 	};
 
 
 	const onStoppingAddPress = (): void => {
 		appStore.bus.setJourneyRunningDays(runningDays.toString());
-		navigation && navigation.navigate("RouteBusStoppingAddScreen",{ "journeyType": "RouteBusJourney"});
+		navigation && navigation.navigate("RouteBusStoppingAddScreen",{ "journeyType": route.params?.journeyType});
 	};
 
 
@@ -60,6 +64,17 @@ const BusJourneyList = ({ navigation }): React.ReactElement => {
 		setCopyFromDisabled(true);
 	};
 
+	const onCopyFromCheckedReturnJourney = (): void => {
+		setCopyFromCheckedReturnJourney(!copyFromCheckedReturnJourney);
+		//console.log("onCopyFromChecked>>"+appStore.routeBus.stoppingPlaces.length);
+		const reversedCopy = appStore.routeBus.stoppingPlaces.slice().reverse();
+		reversedCopy.forEach(stoppingPlace => {
+			console.log(">>"+stoppingPlace);
+            appStore.routeBus.returnJourney.addStopping(stoppingPlace.place,stoppingPlace.latitude,stoppingPlace.longitude,"0 Hours 0 Mins");
+        });
+		setCopyFromDisabledReturnJourney(true);
+	};
+
 	
 	
 
@@ -70,7 +85,7 @@ const BusJourneyList = ({ navigation }): React.ReactElement => {
 			  });
 			  setRunningDays(journeyWorkdaysNumbers);
 			  setInitialized(true);
-			}
+			}	
 		
 	});
 
@@ -80,16 +95,23 @@ const BusJourneyList = ({ navigation }): React.ReactElement => {
 		<ScrollView>
 			
 			<View style={{ flexDirection: "row", justifyContent: "flex-end"}}>
-				<CheckBox style={{ margin: 2}}  checked={copyFromChecked} onChange={onCopyFromChecked} disabled={copyFromDisabled}>Copy stoppings from description</CheckBox>
+				
+				{route.params?.journeyType == "RouteBusReturnJourney" && (
+					<CheckBox style={{ margin: 2}}  checked={copyFromCheckedReturnJourney} onChange={onCopyFromCheckedReturnJourney} disabled={copyFromDisabledReturnJourney}>Copy stoppings from description in reverse</CheckBox>
+				)}
+				{route.params?.journeyType == "RouteBusJourney" && (
+					<CheckBox style={{ margin: 2}}  checked={copyFromChecked} onChange={onCopyFromChecked} disabled={copyFromDisabled}>Copy stoppings from description</CheckBox>
+				)}
 			</View>
 			<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
 				<Button style={{ flex: 1 , margin: 2, borderRadius:50, margin: 10 }} onPress={()=>onStoppingAddPress()} >Add Stopping</Button>
 			</View>
 			
 			
-
+			{route.params?.journeyType == "RouteBusJourney" && (
 			<View>	
 
+				
 				{appStore.routeBus.journey.stoppings.map(function(stopping, index){	
 					return  <Card key={index} style={styles.item} onPress={()=>onStoppingEditPress(stopping,index)}>
 					
@@ -120,8 +142,49 @@ const BusJourneyList = ({ navigation }): React.ReactElement => {
 									
 								</Card>
 				})}	
+				
 			
 			</View>
+			)}
+
+			{route.params?.journeyType == "RouteBusReturnJourney" && (
+			<View>	
+
+				
+				{appStore.routeBus.returnJourney.stoppings.map(function(stopping, index){	
+					return  <Card key={index} style={styles.item} onPress={()=>onStoppingEditPress(stopping,index)}>
+					
+									<View style={{   marginVertical:10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+									<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+										<Text style={{ padding: 5, paddingLeft: 10}}>Location</Text>
+										<View style={{backgroundColor: "#F1F1F1"}}>
+											<Input placeholder="Location..." value={stopping.place}/>
+										</View>
+										
+									</View>
+								</View>
+					
+									
+									<View style={{   marginVertical:10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+									<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+										<Text style={{ padding: 5, paddingLeft: 10}}>Duration</Text>
+										<View style={{backgroundColor: "#F1F1F1"}}>
+	
+												<Input placeholder="Duration from start..." value={stopping.duration}/>
+											
+										
+										</View>
+										
+										
+									</View>
+								</View>
+									
+								</Card>
+				})}	
+				
+			
+			</View>
+			)}
 
 			
 		</ScrollView>

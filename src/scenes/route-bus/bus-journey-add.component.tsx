@@ -6,8 +6,12 @@ import { ArrowIosBackIcon } from "../../components/icons";
 import { PlusOutlineIcon } from "../../components/icons";
 import { SafeAreaLayout } from "../../components/safe-area-layout.component";
 import ContentView from "../../layouts/route-bus/bus-journey-add";
+import { useRoute } from "@react-navigation/native";
 
 export const RouteBusJourneyAddScreen = ({ navigation }): React.ReactElement => {
+
+	const route = useRoute();
+
 	const renderBackAction = (): React.ReactElement => (
 		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
 	);
@@ -21,7 +25,13 @@ export const RouteBusJourneyAddScreen = ({ navigation }): React.ReactElement => 
 		<SafeAreaLayout style={styles.container} insets="top">
 		<TopNavigation title={props => (
 			<Text {...props} style={{fontWeight: "500", fontSize: 18}}>
-			Route Bus Journey Add
+				{route.params?.journeyType == "RouteBusReturnJourney" && (
+					<>Route Bus Return Journey Add</>
+				)}
+				{route.params?.journeyType == "RouteBusJourney" && (
+					<>Route Bus Journey Add</>
+				)}
+			
 			</Text>)} accessoryLeft={renderBackAction} />
 		<ContentView navigation={navigation} />
 	</SafeAreaLayout>

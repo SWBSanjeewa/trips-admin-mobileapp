@@ -51,7 +51,11 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const handleEditModeConfirm = (date) => {	
 		setDatePickerVisible(false);
 		console.warn("A date has been actualDate: ", date);
-		appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateOnboardStartTime(format(date, 'HH:mm'));
+		if(route.params?.journeyType == "RouteBusReturnJourney"){
+			appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateOnboardStartTime(format(date, 'HH:mm'));
+		}else if(route.params?.journeyType == "RouteBusJourney"){
+			appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateOnboardStartTime(format(date, 'HH:mm'));
+		}
 	};
 
 
@@ -76,7 +80,13 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 						<Text style={styles.label}>Distance (km)</Text>
 					</View>
 					<View style={runningNoCustomStyle}>
-						<TextInput placeholder="100" onChangeText={appStore.routeBus.journey.setDistance} value={appStore.routeBus.journey.distance} />
+						{route.params?.journeyType == "RouteBusReturnJourney" && (
+							<TextInput placeholder="100" onChangeText={appStore.routeBus.returnJourney.setDistance} value={appStore.routeBus.returnJourney.distance} />
+						)}
+						{route.params?.journeyType == "RouteBusJourney" && (
+							<TextInput placeholder="100" onChangeText={appStore.routeBus.journey.setDistance} value={appStore.routeBus.journey.distance} />
+						)}
+						
 					</View>
 				</View>
 
@@ -86,7 +96,13 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					<View style={{backgroundColor: "#F1F1F1"}}>
 						<Pressable onPress={() => onRunningTimePress()}>
 						<View pointerEvents="none">
+							
+						{route.params?.journeyType == "RouteBusReturnJourney" && (
+							<Input placeholder="Running time..." value={appStore.routeBus.returnJourney.runningTime}/>
+						)}
+						{route.params?.journeyType == "RouteBusJourney" && (
 							<Input placeholder="Running time..." value={appStore.routeBus.journey.runningTime}/>
+						)}
 						</View>
 					</Pressable>
 					
@@ -97,17 +113,17 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			</Card>
 			
 
-			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppingsList", {id: appStore.bus.id})}>
+			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppingsList", {id: appStore.bus.id, journeyType: route.params?.journeyType})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Stoppings</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusReturnJourneyStoppings",{id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyStoppingsList",{id: appStore.bus.id,journeyType: route.params?.journeyType})}/>
 				</View>
 			</Card>
 
-			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.objectId})}>
+			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id,journeyType: route.params?.journeyType})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Timetables</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.objectId})}/>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id, journeyType: route.params?.journeyType})}/>
 				</View>
 			</Card>
 
@@ -138,12 +154,23 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 								if(pickedDuration.hours > 0){
 									setInitialRunningTime({ hours: pickedDuration.hours, minutes:pickedDuration.minutes});
 									//setDuration(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
-									appStore.routeBus.journey.setRunningTime(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
+									if(route.params?.journeyType == "RouteBusJourney"){
+										appStore.routeBus.journey.setRunningTime(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
+									}
+									else if(route.params?.journeyType == "RouteBusReturnJourney"){
+										appStore.routeBus.returnJourney.setRunningTime(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
+									}
 								}else{
 									setInitialRunningTime({ hours: 0, minutes:pickedDuration.minutes});
 									//setDuration(pickedDuration.minutes.toString()+" mins");
 									//initialDuration.minutes=pickedDuration.minutes;
-									appStore.routeBus.journey.setRunningTime(pickedDuration.minutes.toString()+" mins");
+									
+									if(route.params?.journeyType == "RouteBusJourney"){
+										appStore.routeBus.journey.setRunningTime(pickedDuration.minutes.toString()+" mins");
+									}
+									else if(route.params?.journeyType == "RouteBusReturnJourney"){
+										appStore.routeBus.returnJourney.setRunningTime(pickedDuration.minutes.toString()+" mins");
+									}
 								}
 							}}
 							

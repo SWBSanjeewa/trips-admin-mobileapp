@@ -209,15 +209,15 @@ const BusStoppingAdd = ({ navigation }): React.ReactElement => {
 					appStore.routeBus.journey.addStoppingAtIndex(place,latitude.toString(),longitude.toString(),index,duration);
 				}
 				console.log(JSON.stringify(appStore.routeBus));
-				navigation.navigate("RouteBusJourneyStoppingsList");
+				navigation.navigate("RouteBusJourneyStoppingsList",{"journeyType": route.params?.journeyType});
 			}else if(place !=null && journeyType == "RouteBusReturnJourney"){
 				if(index==0){
-					//appStore.routeBus.journey.addReturnJourneyStopping(place,latitude,longitude,time);
+					appStore.routeBus.returnJourney.addStopping(place,latitude.toString(),longitude.toString(),duration);
 				}else{
-					//appStore.routeBus.journey.addReturnJourneyStoppingAtIndex(place,latitude,longitude,index,time);
+					appStore.routeBus.returnJourney.addStoppingAtIndex(place,latitude.toString(),longitude.toString(),index,duration);
 				}
 				console.log(JSON.stringify(appStore.routeBus));
-				navigation.navigate("RouteBusReturnJourneyList");
+				navigation.navigate("RouteBusJourneyStoppingsList",{"journeyType": route.params?.journeyType});
 			}
 		}	
 	};
@@ -269,10 +269,19 @@ const BusStoppingAdd = ({ navigation }): React.ReactElement => {
 	return (
 		
 		<ScrollView>
-			<TopNavigation title={props => (
+			{route.params?.journeyType == "RouteBusReturnJourney" && (
+				<TopNavigation title={props => (
+				<Text style={{fontWeight: '500', fontSize: 18}}>
+					Route Bus Add Return Stopping
+				</Text>)} accessoryLeft={renderBackAction} />
+			)}
+			{route.params?.journeyType == "RouteBusJourney" && (
+				<TopNavigation title={props => (
 				<Text style={{fontWeight: '500', fontSize: 18}}>
 					Route Bus Add Stopping
 				</Text>)} accessoryLeft={renderBackAction} />
+			)}
+			
 			<Card style={{ margin: 5}}>
 
 				<View style={{   marginVertical:10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	

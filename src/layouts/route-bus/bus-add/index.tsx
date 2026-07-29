@@ -160,12 +160,12 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 	const onNavigateToJourney = (): void => {
 		setJourneyStoppingsErrorMessage("");
-		navigation.navigate("RouteBusJourneyAdd")
+		navigation.navigate("RouteBusJourneyAdd",{"journeyType":"RouteBusJourney"})
 	};
 
 	const onNavigateToReturnJourney = (): void => {
 		setJourneyStoppingsErrorMessage("");
-		navigation.navigate("BusJourneyList")
+		navigation.navigate("RouteBusJourneyAdd",{"journeyType":"RouteBusReturnJourney"})
 	};
 
 	
