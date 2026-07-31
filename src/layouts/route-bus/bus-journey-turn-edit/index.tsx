@@ -164,7 +164,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToAllowedBuses}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Swap Buses</Text>
+					<Text>Either Buses</Text>
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToAllowedBuses}/>
 				</View>
 			</Card>

@@ -39,7 +39,7 @@ export const JourneyTurnCustomDurationsListScreen = ({ navigation }): React.Reac
 
 
 	const onBackPress = () => {
-		appStore.routeBus.reset();		
+		//appStore.routeBus.reset();		
 		var localreload = false;
 		var localreload = route.params?.reload;
 		console.log("localreload::"+localreload);
@@ -56,7 +56,7 @@ export const JourneyTurnCustomDurationsListScreen = ({ navigation }): React.Reac
 		<SafeAreaLayout style={styles.container} insets="top">
 			<TopNavigation title={props => (
 				<RNText {...props} style={{fontWeight: "500", fontSize: 18}}>
-					Custom Durations
+					Stopping Times
 				</RNText>)} accessoryLeft={renderBackAction} />
 				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>
 			

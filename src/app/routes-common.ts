@@ -22,8 +22,8 @@ export const transportAuthorityTypes = [
 ]
 
 export const operatorTypes = [
-		{name: "SLTB", themeColor: "#483248"},
 		{name: "Private", themeColor: "#00008B"},
+		{name: "SLTB", themeColor: "#483248"},
 		{name: "Combined", themeColor: "#A9A9A9"}
 ]
 

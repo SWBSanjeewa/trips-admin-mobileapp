@@ -39,7 +39,7 @@ export const ReturnJourneyTurnCustomDurationsListScreen = ({ navigation }): Reac
 
 
 	const onBackPress = () => {
-		appStore.routeBus.reset();		
+		//appStore.routeBus.reset();		
 		var localreload = false;
 		var localreload = route.params?.reload;
 		console.log("localreload::"+localreload);

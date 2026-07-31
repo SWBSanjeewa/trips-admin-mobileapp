@@ -99,8 +99,11 @@ const BusStoppingEdit = ({ navigation }): React.ReactElement => {
 					const min = minsMatch ? parseInt(minsMatch[1]) : 0;	
 					console.log("Setting initial values:"+min);
 					setInitialDuration({ hours: hr, minutes:min});
-
-					const hoursMatchMax = appStore.routeBus.journey.duration?.match(/(\d+)h/);
+					console.log("#####"+appStore.routeBus.runningTime);
+					
+					const hoursMatchMax = appStore.routeBus.runningTime?.match(/(\d+)h/);
+					
+					
 					const hrMax = hoursMatchMax ? parseInt(hoursMatchMax[1]) : 0;
 					setDurationHourLimit({ max: hrMax, min:0});
 

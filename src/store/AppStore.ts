@@ -1,4 +1,4 @@
-import { remove } from "mobx";
+import { remove, toJS } from "mobx";
 import { types } from "mobx-state-tree";
 import { cast } from "mobx-state-tree"
 import NewRouteVirtualBusStore, {Timetable} from "./RouteBusStore";
@@ -1024,15 +1024,57 @@ const Tours = types.model({
 }))
 
 
+
 const RouteBuses = types.model({
   routeBuses: types.array(NewRouteVirtualBusStore),
 })
 .actions((self) => ({
-  addRouteBus(objectId,title,routeNo,operator,transportAuthority,typeOfService,stoppingPlaces){
+  addRouteBus(objectId,title,routeNo,operator,transportAuthority,typeOfService,stoppingPlaces,distance,runningTime,journey,returnJourney){
     console.log("::"+title);
+    const rBus =  NewRouteVirtualBusStore.create({
+      "objectId": objectId,
+      "title": title,
+      "routeNo": routeNo,
+      "operator": operator,
+      "transportAuthority": transportAuthority,
+      "typeOfService": typeOfService,
+      "stoppingPlaces": stoppingPlaces,
+      "distance": distance,
+      "runningTime": runningTime,
+     });
+
+     console.log(">>>"+journey);
+    
+     
+     if(journey?.timetables != null){
+				journey.timetables.forEach((element,index)=> {
+					rBus.journey.addTimetable( element.type,element.runningDays)
+          element.turns?.forEach(turn => {
+            rBus.journey.timetables[index].addTurn( turn.onboardStartTime,turn.startTime,turn.runningNo,turn.stoppings,turn.registrationNo,turn.licenseNo);
+          });
+       
+				});
+		 }
+
+     if(returnJourney?.timetables != null){
+				returnJourney.timetables.forEach((element,index)=> {
+					rBus.returnJourney.addTimetable( element.type,element.runningDays)
+          element.turns?.forEach(turn => {
+            rBus.returnJourney.timetables[index].addTurn( turn.onboardStartTime,turn.startTime,turn.runningNo,turn.stoppings,turn.registrationNo,turn.licenseNo);
+          });
+       
+				});
+		 }
+     
+     console.log("## rBus ##");
+    console.log(JSON.stringify(toJS(rBus)));	
+    
+    self.routeBuses.push(rBus);
+    /*
     self.routeBuses.push({
-      objectId,title,routeNo,operator,transportAuthority,typeOfService,stoppingPlaces
+      objectId,title,routeNo,operator,transportAuthority,typeOfService,stoppingPlaces,distance,runningTime
     })
+    */
   },
   reset(){
     self.routeBuses = NewRouteVirtualBusStore[0];

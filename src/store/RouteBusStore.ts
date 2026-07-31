@@ -115,7 +115,7 @@ const Timetable = new Schema({
 
 */
 
-const AllowedBus = types.model({
+const EitherBus = types.model({
   regNo: types.string,
   licenseNo: types.string,
   date: types.optional(types.string, ""),
@@ -136,6 +136,7 @@ const AllowedBus = types.model({
   },
 }))
 
+
 const Turn = types.model({
   onboardStartTime: types.string,
   startTime: types.string,
@@ -143,7 +144,7 @@ const Turn = types.model({
   stoppingTimes: types.array(StoppingTime),
   registrationNo: types.string,
   licenseNo: types.string,
-  allowedBuses: types.array(AllowedBus),
+  eitherBuses: types.array(EitherBus),
 
   //onboardStartTime,startTime,runningNo,registrationNo,licenseNo,stoppings
 })
@@ -181,22 +182,22 @@ const Turn = types.model({
    setLicenseNo(licenseNo){
     self.licenseNo=licenseNo;
   },
-   addAllowedBus(regNo,licenseNo,date){
-      self.allowedBuses.push({regNo,licenseNo,date})
+   addEitherBus(regNo,licenseNo,date){
+      self.eitherBuses.push({regNo,licenseNo,date})
     },
-    addAllowedBusAtIndex(regNo,licenseNo,date,index){
-      self.allowedBuses.splice(index, 0, {regNo,licenseNo,date});
+    addEitherBusAtIndex(regNo,licenseNo,date,index){
+      self.eitherBuses.splice(index, 0, {regNo,licenseNo,date});
     },
-    deleteAllowedBusByIndex(index){
+    deleteAEitherBusByIndex(index){
       console.log("deleteAllowedBusByIndex:"+index);
-      self.allowedBuses.remove(self.allowedBuses[index]);
+      self.eitherBuses.remove(self.allowedBuses[index]);
     },
-    updateAllowedBusByIndex(regNo,licenseNo,date,index){
-      const allowedBus = self.allowedBuses[index];
+    updateAEitherBusByIndex(regNo,licenseNo,date,index){
+      const eitherBus = self.eitherBuses[index];
      // console.log("####"+stopping.latitude+","+stopping.longitude);
-     allowedBus.setRegNo(regNo);
-     allowedBus.setLicenseNo(licenseNo);
-     allowedBus.setDate(date);
+     eitherBus.setRegNo(regNo);
+     eitherBus.setLicenseNo(licenseNo);
+     eitherBus.setDate(date);
     }
     
   
@@ -206,9 +207,9 @@ const Turn = types.model({
 
 export const Timetable = types.model({
   type: types.optional(types.string, ""),
-  runningDays: types.optional(types.string, ""),
   turns: types.array(Turn)
 })
+
 .actions((self) => ({
   
   reset(){
@@ -216,9 +217,9 @@ export const Timetable = types.model({
     self.runningDays = "";
     self.turns=Turn[0];
   },
-  addTurn(onboardStartTime,startTime,runningNo,stoppings){
+  addTurn(onboardStartTime,startTime,runningNo,stoppings,registrationNo,licenseNo){
     console.log("Add turns");
-    self.turns.push({onboardStartTime,startTime,runningNo,stoppings})
+    self.turns.push({onboardStartTime,startTime,runningNo,stoppings,registrationNo,licenseNo})
   },
   setTimetableType(timetableType){
     self.type = timetableType;
@@ -229,9 +230,6 @@ export const Timetable = types.model({
 }))
 
 const Route = types.model({
-  runningTime: types.optional(types.string, ""),
-  onBoardDuration: types.optional(types.string, ""),
-  distance: types.optional(types.string, ""),
   stoppings: types.array(Stopping),
   timetables: types.array(Timetable)
 })
@@ -239,12 +237,6 @@ const Route = types.model({
   
   reset(){  
 
-  },
-  setRunningTime(runningTime){
-    self.runningTime = runningTime;
-  },
-  setDistance(distance){
-    self.distance = distance;
   },
   addTimetable(type,runningDays){
     console.log("addTimetable"+type);
@@ -333,12 +325,13 @@ const NewRouteVirtualBusStore = types
     objectId: types.optional(types.string, ""),
     title: types.optional(types.string, ""),  // Colombo to Kandy
     routeNo: types.optional(types.string, ""),   // 636 Kandy matale (via Wattegama)
-    operator: types.optional(types.string, ""),   // SLTB, Private, Combined
-    transportAuthority: types.optional(types.string, ""),   // NTC, CP-TSA, SP-RPSA
-    typeOfService: types.optional(types.string, ""),   // Normal, Luxury, Super Luxury
-    duration: types.optional(types.string, ""), // 90 Minutes - Makumbura-Galle
+    operator: types.optional(types.string, "Private"),   // PrivateSLTB, Combined
+    transportAuthority: types.optional(types.string, "NTC"),   // NTC, CP-TSA, SP-RPSA
+    typeOfService: types.optional(types.string, "Super Luxury"),   // Normal, Luxury, Super Luxury
     stoppingPlaces: types.array(StoppingPlace),
     rotationBuses: types.array(RotationBus),
+    runningTime: types.optional(types.string, ""),
+    distance: types.optional(types.string, ""),
     journey: types.optional(Route, {
       timetables: []
     }),
@@ -354,6 +347,8 @@ const NewRouteVirtualBusStore = types
       self.title = "";
       self.routeNo = "";
       self.operator = "";
+      self.distance = "";
+      self.runningTime = "";
       self.transportAuthority = "";
       self.typeOfService = "";
       self.stoppingPlaces= StoppingPlace[0];
@@ -367,6 +362,8 @@ const NewRouteVirtualBusStore = types
       self.transportAuthority = bus.transportAuthority;
       self.typeOfService = bus.typeOfService;
       self.routeNo = bus.routeNo;
+      self.distance = bus.distance;
+      self.runningTime = bus.runningTime;
       console.log(">>"+bus.journey);
       console.log(JSON.stringify(bus.journey[0]));	
       
@@ -381,6 +378,12 @@ const NewRouteVirtualBusStore = types
     },
     setRouteNo(routeNo) {
       self.routeNo = routeNo;
+    },
+    setDistance(distance) {
+      self.distance = distance;
+    },
+     setRunningTime(runningTime) {
+      self.runningTime = runningTime;
     },
     setObjectId(objectId) {
       self.objectId = objectId;

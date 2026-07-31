@@ -66,9 +66,9 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	
 	const onCreatePress = async() => {
 		if(route.params?.journeyType=="RouteBusJourney"){
-			if(appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].allowedBuses.length < 2){
+			if(appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].eitherBuses.length < 2){
 				isValidValues()
-				appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].addAllowedBus(regNo,licenseNo,date);
+				appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].addEitherBus(regNo,licenseNo,date);
 				console.log(JSON.stringify(toJS(appStore.routeBus)));	
 				setRegNo("");
 				setLicenseNo("");
@@ -79,9 +79,9 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				addCallback(false);
 			}
 		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			if(appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].allowedBuses.length < 2){
+			if(appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].eitherBuses.length < 2){
 				isValidValues()
-				appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].addAllowedBus(regNo,licenseNo,date);
+				appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].addEitherBus(regNo,licenseNo,date);
 				console.log(JSON.stringify(toJS(appStore.routeBus)));	
 				setRegNo("");
 				setLicenseNo("");
@@ -141,7 +141,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const onUpdatePress = (): void => {
 		//appStore.routeBus.updateAllowedBusByIndex(regNo, licenseNo, allowedBusIndex);
-		appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateAllowedBusByIndex(regNo, licenseNo, date, allowedBusIndex);
+		appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateAEitherBusByIndex(regNo, licenseNo, date, allowedBusIndex);
 		setRegNo("");
 		setLicenseNo("");
 		setDate("");
@@ -154,7 +154,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	const onDeleteConfirmPress = (): void => {
-		appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].deleteAllowedBusByIndex(allowedBusIndex);
+		appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].deleteAEitherBusByIndex(allowedBusIndex);
 		setRegNo("");
 		setLicenseNo("");
 		refRBSheetDeleteConfirm.current.close();
@@ -247,7 +247,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			{route.params?.journeyType == "RouteBusJourney" && (
 			<View>	
 				
-				{appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex]?.allowedBuses?.map((allowedBus,index) => (
+				{appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex]?.eitherBuses?.map((allowedBus,index) => (
 					
 					<Card key={index} 
 					style={[
@@ -295,7 +295,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			{route.params?.journeyType == "RouteBusReturnJourney" && (
 			<View>	
 				
-				{appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex]?.allowedBuses?.map((allowedBus,index) => (
+				{appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex]?.eitherBuses?.map((allowedBus,index) => (
 					
 					<Card key={index} 
 					style={[

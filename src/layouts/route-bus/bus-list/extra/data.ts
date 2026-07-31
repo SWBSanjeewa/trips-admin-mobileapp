@@ -14,6 +14,8 @@ export class RouteBus {
 		readonly title: string,
 		readonly routeNo: string,
 		readonly operator: string,
+		readonly distance: string,
+		readonly runningTime: string,
 		readonly transportAuthority: string,
 		readonly typeOfService: string,
 		readonly stoppingPlaces: StopppingPlace[],

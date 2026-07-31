@@ -179,7 +179,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 			console.log(response.status);
 			console.log(response.data);  
 			appStore.routeBuses.reset();
-			response.data.forEach((element) => appStore.routeBuses.addRouteBus(element._id,element.title,element.routeNo,element.operator,element.transportAuthority,element.typeOfService,element.stoppingPlaces));
+			response.data.forEach((element) => appStore.routeBuses.addRouteBus(element._id,element.title,element.routeNo,element.operator,element.transportAuthority,element.typeOfService,element.stoppingPlaces, element.distance, element.runningTime,element.journey,element.returnJourney));
 			console.log(">>>"+appStore.routeBuses.routeBuses.length);
 			//var owner = isBusOwner(); 
 			//console.log("Is owner::"+owner);
@@ -270,6 +270,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 	const renderItemHeader = (info: ListRenderItemInfo<RouteBus>): React.ReactElement => (
 		<View>
 			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-end" }}>	
+				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: 5 }} >{info.item.transportAuthority}</Button>
 				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: 5 }} >{info.item.operator}</Button>
 				<Button size="small" onPress={()=>onTransportServicePress(info.item)}>{info.item.typeOfService}</Button>
 			</View>	
@@ -390,6 +391,13 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
     </View>
 
 	</View>
+
+	<View>
+			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "space-between" }}>	
+				<Button appearance='ghost'  size="small"  style={{ borderColor:"#692c14", borderWidth: 2, marginHorizontal: 5 }} >Distance: {info.item.distance} km</Button>
+				<Button size="small" onPress={()=>onTransportServicePress(info.item)}>Running Time: {info.item.runningTime}</Button>
+			</View>	
+		</View>
 			
 			
 		</Card>

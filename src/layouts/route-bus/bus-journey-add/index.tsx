@@ -75,42 +75,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		<ScrollView>
 
 
-			<View style={{ margin: 10}}>
-					<View style={styles.labelContainer}>
-						<Text style={styles.label}>Distance (km)</Text>
-					</View>
-					<View style={runningNoCustomStyle}>
-						{route.params?.journeyType == "RouteBusReturnJourney" && (
-							<TextInput placeholder="100" onChangeText={appStore.routeBus.returnJourney.setDistance} value={appStore.routeBus.returnJourney.distance} />
-						)}
-						{route.params?.journeyType == "RouteBusJourney" && (
-							<TextInput placeholder="100" onChangeText={appStore.routeBus.journey.setDistance} value={appStore.routeBus.journey.distance} />
-						)}
-						
-					</View>
-				</View>
-
-			<Card style={{ margin: 10, borderRadius:10}}>
-				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text style={{ padding: 5, paddingLeft: 10}}>Running Time</Text>
-					<View style={{backgroundColor: "#F1F1F1"}}>
-						<Pressable onPress={() => onRunningTimePress()}>
-						<View pointerEvents="none">
-							
-						{route.params?.journeyType == "RouteBusReturnJourney" && (
-							<Input placeholder="Running time..." value={appStore.routeBus.returnJourney.runningTime}/>
-						)}
-						{route.params?.journeyType == "RouteBusJourney" && (
-							<Input placeholder="Running time..." value={appStore.routeBus.journey.runningTime}/>
-						)}
-						</View>
-					</Pressable>
-					
-					</View>
-					
-					
-				</View>
-			</Card>
 			
 
 			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppingsList", {id: appStore.bus.id, journeyType: route.params?.journeyType})}>

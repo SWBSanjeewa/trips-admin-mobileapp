@@ -1,6 +1,6 @@
-import { Button, Card, Text, Select, IndexPath, SelectItem, Divider } from "@ui-kitten/components";
+import { Button, Card, Text, Select, IndexPath, SelectItem, Input } from "@ui-kitten/components";
 import React,{useEffect, useState, useRef} from "react";
-import { StyleSheet, View, Modal, TextInput,ScrollView, ActivityIndicator, TouchableOpacity} from "react-native";
+import { StyleSheet, View, Modal, TextInput,ScrollView, Pressable, TouchableOpacity} from "react-native";
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import AppStore from "../../../store/AppStore";
 import { observer, inject} from "mobx-react";
@@ -18,6 +18,9 @@ import {routeBusTypes, getRouteColor, operatorTypes, transportAuthorityTypes, no
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
+
+import { LinearGradient } from "expo-linear-gradient";
+import { TimerPickerModal } from "react-native-timer-picker";
 
 
 const BusAdd = ({ navigation }): React.ReactElement => {
@@ -70,7 +73,17 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 	const [selectedDaysIndex, setSelectedDaysIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
 	const selectedDays = noOfDays[selectedDaysIndex.row];
+
+	const [runningNoFocus, setRunningNoFocus] = React.useState<boolean>(false);
+	const runningNoCustomStyle = runningNoFocus ? styles.inputContainerFocus : styles.inputContainer;
 	
+	const [isRunningTimePickerVisible, setRunningTimePickerVisible] = useState(false);
+
+	const [initialRunningTime, setInitialRunningTime] = useState
+		({
+			hours: 0,
+			minutes: 0,
+		});
 
 	const onBusTypeSelect = (index): void => {
 		setSelectedIndexBusType(index);
@@ -101,14 +114,14 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 	
 
-	const onCreatePress= async() => {
+	const onCreatePress1= async() => {
 		console.log(JSON.stringify(toJS(appStore.routeBus)));	
 	}
 
-	const onCreatePress1 = async() => {
+	const onCreatePress = async() => {
 		console.log(JSON.stringify(toJS(appStore.routeBus)));	
 
-		var json = '{"title":"Galle - Kadawatha","routeNo":"EX1","operator":"Combined","transportAuthority":"NTC","typeOfService":"Super Luxury","duration":"","stoppingPlaces":[{"place":"Galle","latitude":"6.032894799999999","longitude":"80.2167912"},{"place":"Dewata","latitude":"6.0297661","longitude":"80.2439809"},{"place":"Pinnaduwa Interchange","latitude":"6.0690063","longitude":"80.26453939999999"},{"place":"Kottawa Interchange","latitude":"6.8404498","longitude":"79.9811617"},{"place":"Makumbura Highway bus & train station","latitude":"6.840224900000001","longitude":"79.9760596"}],"journey":{"timetables":[{"type":"Everyday","runningDays":"","turns":[{"onboardStartTime":"5:30","startTime":"5:00","runningNo":"G1","assignedBuses":[{"ntcNumber":"12322", "busRegNo":"NB-4321"},{"ntcNumber":"12325", "busRegNo":"NB-1234"}],"stoppings":[{"place":"Galle","latitude":"7.0034343","longitude":"80.23432","plusDays":"0","time":"5:00"},{"place":"Dewata","latitude":"7.0030043","longitude":"81.23432","plusDays":"0","time":"5:20"}]}]}]},"returnJourney":{"timetables":[{"type":"Everyday","runningDays":"","turns":[{"onboardStartTime":"5:30","startTime":"5:00","runningNo":"G1","assignedBuses":[{"ntcNumber":"12322", "busRegNo":"NB-4321"},{"ntcNumber":"12325", "busRegNo":"NB-1234"}],"stoppings":[{"place":"Galle","latitude":"7.0034343","longitude":"80.23432","plusDays":"0","time":"5:00"},{"place":"Dewata","latitude":"7.0030043","longitude":"81.23432","plusDays":"0","time":"5:20"}]}]}]}}';
+		//var json = '{"title":"Galle - Kadawatha","routeNo":"EX1","operator":"Combined","transportAuthority":"NTC","typeOfService":"Super Luxury","duration":"","stoppingPlaces":[{"place":"Galle","latitude":"6.032894799999999","longitude":"80.2167912"},{"place":"Dewata","latitude":"6.0297661","longitude":"80.2439809"},{"place":"Pinnaduwa Interchange","latitude":"6.0690063","longitude":"80.26453939999999"},{"place":"Kottawa Interchange","latitude":"6.8404498","longitude":"79.9811617"},{"place":"Makumbura Highway bus & train station","latitude":"6.840224900000001","longitude":"79.9760596"}],"journey":{"timetables":[{"type":"Everyday","runningDays":"","turns":[{"onboardStartTime":"5:30","startTime":"5:00","runningNo":"G1","assignedBuses":[{"ntcNumber":"12322", "busRegNo":"NB-4321"},{"ntcNumber":"12325", "busRegNo":"NB-1234"}],"stoppings":[{"place":"Galle","latitude":"7.0034343","longitude":"80.23432","plusDays":"0","time":"5:00"},{"place":"Dewata","latitude":"7.0030043","longitude":"81.23432","plusDays":"0","time":"5:20"}]}]}]},"returnJourney":{"timetables":[{"type":"Everyday","runningDays":"","turns":[{"onboardStartTime":"5:30","startTime":"5:00","runningNo":"G1","assignedBuses":[{"ntcNumber":"12322", "busRegNo":"NB-4321"},{"ntcNumber":"12325", "busRegNo":"NB-1234"}],"stoppings":[{"place":"Galle","latitude":"7.0034343","longitude":"80.23432","plusDays":"0","time":"5:00"},{"place":"Dewata","latitude":"7.0030043","longitude":"81.23432","plusDays":"0","time":"5:20"}]}]}]}}';
 
 		const config: AxiosRequestConfig = {
 			headers: {
@@ -181,6 +194,10 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 	const onNavigateToRotationBuses = (): void => {
 		navigation.navigate("RouteBusRotationBusesList")
+	};
+
+	const onRunningTimePress = (): void => {
+		setRunningTimePickerVisible(true);
 	};
 
 	
@@ -260,6 +277,31 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 						<Text style={styles.errorLabel}>{routeNoErrorMessage}</Text>	
 					)}
 				</View>
+
+				<View style={{ margin: 10}}>
+				<View style={styles.labelContainer}>
+					<Text style={styles.label}>Distance (km)</Text>
+				</View>
+				<View style={runningNoCustomStyle}>
+					<TextInput placeholder="100" onChangeText={appStore.routeBus.setDistance} value={appStore.routeBus.distance} />
+				</View>
+			</View>
+
+			<Card style={{ margin: 10, borderRadius:10}}>
+				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+					<Text style={{ padding: 5, paddingLeft: 10}}>Running Time</Text>
+					<View style={{backgroundColor: "#F1F1F1"}}>
+						<Pressable onPress={() => onRunningTimePress()}>
+						<View pointerEvents="none">
+							<Input placeholder="Running time..." value={appStore.routeBus.runningTime}/>
+						</View>
+					</Pressable>
+					
+					</View>
+					
+					
+				</View>
+			</Card>
 
 			
 
@@ -378,12 +420,7 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 				
 			</View>
 
-			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToRotationBuses}>
-				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Rotation Buses</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToRotationBuses}/>
-				</View>
-			</Card>
+			
 
 			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToJourney}>	
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
@@ -405,12 +442,73 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 				)}
 			</Card>
 
+			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToRotationBuses}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Rotation Buses</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToRotationBuses}/>
+				</View>
+			</Card>
+
 		
 			
 		
 			<View style={{flexDirection: "row", justifyContent: "space-between"}}>
 				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onCreatePress()}>Create</Button>
 			</View>
+
+			<TimerPickerModal
+						    visible={isRunningTimePickerVisible}
+              				setIsVisible={setRunningTimePickerVisible}
+							hideDays={true}
+							hideSeconds
+							LinearGradient={LinearGradient}
+							minuteLabel="mins"
+							initialValue={initialRunningTime}
+							padWithNItems={1}
+							hourLabel="h"
+							onConfirm={(pickedDuration) => {
+								console.log("pickedDuration::"+pickedDuration.minutes);
+								setRunningTimePickerVisible(false);
+								if(pickedDuration.hours > 0){
+									setInitialRunningTime({ hours: pickedDuration.hours, minutes:pickedDuration.minutes});
+									//setDuration(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
+									
+									appStore.routeBus.setRunningTime(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
+									
+								}else{
+									setInitialRunningTime({ hours: 0, minutes:pickedDuration.minutes});
+									//setDuration(pickedDuration.minutes.toString()+" mins");
+									//initialDuration.minutes=pickedDuration.minutes;
+									appStore.routeBus.setRunningTime(pickedDuration.minutes.toString()+" mins");
+								}
+							}}
+							
+							
+							styles={{
+
+								button:{
+								  fontSize: 10,
+								  fontWeight: "bold"
+								},
+								
+								pickerLabel: {
+									fontSize: 16,
+									fontWeight: "600",
+									color: "#888888",
+								},
+								
+								pickerItem: {
+									fontSize: 24,
+									color: "#cccccc",
+								},
+								
+								selectedPickerItem: {
+									fontSize: 28,
+									fontWeight: "bold",
+									color: "#000000",
+								}
+							}}
+						/>
 			
 		</ScrollView>
 		
