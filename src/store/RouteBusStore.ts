@@ -40,8 +40,8 @@ id: String,
    */
 const Stopping = types.model({
   place: types.optional(types.string, ""),
-  latitude: types.optional(types.string, "0.0"),
-  longitude: types.optional(types.string, "0.0"),
+  latitude: types.optional(types.number, 0.0),
+  longitude: types.optional(types.number, 0.0),
   duration: types.string 
 })
 .actions((self) => ({
@@ -66,8 +66,8 @@ const StoppingTime = types.model({
 
 const StoppingPlace = types.model({
   place: types.optional(types.string, ""),
-  latitude: types.optional(types.string, ""),
-  longitude: types.optional(types.string, ""),
+  latitude: types.optional(types.number, 0.0),
+  longitude: types.optional(types.number, 0.0),
 })
 .actions((self) => ({
   setPlace(place,latitude,longitude) {
@@ -236,7 +236,8 @@ const Route = types.model({
 .actions((self) => ({
   
   reset(){  
-
+    self.stoppings= Stopping[0];
+    self.timetables= Timetable[0];
   },
   addTimetable(type,runningDays){
     console.log("addTimetable"+type);
@@ -353,6 +354,8 @@ const NewRouteVirtualBusStore = types
       self.typeOfService = "";
       self.stoppingPlaces= StoppingPlace[0];
       self.rotationBuses= RotationBus[0];
+      self.journey.reset();
+      self.returnJourney.reset();
     },
     populate(bus) {
       self.objectId = bus._id;
@@ -367,11 +370,10 @@ const NewRouteVirtualBusStore = types
       console.log(">>"+bus.journey);
       console.log(JSON.stringify(bus.journey[0]));	
       
-      //bus.journey[0].timetables?.forEach(timetable => {
-      //  console.log("###"+timetable);
-      //  self.journey.addTimetable(timetable.type,timetable.runningDays, timetable.turns);
-      //});
-      self.journey = bus.journey[0];
+      
+       //self.journey = bus.journey[0];
+      // self.returnJourney = bus.returnJourney[0];
+       //self.stoppingPlaces = bus.stoppingPlaces[0];
     },
     setTitle(title) {
       self.title = title;

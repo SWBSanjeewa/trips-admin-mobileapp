@@ -9,7 +9,7 @@ import AppStore from "../../store/AppStore";
 import { useStore } from "mobx-store-provider";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { useRoute } from "@react-navigation/native";
-import ContentView from "../../layouts/route-bus/bus-journey-details_bck";
+import ContentView from "../../layouts/route-bus/bus-journey-timetables";
 import { PlusOutlineIcon } from "../../components/icons";
 
 
@@ -22,6 +22,12 @@ export const RouteBusJourneyTimetablesScreen = ({ navigation }): React.ReactElem
 	const [add, setAdd] = React.useState<boolean>(false);
 
 	const ref = useRef<typeof RBSheet>();
+
+	const onBackPress = (): void => {
+		//console.log(" RouteBusJourneyStoppingsScreen appStore.routeBus.objectId::"+appStore.routeBus.objectId);
+		navigation && navigation.navigate("RouteBusDetails", { id: appStore.routeBus.objectId,reload: false });
+	};
+
 
 	const renderBackAction = (): React.ReactElement => (
 		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
@@ -44,13 +50,7 @@ export const RouteBusJourneyTimetablesScreen = ({ navigation }): React.ReactElem
 	);
 
 
-	const onBackPress = () => {
-		appStore.routeBus.reset();		
-		var localreload = false;
-		var localreload = route.params?.reload;
-		console.log("localreload::"+localreload);
-		navigation && navigation.goBack();
-	};
+	
 
 	const onBusAddPress = () => {
 		setAdd(!add);

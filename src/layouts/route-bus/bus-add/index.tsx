@@ -389,10 +389,10 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 					
 					if(selectedStopping != ""){
 						var index = appStore.routeBus.getIndex(selectedStopping);
-						appStore.routeBus.addStoppingPlaceAtIndex(address,details.geometry.location.lat.toString(),details.geometry.location.lng.toString(),index+1);
+						appStore.routeBus.addStoppingPlaceAtIndex(address,details.geometry.location.lat,details.geometry.location.lng,index+1);
 						setSelectedStopping("");
 					}else{
-						appStore.routeBus.addStoppingPlace(address,details.geometry.location.lat.toString(),details.geometry.location.lng.toString());
+						appStore.routeBus.addStoppingPlace(address,details.geometry.location.lat,details.geometry.location.lng);
 					}
 					
 				}}

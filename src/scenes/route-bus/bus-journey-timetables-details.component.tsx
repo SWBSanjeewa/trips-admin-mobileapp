@@ -9,14 +9,17 @@ import AppStore from "../../store/AppStore";
 import { useStore } from "mobx-store-provider";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { useRoute } from "@react-navigation/native";
-import ContentView from "../../layouts/route-bus/bus-details";
+import ContentView from "../../layouts/route-bus/bus-journey-details_bck";
+import { PlusOutlineIcon } from "../../components/icons";
 
 
-export const RouteBusDetailsScreen = ({ navigation }): React.ReactElement => {
+export const RouteBusJourneyTimetablesEditScreen = ({ navigation }): React.ReactElement => {
 
 	const route = useRoute();
 
 	const appStore = useStore(AppStore);
+
+	const [add, setAdd] = React.useState<boolean>(false);
 
 	const ref = useRef<typeof RBSheet>();
 
@@ -24,11 +27,17 @@ export const RouteBusDetailsScreen = ({ navigation }): React.ReactElement => {
 		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
 	);
 
-	const renderMoreAction = (): React.ReactElement => (
-		<>
-			<TopNavigationAction icon={MenuIcon} onPress={onMorePress} />
-		</>
-	);
+	const setAddCallback = (localAdd): void => {
+		setAdd(localAdd);
+		appStore.routeBusTimetable.reset();
+	}
+
+
+	const renderAddAction = (): React.ReactElement => (
+			<>
+			<TopNavigationAction icon={PlusOutlineIcon} onPress={onBusAddPress} />
+			</>		
+		);
 
 	const MenuIcon = (props): IconElement => (
 		<MaterialIcons name="more-vert" size={24} color="black" />
@@ -40,10 +49,12 @@ export const RouteBusDetailsScreen = ({ navigation }): React.ReactElement => {
 		var localreload = false;
 		var localreload = route.params?.reload;
 		console.log("localreload::"+localreload);
-		navigation.navigate("RouteBusList", {reload: localreload});
+		navigation && navigation.goBack();
 	};
 
-	const onMorePress = () => {
+	const onBusAddPress = () => {
+		setAdd(!add);
+		appStore.routeBusTimetable.reset();
 		ref.current?.open();
 	};
 
@@ -51,9 +62,15 @@ export const RouteBusDetailsScreen = ({ navigation }): React.ReactElement => {
 		<SafeAreaLayout style={styles.container} insets="top">
 			<TopNavigation title={props => (
 				<RNText {...props} style={{fontWeight: "500", fontSize: 18}}>
-					Bus Details
-				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderMoreAction}/>
-				<ContentView navigation={navigation} ref={ref}/>
+					{route.params?.journeyType == "RouteBusReturnJourney" && (
+						<> Return Journey Timetables Details </>
+					)}
+					{route.params?.journeyType == "RouteBusJourney" && (
+						<>Journey Timetables Details</>
+					)}
+					
+				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
+				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>
 			
 		</SafeAreaLayout>	
 	);

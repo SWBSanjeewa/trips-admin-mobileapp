@@ -63,10 +63,10 @@ export const RouteBusJourneyTimetablesListScreen = ({ navigation }): React.React
 			<TopNavigation title={props => (
 				<RNText {...props} style={{fontWeight: "500", fontSize: 18}}>
 					{route.params?.journeyType == "RouteBusReturnJourney" && (
-						<>Route Bus Return Journey Timetables</>
+						<>Route Bus Return Journey Timetables List</>
 					)}
 					{route.params?.journeyType == "RouteBusJourney" && (
-						<>Route Bus Journey Timetables</>
+						<>Route Bus Journey Timetables List</>
 					)}
 				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
 				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>

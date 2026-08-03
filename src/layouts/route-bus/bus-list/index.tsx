@@ -251,7 +251,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 		//console.log(bus.title);
 		//console.log(" info.item._id"+ info.item._id+" journeyStartLatitude:"+bus.journey.stoppings[0].latitude);
 		console.log(JSON.stringify(routeBus));
-		navigation && navigation.navigate("RouteBusDetails", { id: routeBus.objectId });
+		navigation && navigation.navigate("RouteBusDetails", { id: routeBus.objectId , reload: true, runningTime: routeBus.runningTime});
 	};
 
 	const renderItemHeader1 = (info: ListRenderItemInfo<RouteBus>): React.ReactElement => (
@@ -363,7 +363,12 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 
 			
 			<View>
-			<Text category="h5">{info.item.title}</Text>
+				<View>
+					<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start" }}>	
+						<Button size="small" onPress={()=>onTransportServicePress(info.item)} style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 5 }}>{info.item.routeNo}</Button>
+						<Text category="h5">{info.item.title}</Text>
+					</View>	
+				</View>
 			
 			<View style={{ 
       flexDirection: 'row', 
@@ -391,13 +396,66 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
     </View>
 
 	</View>
+	
+	<View>
+			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-end" }}>	
+				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: 5 }} >Distance: {info.item.distance} km</Button>
+				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: 5 }} >Running Time: {info.item.runningTime}</Button>
+		</View>
+	</View>
+	
+	<View>
+		<Text>{info.item.stoppingPlaces[0].place}</Text>
+		<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start" }}>	
+			{info.item.journey.timetables.map((timetable,timetable_index) => (
+				<>
+				{timetable.turns.length <= 4 && (
+				<>
+				{timetable.turns.map((turn,turn_index) => (
+					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{turn.startTime}</Button>
+				))}
+				</>
+				)}
+				{timetable.turns.length > 4 && (
+				<>
+					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{timetable.turns[0].startTime}</Button>
+					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{timetable.turns[1].startTime}</Button>
+					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >...</Button>
+					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{timetable.turns[timetable.turns.length-1].startTime}</Button>
+				</>
+				)}
+				</>
+			))}
+		</View>	
+		
+	</View>
 
 	<View>
-			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "space-between" }}>	
-				<Button appearance='ghost'  size="small"  style={{ borderColor:"#692c14", borderWidth: 2, marginHorizontal: 5 }} >Distance: {info.item.distance} km</Button>
-				<Button size="small" onPress={()=>onTransportServicePress(info.item)}>Running Time: {info.item.runningTime}</Button>
-			</View>	
+		<Text>{info.item.stoppingPlaces[info.item.stoppingPlaces.length-1].place}</Text>
+		<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start" }}>	
+			{info.item.returnJourney.timetables.map((timetable,timetable_index) => (
+				<>
+				{timetable.turns.length <= 4 && (
+				<>
+				{timetable.turns.map((turn,turn_index) => (
+					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{turn.startTime}</Button>
+				))}
+				</>
+				)}
+				{timetable.turns.length > 4 && (
+				<>
+					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{timetable.turns[0].startTime}</Button>
+					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{timetable.turns[1].startTime}</Button>
+					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >...</Button>
+					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{timetable.turns[timetable.turns.length-1].startTime}</Button>
+				</>
+				)}
+				</>
+			))}
 		</View>
+	</View>
+
+	
 			
 			
 		</Card>

@@ -1038,13 +1038,19 @@ const RouteBuses = types.model({
       "operator": operator,
       "transportAuthority": transportAuthority,
       "typeOfService": typeOfService,
-      "stoppingPlaces": stoppingPlaces,
+      //"stoppingPlaces": stoppingPlaces,
       "distance": distance,
       "runningTime": runningTime,
      });
 
      console.log(">>>"+journey);
     
+     if(stoppingPlaces != null){
+				stoppingPlaces.forEach((element,index)=> {
+					rBus.addStoppingPlace(element.place,Number(element.latitude),Number(element.longitude))
+          
+				});
+		 }
      
      if(journey?.timetables != null){
 				journey.timetables.forEach((element,index)=> {

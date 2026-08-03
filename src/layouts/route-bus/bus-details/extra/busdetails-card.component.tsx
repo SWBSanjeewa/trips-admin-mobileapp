@@ -1,14 +1,15 @@
-import { TopNavigationAction,Input, Button, Card, Avatar, Text ,Divider, IconElement} from "@ui-kitten/components";
+import { Select, IndexPath, SelectItem, Button, Card, Avatar, Text ,Divider, IconElement,Input} from "@ui-kitten/components";
 import React,{useState,useEffect,useRef,forwardRef,useImperativeHandle} from "react";
-import { View, ScrollView, TouchableOpacity, Text as RNText, StyleSheet, ActivityIndicator, Alert,ListRenderItemInfo} from "react-native";
+import { View, ScrollView, TouchableOpacity, Text as RNText, StyleSheet, ActivityIndicator, Pressable,ListRenderItemInfo} from "react-native";
 import { useRoute } from "@react-navigation/native";
 import AppStore from "../../../../store/AppStore";
 import { useStore } from "mobx-store-provider";
 import { RouteBus } from "./data";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 import { CachedImage } from '@georstat/react-native-image-cache';
 
-import {routeBusTypes, operatorTypes, getRouteBusThemePhotoUrl}  from "../../../../app/routes-common";
+import {routeBusTypes, operatorTypes, transportAuthorityTypes}  from "../../../../app/routes-common";
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
@@ -19,7 +20,8 @@ import { DayPicker } from '@routeslk/react-native-picker-weekday';
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { Image } from 'expo-image';
+
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 
 import { SafeAreaLayout } from "../../../../components/safe-area-layout.component";
@@ -41,6 +43,11 @@ import {routeTypes, getRouteColor, vehcileTypes, getVehicleColor}  from "../../.
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 
 import { useFocusEffect } from '@react-navigation/native';
+import { LinearGradient } from "expo-linear-gradient";
+import { TimerPickerModal } from "react-native-timer-picker";
+
+
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 // forwardRef(function MyInput(props, ref) {
 // const MyInput = forwardRef(function MyInput(props, ref) {
@@ -64,12 +71,23 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	
 	const appStore = useStore(AppStore);
 
+	const refAutoComplete = useRef(null);
+
 
 	const insetsConfig = useSafeAreaInsets();
 
+	const [initialRunningTime, setInitialRunningTime] = useState
+			({
+				hours: 0,
+				minutes: 0
+			});
+	
+		
 	const refStandardConfirmation = useRef();
 
 	const [loading, setLoading] = useState(true);
+
+	const [selectedStopping, setSelectedStopping] = React.useState<string>("");
 
 	const [journeyEndLocation, setJourneyEndLocation] = useState('');
 	const [journeyEndTime, setJourneyEndTime] = useState('');
@@ -85,6 +103,8 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	const [returnJourneyLiveChecked, setReturnJourneyLiveChecked] = React.useState(false);
 
 	const [imageIndex, setImageIndex] = useState(0);
+
+	const [reload, setReload] = useState(true);
 
 	
 
@@ -104,8 +124,26 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		}
 	};
 
-	
-	
+	const [selectedIndexTransportAuthorityType, setSelectedIndexTransportAuthorityType] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
+	const transportAuthorityType = transportAuthorityTypes[selectedIndexTransportAuthorityType.row];
+
+	const [selectedOperatorIndex, setSelectedOperatorIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
+	const operatorType = operatorTypes[selectedOperatorIndex.row];
+
+	const [selectedIndexBusType, setSelectedIndexBusType] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
+	const routeType = routeBusTypes[selectedIndexBusType.row];
+
+	const [isRunningTimePickerVisible, setRunningTimePickerVisible] = useState(false);
+
+	const refRBSheetTitleEdit = useRef();
+	const [title, setTitle] = useState("");
+
+	const refRBSheetRouteNoEdit = useRef();
+	const [routeNo, setRouteNo] = useState("");
+
+	const refRBSheetDistanceEdit = useRef();
+	const [distance, setDistance] = useState("");
+
 
 	const MenuIcon = (props): IconElement => (
 		<MaterialIcons name="more-vert" size={24} color="black" />
@@ -135,48 +173,46 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 			//console.log("#### Passengers count :"+response.data.passengers.length);
 			if(response.data.stoppingPlaces != null){
 				response.data.stoppingPlaces.forEach(element => {
-					appStore.routeBus.addStoppingPlace( element.place,element.latitude,element.longitude)
+					appStore.routeBus.addStoppingPlace( element.place,Number(element.latitude),Number(element.longitude))
 				});
 		    }
-			console.log(JSON.stringify(toJS(appStore.routeBus)));
-			
-			if(response.data.passengers != null){
-				response.data.passengers.forEach(element => {
-					appStore.bus.addPassenger( element.name,
-					element.mobileNumber,
-					element.journeyStart,
-					Number(element.journeyStartLatitude),
-					Number(element.journeyStartLongitude),
-					element.journeyEnd,
-					Number(element.journeyEndLatitude),
-					Number(element.journeyEndLongitude),
-					element.returnJourneyStart,
-					Number(element.returnJourneyStartLatitude),
-					Number(element.returnJourneyStartLongitude),
-					element.returnJourneyEnd,
-					Number(element.returnJourneyEndLatitude),
-					Number(element.returnJourneyEndLongitude),
-					element.journeyWeekdays,
-					element.returnJourneyWeekdays,
-					element.watchers
-					)
+
+			if(response.data.journey.stoppings != null){
+				response.data.journey.stoppings.forEach(element => {
+					//appStore.routeBus.addStoppingPlace( element.place,element.latitude,element.longitude)
+					appStore.routeBus.journey.addStopping(element.place, Number(element.latitude),Number(element.longitude),element.duration);
+				});
+		    }
+
+			if(response.data.journey.timetables != null){
+				response.data.journey.timetables.forEach((timetable,index) => {
+					appStore.routeBus.journey.addTimetable(timetable.type, timetable.runningDays);
+					timetable.turns.forEach(turn => {
+						appStore.routeBus.journey.timetables[index].addTurn(turn.onboardStartTime,turn.startTime,turn.runningNo,turn.stoppings,turn.registrationNo,turn.licenseNo);
 					});
+				});
+		    }
+
+			if(response.data.returnJourney.stoppings != null){
+				response.data.returnJourney.stoppings.forEach(element => {
+					//appStore.routeBus.addStoppingPlace( element.place,element.latitude,element.longitude)
+					appStore.routeBus.returnJourney.addStopping(element.place, Number(element.latitude),Number(element.longitude),element.duration);
+				});
+		    }
+
+			if(response.data.returnJourney.timetables != null){
+				response.data.returnJourney.timetables.forEach((timetable,index) => {
+					appStore.routeBus.returnJourney.addTimetable(timetable.type, timetable.runningDays);
+					timetable.turns.forEach(turn => {
+						appStore.routeBus.returnJourney.timetables[index].addTurn(turn.onboardStartTime,turn.startTime,turn.runningNo,turn.stoppings,turn.registrationNo,turn.licenseNo);
+					});
+				});
 		    }
 
 			
+			console.log(JSON.stringify(toJS(appStore.routeBus)));
+
 			
-
-
-
-			if(appStore.bus.journey.stoppings.length>1){
-				setJourneyEndLocation(appStore.bus.journey.stoppings[appStore.bus.journey.stoppings.length-1].place);
-				setJourneyEndTime(appStore.bus.journey.stoppings[appStore.bus.journey.stoppings.length-1].time);
-			}
-
-			if(appStore.bus.returnJourney.stoppings.length>1){
-				setReturnJourneyEndLocation(appStore.bus.returnJourney.stoppings[appStore.bus.returnJourney.stoppings.length-1].place);
-				setReturnJourneyEndTime(appStore.bus.returnJourney.stoppings[appStore.bus.returnJourney.stoppings.length-1].time);
-			}
 			
 			//setBusnew(response.data);  
 			console.log(">>> >>>");
@@ -253,26 +289,189 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		
 	};
 
+	const onBusTypeSelect = (index): void => {
+		setSelectedIndexBusType(index);
+		appStore.routeBus.setTypeOfService(routeBusTypes[index-1].name);
+	};
+
+	const onOperatorTypeSelect = (index): void => {
+		setSelectedOperatorIndex(index);
+		appStore.routeBus.setOperator(operatorTypes[index-1].name);
+	};
+
 	
 
 	useEffect(() => {
-		console.log("### effects");
-		const fetch = async ()=>{
-			console.log("### calling loadbuses");
-			await loadBusses();
-			setLoading(false);
+		setTitle(appStore.routeBus.title);
+		setRouteNo(appStore.routeBus.routeNo);
+		setDistance(appStore.routeBus.distance);
+
+		const regex = /(\d+)\s*h\s*(\d+)\s*mins/;
+
+		const match = route.params?.runningTime.match(regex);
+		let hours=0;
+		let minutes =0;
+
+		if (match) {
+			hours = match[1];
+			minutes = match[2];
 		}
-		fetch();	
+		
+		setInitialRunningTime({
+				hours: Number(hours),
+				minutes: Number(minutes)
+			})
+		
+		console.log("### effects");
+		console.log("### h:"+appStore.routeBus.runningTime?.match(/(\d+)h/));
+		console.log("### initialRunningTime:"+initialRunningTime.hours+" "+initialRunningTime.minutes );
+		if(route.params?.reload){
+			const fetch = async ()=>{
+				console.log("### calling loadbuses");
+				await loadBusses();
+				setLoading(false);
+			}
+			fetch();
+		}else{
+			setLoading(false);
+		}	
 	}, []);
 
+	
+
+	const onTransportAuthorityTypeSelect = (index): void => {
+		setSelectedIndexTransportAuthorityType(index);
+		appStore.routeBus.setTransportAuthority(transportAuthorityTypes[index-1].name);
+	};
+
 	const renderItemHeader = (): React.ReactElement => (
-			<View>
-				<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-end" }}>	
-					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: 5 }} >{appStore.routeBus.operator}</Button>
-					<Button size="small" onPress={()=>onTransportServicePress(info.item)}>{appStore.routeBus.typeOfService}</Button>
-				</View>	
-			</View>
-		);
+		<View>
+			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-end" }}>	
+				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: 5 }} >{appStore.routeBus.operator}</Button>
+				<Button size="small" onPress={()=>onTransportServicePress(info.item)}>{appStore.routeBus.typeOfService}</Button>
+			</View>	
+		</View>
+	);
+
+	const renderOptionBusTypes = (routeType): React.ReactElement => (
+		<SelectItem key={routeType.name} title={evaProps => <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+			<FontAwesome5 name="bus" size={24} color={getRouteColor(routeType.name)} />
+			<Text style={{ paddingHorizontal: 5}}>{routeType.name}</Text>
+		</View>} />
+	);
+
+	const onRunningTimePress = (): void => {
+		console.log("$$$ appStore.routeBus.runningTime:"+appStore.routeBus.runningTime);
+		console.log("$$$ appStore.routeBus.runningTime: h"+Number(appStore.routeBus.runningTime?.match(/(\d+)h/)));
+		console.log("$$$ appStore.routeBus.runningTime: min"+Number(appStore.routeBus.runningTime?.match(/(\d+)mins/)));
+		
+		setRunningTimePickerVisible(true);
+	};
+
+	const onAddStopping = (stopping: string) => () =>  {
+       console.log(stopping);
+	   setSelectedStopping(stopping);
+       // setUploadPhotos(prevState => !prevState);
+    };
+
+	const onDeleteStoppingPlace = (stopping: string) => () =>  {
+		appStore.routeBus.deleteStoppingPlaceByPlace(stopping);
+	};
+
+	const onEditTitleButtomPress = async () => {
+		/*
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+		
+		console.log("Name:::"+name);
+			
+		try {
+		
+		const response: AxiosResponse = await client.put('/users/'+appStore.user.mobileNumber+'/name/'+name , config);
+		console.log(response.data);
+		
+		if(response.data!=null && response.data.success == "true"){
+			appStore.user.setName(name);
+		}
+		
+		
+		} catch(err) {
+			console.log(err);
+		}
+			*/
+
+		//appStore.routeBus.setTitle(title);
+			
+		refRBSheetTitleEdit.current.close();
+		
+	};
+
+	const onEditRouteNoButtomPress = async () => {
+		/*
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+		
+		console.log("Name:::"+name);
+			
+		try {
+		
+		const response: AxiosResponse = await client.put('/users/'+appStore.user.mobileNumber+'/name/'+name , config);
+		console.log(response.data);
+		
+		if(response.data!=null && response.data.success == "true"){
+			appStore.user.setName(name);
+		}
+		
+		
+		} catch(err) {
+			console.log(err);
+		}
+			*/
+		//appStore.routeBus.setRouteNo(routeNo);	
+		refRBSheetRouteNoEdit.current.close();
+		
+	};
+
+	const onEditDistanceButtomPress = async () => {
+		/*
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+		
+		console.log("Name:::"+name);
+			
+		try {
+		
+		const response: AxiosResponse = await client.put('/users/'+appStore.user.mobileNumber+'/name/'+name , config);
+		console.log(response.data);
+		
+		if(response.data!=null && response.data.success == "true"){
+			appStore.user.setName(name);
+		}
+		
+		
+		} catch(err) {
+			console.log(err);
+		}
+			*/
+		//appStore.routeBus.setDistance(distance);	
+		refRBSheetDistanceEdit.current.close();
+		
+	};
+
+
+	
 	
 
 	if (loading) {
@@ -284,100 +483,223 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		<ScrollView style={{ flex: 1}}>
 		
 
-		<Card
-			style={styles.item}
-			header={() => renderItemHeader()}>
-			
-					
-					<View>
-					<Text category="h5">{appStore.routeBus.title}</Text>
-					
-					<View style={{ 
-			  flexDirection: 'row', 
-			  alignItems: 'center', // Centers icon and text vertically
-			  padding: 5
-			}}>
-				
-			  {/* Your Icon or Image */}
-			  <Image 
-				contentFit="contain"
-				source={"https://routes.lk:7007/route_buses/"+getRouteBusThemePhotoUrl(appStore.routeBus.operator, appStore.routeBus.typeOfService)}
-				style={{ width: 100, height: 100, marginRight: 8 }} 
-			  />
-		
-			  {/* ⚠️ flexShrink: 1 is mandatory here to prevent cutoff */}
-			  
-			  <Text style={{ flexShrink: 1, fontSize: 16 }}>
-							{appStore.routeBus.stoppingPlaces.map(function(stopping, index){	
-								if(index==0 ){
-									return <Text style={{ color: "grey" }}>{stopping.place}</Text>	
-								}else{
-									return <Text style={{ color: "grey" }}>- {stopping.place}</Text>	
-								}							
-							})}	
-							</Text>
-			</View>
-		
-			</View>
-					
-					
+		<View>
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Transport Authority Type</Text>
+						<View style={{ margin: 10}}>
+							<Select
+								placeholder='Default'
+								value={transportAuthorityType.name}
+								selectedIndex={selectedIndexTransportAuthorityType}
+								onSelect={(index: IndexPath) => onTransportAuthorityTypeSelect(index)}>
+								{transportAuthorityTypes.map(renderOptionBusTypes)}
+							</Select>
+						</View>
+					</View>
+				</View>
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Service Type</Text>
+						<View style={{ margin: 10}}>
+							<Select
+								placeholder='Default'
+								value={routeType.name}
+								selectedIndex={selectedIndexBusType}
+								onSelect={(index: IndexPath) => onBusTypeSelect(index)}>
+								{routeBusTypes.map(renderOptionBusTypes)}
+							</Select>
+						</View>
+					</View>
+				</View>
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Operator Type</Text>
+						<View style={{ margin: 10}}>
+							<Select
+								placeholder='Default'
+								value={operatorType.name}
+								selectedIndex={selectedOperatorIndex}
+								onSelect={(index: IndexPath) => onOperatorTypeSelect(index)}>
+								{operatorTypes.map(renderOptionBusTypes)}
+							</Select>
+						</View>
+					</View>
+				</View>
+
+				<Card style={{ margin: 10}}>
+					<Text style={styles.itemHeaderTitle}>Title</Text>
+					<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+						<Text>{appStore.routeBus.title}</Text>
+						<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => refRBSheetTitleEdit.current.open()}/>
+					</View>
 				</Card>
+
+				<Card style={{ margin: 10}}>
+					<Text style={styles.itemHeaderTitle}>Route No.</Text>
+					<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+						<Text>{appStore.routeBus.routeNo}</Text>
+						<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => refRBSheetRouteNoEdit.current.open()}/>
+					</View>
+				</Card>
+
+				<Card style={{ margin: 10}}>
+					<Text style={styles.itemHeaderTitle}>Distance (km)</Text>
+					<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+						<Text>{appStore.routeBus.distance}</Text>
+						<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => refRBSheetDistanceEdit.current.open()}/>
+					</View>
+				</Card>
+
+
+				<Card style={{ margin: 10, borderRadius:10}}>
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Running Time</Text>
+						<View style={{backgroundColor: "#F1F1F1"}}>
+							<Pressable onPress={() => onRunningTimePress()}>
+							<View pointerEvents="none">
+								<Input placeholder="Running time..." value={appStore.routeBus.runningTime}/>
+							</View>
+						</Pressable>
+						
+						</View>
+						
+						
+					</View>
+				</Card>
+
+				<View style={{ margin: 10}}>
+					<View style={styles.labelContainer}>
+						<Text style={styles.label}>Stopping Locations</Text>
+					</View>
+					<View style={styles.descriptionInputContainer}>
+					<View style={{flexDirection: "row", flexWrap: "wrap"}}>
+					{appStore.routeBus.stoppingPlaces.map(function(stopping, index){
+						if(stopping == selectedStopping){
+							return <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#222"}} onPress={onAddStopping(stopping)}>
+										<Text style={{padding: 2}}>{stopping.place}</Text>
+										<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteStoppingPlace(stopping.place)} />
+								</TouchableOpacity>
+						}else{
+							return <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddStopping(stopping)}>
+										<Text style={{padding: 2}}>{stopping.place}</Text>
+										<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteStoppingPlace(stopping.place)} />
+								</TouchableOpacity>
+						}
+						
+					})}	
+					</View>	
+						<GooglePlacesAutocomplete
+				keyboardShouldPersistTaps={ "handled" }
+				ref={refAutoComplete}
+				styles={{
+					container:{
+						
+						borderColor: "grey",
+						borderWidth: 1
+					},
+					textInputContainer: {
+						marginTop: 0,
+						borderColor: 'grey',
+						borderWidth: 1
+					},
+					textInput: {
+						height: 38,
+						color: 'grey',
+						fontSize: 16
+					}
+				}}
+				
+				renderRow={(rowData) => {
+				const title = rowData.structured_formatting.main_text;
+				var address=""
+				if(rowData.structured_formatting.secondary_text){
+					var lastIndex=rowData.structured_formatting.secondary_text.lastIndexOf(",");
+					if(lastIndex>0)
+						address = rowData.structured_formatting.secondary_text.slice(0,lastIndex);
+				}
+				
+				return (
+					<View style={{ padding: 0 }}>
+					
+					<Text style={{ fontSize: 14 }}>{title}</Text>
+					<Text style={{ fontSize: 14, color: '#777777',}}>{address}</Text>
+					</View>
+					);
+				}}
+				placeholder='Enter Location'
+				textInputProps={{
+					selectionColor:"#142169",
+					cursorColor:"#142169"
+				}}
+				minLength={2}
+				fetchDetails={true}
+				onPress={(data, details = null) => {
+					// 'details' is provided when fetchDetails = true
+					console.log(data);
+					console.log("*****");
+					console.log(data.description)
+					
+					var address=data.description;
+					
+					if(data.description.indexOf(",")>0){
+					   var index=data.description.indexOf(",");
+				       address = data.description.slice(0,index);
+					}
+					
+					
+					refAutoComplete.current?.setAddressText("");
+					
+					if(selectedStopping != ""){
+						var index = appStore.routeBus.getIndex(selectedStopping);
+						appStore.routeBus.addStoppingPlaceAtIndex(address,details.geometry.location.lat,details.geometry.location.lng,index+1);
+						setSelectedStopping("");
+					}else{
+						appStore.routeBus.addStoppingPlace(address,details.geometry.location.lat,details.geometry.location.lng);
+					}
+					
+				}}
+
+				onFail={(error) => console.error(error)}
+
+				predefinedPlaces={[]}
+				debounce={200}
+				timeout={20000}
+			
+			
+				query={{
+					key: 'AIzaSyDmFlx79dIq9lzTupQGttpE8m8eQ5ZS5yA',
+					language: 'en',
+					components: 'country:lk',
+					componentRestrictions:'country:lk',
+					libraries: 'places'
+				}}
+			/>
+					</View>	
+					
+				</View>
+
+		</View>		
 		
 		<Card style={styles.item} onPress={() => navigation.navigate("RouteBusJourneyDetails", {id: appStore.routeBus.objectId})}>
 			<View style={{flex: 1, flexDirection: "row", justifyContent: "space-between"}}>
 				<Text style={{ flex: 1 , margin: 5}} category="h6">Journey</Text>
-				<View>
-					{!appStore.bus.journey.live && 
-					<TouchableOpacity  onPress={onJourneyLivePressed}>
-						<Image source={require("./../../../../assets/images/routeslk/go_live_stopped.png")} />
-					</TouchableOpacity>
-					}
-					{appStore.bus.journey.live && 
-					<Image source={require("./../../../../assets/images/routeslk/go_live_started.png")}/>
-					}
-				</View>
 			</View>
-			
-			
-			<View style={{flex: 1, flexDirection: "row", justifyContent: "space-between"}}>
-				<View style={{flex: 1, flexDirection: "row", justifyContent: "flex-start"}}>
-					<EvilIcons style={{ marginTop: 5}} name="location" size={30} color="green" />
-					<Text style={{  marginTop: 5,color: 'green'}} >START</Text>
-				</View>
-				<Text style={{ flex: 1 , margin: 5}} >{appStore.bus.journey.stoppings[0]?.place}</Text>
-				<Text style={{ flex: 1 , margin: 5}} >{appStore.bus.journey.stoppings[0]?.time}</Text>
-			</View>
-			<View style={{flex: 1 ,flexDirection: "row", justifyContent: "space-between"}}>
-				<View style={{flex: 1, flexDirection: "row", justifyContent: "flex-start"}}>
-					<EvilIcons style={{  marginTop: 5}} name="location" size={30} color="red" />
-					<Text style={{  marginTop: 5,color: 'red'}} >END</Text>
-				</View>
-				<Text style={{ flex: 1 , margin: 5}}>{journeyEndLocation}</Text>
-				<Text style={{ flex: 1 , margin: 5}}>{journeyEndTime}</Text>
-			</View>
-			<View style={{ borderWidth: 1 , borderColor: "#eee" }}>
-				<Text style={{ flex: 1 , margin: 5 }}>Running Days</Text>
-				<DayPicker
-							weekdays={
-								appStore.bus.journey.runningDays.split(',').map(function(item) {
-									return parseInt(item, 10);
-							})}
-							setWeekdays={setJourneyWeekdays}
-							activeColor='#142169'
-							textColor='white'
-							inactiveColor='grey'
-							wrapperStyles={{ marginTop: 0}}/>
-			</View>
-			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("BusJourneyStoppings", {id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}>
+
+		
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppings", {id: appStore.routeBus.objectId, latitude: appStore.routeBus.journey.stoppings[0].latitude,  longitude: appStore.routeBus.journey.stoppings[0].longitude, journeyType: "RouteBusJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Stoppings</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusJourneyStoppings",{id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyStoppings",{id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
 				</View>
 			</Card>
-			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.objectId})}>
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Timetables</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon}/>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
 				</View>
 			</Card>
 
@@ -388,80 +710,26 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		<Card style={styles.item}>
 			<View style={{flex: 1, flexDirection: "row", justifyContent: "space-between"}}>
 				<Text style={{ flex: 1 , margin: 5}} category="h6">Return Journey</Text>
-				
-			<View>
-				{!appStore.bus.returnJourney.live && 
-				<TouchableOpacity  onPress={onReturnJourneyLivePressed}>
-					<Image source={require("./../../../../assets/images/routeslk/go_live_stopped.png")} />
-				</TouchableOpacity>
-				}
-				{appStore.bus.returnJourney.live && 
-				<Image source={require("./../../../../assets/images/routeslk/go_live_started.png")}/>
-				}
-			</View>
-			
-			
 			</View>
 			<Divider />
-			<View style={{flex: 1, flexDirection: "row", justifyContent: "space-between"}}>
-				<View style={{flex: 1, flexDirection: "row", justifyContent: "flex-start"}}>
-					<EvilIcons style={{ marginTop: 5}} name="location" size={30} color="green" />
-					<Text style={{  marginTop: 5,color: 'green'}} >START</Text>
-				</View>
-				<Text style={{ flex: 1 , margin: 5}} >{appStore.bus.returnJourney.stoppings[0]?.place}</Text>
-				<Text style={{ flex: 1 , margin: 5}} >{appStore.bus.returnJourney.stoppings[0]?.time}</Text>
-			</View>
-			<View style={{flex: 1 ,flexDirection: "row", justifyContent: "space-between"}}>
-				<View style={{flex: 1, flexDirection: "row", justifyContent: "flex-start"}}>
-					<EvilIcons style={{  marginTop: 5}} name="location" size={30} color="red" />
-					<Text style={{  marginTop: 5,color: 'red'}} >END</Text>
-				</View>
-				<Text style={{ flex: 1 , margin: 5}}>{returnJourneyEndLocation}</Text>
-				<Text style={{ flex: 1 , margin: 5}}>{returnJourneyEndTime}</Text>
-			</View>
-			<View style={{ borderWidth: 1 , borderColor: "#eee" }}>
-				<Text style={{ flex: 1 , margin: 5 }}>Running Days</Text>
-				<DayPicker
-							weekdays={
-								appStore.bus.returnJourney.runningDays.split(',').map(function(item) {
-									return parseInt(item, 10);
-							})}
-							setWeekdays={setReturnJourneyWeekdays}
-							activeColor='#142169'
-							textColor='white'
-							inactiveColor='grey'
-							wrapperStyles={{ marginTop: 0}}
-							/>
-			</View>
-			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("BusReturnJourneyStoppings", {id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}>
+			
+			
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppings", {id: appStore.routeBus.objectId, latitude: appStore.routeBus.returnJourney.stoppings[0].latitude,  longitude: appStore.routeBus.returnJourney.stoppings[0].longitude, journeyType: "RouteBusReturnJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Stoppings</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusReturnJourneyStoppings",{id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyStoppings",{id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}/>
 				</View>
 			</Card>
 
-			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("BusJourneyStoppings", {id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}>
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Timetables</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusJourneyStoppings",{id: appStore.bus.id, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}/>
 				</View>
 			</Card>
 		
 		</Card>
 
-		<Card style={styles.item} onPress={() => navigation.navigate("BusPassengers", {id: appStore.bus.id, readOnly: true,latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}>
-			<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-				<Text>Passengers</Text>
-				<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusPassengers",{id: appStore.bus.id, readOnly: true, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
-			</View>
-		</Card>
-
-		<Card style={styles.item} onPress={() => navigation.navigate("BusDriversList", {id: appStore.bus.id, readOnly: true, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}>
-			<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-				<Text>Drivers</Text>
-				<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("BusDriversList",{id: appStore.bus.id, readOnly: true, latitude: appStore.bus.journey.stoppings[0].latitude,  longitude: appStore.bus.journey.stoppings[0].longitude})}/>
-			</View>
-		</Card>
 
 		<RBSheet draggable dragOnContent key="busActions" ref={refStandard} height={250}>
 			<View style={{ paddingHorizontal: 10}}>
@@ -497,6 +765,111 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				</View>
 			</RBSheet>
 		</RBSheet>
+
+		<RBSheet draggable dragOnContent key="titleEdit" ref={refRBSheetTitleEdit} height={200}>
+			<View>
+			<Input
+				style={{paddingHorizontal: 10}}
+				placeholder="Title"
+				value={title}
+				selectionColor="#197519"
+				cursorColor="#197519"
+				onChangeText={(text) => setTitle(text)} 
+			/>
+				
+				<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
+				<Button style={{ flex: 1, borderRadius:50, margin: 10}} size="large" onPress={onEditTitleButtomPress}>Update</Button>
+				</View>
+			</View>
+		</RBSheet>
+
+		<RBSheet draggable dragOnContent key="routeNoEdit" ref={refRBSheetRouteNoEdit} height={200}>
+			<View>
+			<Input
+				style={{paddingHorizontal: 10}}
+				placeholder="Route No."
+				value={routeNo}
+				selectionColor="#197519"
+				cursorColor="#197519"
+				onChangeText={(text) => setRouteNo(text)} 
+			/>
+				
+				<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
+				<Button style={{ flex: 1, borderRadius:50, margin: 10}} size="large" onPress={onEditRouteNoButtomPress}>Update</Button>
+				</View>
+			</View>
+		</RBSheet>
+
+		<RBSheet draggable dragOnContent key="distanceEdit" ref={refRBSheetDistanceEdit} height={200}>
+			<View>
+			<Input
+				style={{paddingHorizontal: 10}}
+				placeholder="Distance"
+				value={distance}
+				selectionColor="#197519"
+				cursorColor="#197519"
+				onChangeText={(text) => setDistance(text)} 
+			/>
+				
+				<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
+				<Button style={{ flex: 1, borderRadius:50, margin: 10}} size="large" onPress={onEditDistanceButtomPress}>Update</Button>
+				</View>
+			</View>
+		</RBSheet>
+
+		<TimerPickerModal
+						    visible={isRunningTimePickerVisible}
+              				setIsVisible={setRunningTimePickerVisible}
+							hideDays={true}
+							hideSeconds
+							LinearGradient={LinearGradient}
+							minuteLabel="mins"
+							initialValue={initialRunningTime}
+							padWithNItems={1}
+							hourLabel="h"
+							onConfirm={(pickedDuration) => {
+								console.log("pickedDuration::"+pickedDuration.minutes);
+								setRunningTimePickerVisible(false);
+								if(pickedDuration.hours > 0){
+									setInitialRunningTime({ hours: pickedDuration.hours, minutes:pickedDuration.minutes});
+									//setDuration(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
+									
+									appStore.routeBus.setRunningTime(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
+									
+								}else{
+									setInitialRunningTime({ hours: 0, minutes:pickedDuration.minutes});
+									//setDuration(pickedDuration.minutes.toString()+" mins");
+									//initialDuration.minutes=pickedDuration.minutes;
+									appStore.routeBus.setRunningTime(pickedDuration.minutes.toString()+" mins");
+								}
+							}}
+							
+							
+							styles={{
+
+								button:{
+								  fontSize: 10,
+								  fontWeight: "bold"
+								},
+								
+								pickerLabel: {
+									fontSize: 16,
+									fontWeight: "600",
+									color: "#888888",
+								},
+								
+								pickerItem: {
+									fontSize: 24,
+									color: "#cccccc",
+								},
+								
+								selectedPickerItem: {
+									fontSize: 28,
+									fontWeight: "bold",
+									color: "#000000",
+								}
+							}}
+						/>
 		
 		</ScrollView>
 		</SafeAreaLayout>
@@ -524,6 +897,10 @@ const styles = StyleSheet.create({
 	},
 	itemHeader: {
 		height: 220,
+	},
+	itemHeaderTitle: {
+		fontWeight: "500",
+		fontSize: 18
 	},
 	itemContent: {
 		marginVertical: 2,
@@ -579,4 +956,38 @@ const styles = StyleSheet.create({
 	  listLabel: {
 		fontSize: 16,
 	  },
+	  inputContainer: {
+		flex: 1,
+		flexDirection: "row", 
+		justifyContent: "space-between",
+		borderColor: "#ddd",
+        borderWidth: 1, // Create border
+        borderRadius: 8, // Not needed. Just make it look nicer.
+        padding: 8, // Also used to make it look nicer
+        zIndex: 0, // Ensure border has z-index of 0
+    },
+	label: {
+		color:"#142169"
+	},
+	labelContainer: {
+        backgroundColor: "white", // Same color as background
+        alignSelf: "flex-start", // Have View be same width as Text inside
+        paddingHorizontal: 3, // Amount of spacing between border and first/last letter
+        marginStart: 10, // How far right do you want the label to start
+        zIndex: 1, // Label must overlap border
+        elevation: 1, // Needed for android
+        shadowColor: "white", // Same as background color because elevation: 1 creates a shadow that we don't want
+        position: "absolute", // Needed to be able to precisely overlap label with border
+        top: -12, // Vertical position of label. Eyeball it to see where label intersects border.
+    },
+	descriptionInputContainer: {
+		flex: 1,
+		flexDirection: "column", 
+		justifyContent: "space-between",
+		borderColor: "#ddd",
+        borderWidth: 1, // Create border
+        borderRadius: 8, // Not needed. Just make it look nicer.
+        padding: 8, // Also used to make it look nicer
+        zIndex: 0, // Ensure border has z-index of 0
+    }
 });
