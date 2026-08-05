@@ -313,12 +313,12 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 					<View style={{flexDirection: "row", flexWrap: "wrap"}}>
 					{appStore.routeBus.stoppingPlaces.map(function(stopping, index){
 						if(stopping == selectedStopping){
-							return <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#222"}} onPress={onAddStopping(stopping)}>
+							return <TouchableOpacity key={index} style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#222"}} onPress={onAddStopping(stopping)}>
 										<Text style={{padding: 2}}>{stopping.place}</Text>
 										<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteStoppingPlace(stopping.place)} />
 								</TouchableOpacity>
 						}else{
-							return <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddStopping(stopping)}>
+							return <TouchableOpacity key={index} style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddStopping(stopping)}>
 										<Text style={{padding: 2}}>{stopping.place}</Text>
 										<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteStoppingPlace(stopping.place)} />
 								</TouchableOpacity>

@@ -400,6 +400,7 @@ const NewRouteVirtualBusStore = types
       self.typeOfService = typeOfService;
     },
     addStoppingPlace(place,latitude,longitude){
+      console.log("addStoppingPlace"+place+latitude+longitude);
       self.stoppingPlaces.push({
         place,
         latitude,
@@ -407,6 +408,7 @@ const NewRouteVirtualBusStore = types
       })
     },
     addStoppingPlaceAtIndex(place,latitude,longitude,index){
+      console.log("addStoppingPlaceAtIndex"+place+latitude+longitude);
       self.stoppingPlaces.splice(index, 0, {place,latitude,longitude});
     },
     getIndex(stoppingPlace){

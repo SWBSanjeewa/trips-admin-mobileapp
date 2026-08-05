@@ -5,6 +5,7 @@ import { useRoute } from "@react-navigation/native";
 import AppStore from "../../../../store/AppStore";
 import { useStore } from "mobx-store-provider";
 import { RouteBus } from "./data";
+import { observer, inject} from "mobx-react";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 import { CachedImage } from '@georstat/react-native-image-cache';
@@ -63,7 +64,7 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 
 //const BusDetailsCard = forwardRef(({ navigation }, bottomSheetRef) => {
 //	React.forwardRef(({ name }, ref) => {
-export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
+const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 
 	const [journeyWeekdays, setJourneyWeekdays] = React.useState([2,3,4,5,6])
 
@@ -71,17 +72,12 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	
 	const appStore = useStore(AppStore);
 
+	const route = useRoute();
+
 	const refAutoComplete = useRef(null);
 
 
 	const insetsConfig = useSafeAreaInsets();
-
-	const [initialRunningTime, setInitialRunningTime] = useState
-			({
-				hours: 0,
-				minutes: 0
-			});
-	
 		
 	const refStandardConfirmation = useRef();
 
@@ -96,7 +92,7 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	const [returnJourneyEndTime, setReturnJourneyEndTime] = useState('');
 	
 
-	const route = useRoute();
+	
 
 	const [journeyLiveChecked, setJourneyLiveChecked] = React.useState(false);
 
@@ -306,25 +302,6 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		setRouteNo(appStore.routeBus.routeNo);
 		setDistance(appStore.routeBus.distance);
 
-		const regex = /(\d+)\s*h\s*(\d+)\s*mins/;
-
-		const match = route.params?.runningTime.match(regex);
-		let hours=0;
-		let minutes =0;
-
-		if (match) {
-			hours = match[1];
-			minutes = match[2];
-		}
-		
-		setInitialRunningTime({
-				hours: Number(hours),
-				minutes: Number(minutes)
-			})
-		
-		console.log("### effects");
-		console.log("### h:"+appStore.routeBus.runningTime?.match(/(\d+)h/));
-		console.log("### initialRunningTime:"+initialRunningTime.hours+" "+initialRunningTime.minutes );
 		if(route.params?.reload){
 			const fetch = async ()=>{
 				console.log("### calling loadbuses");
@@ -479,8 +456,8 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	}
 
 	return (
-		<SafeAreaLayout style={{ flex: 1}} insets="bottom">
-		<ScrollView style={{ flex: 1}}>
+		
+		<ScrollView style={{ flex: 1}} keyboardShouldPersistTaps='handled'>
 		
 
 		<View>
@@ -579,12 +556,12 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					<View style={{flexDirection: "row", flexWrap: "wrap"}}>
 					{appStore.routeBus.stoppingPlaces.map(function(stopping, index){
 						if(stopping == selectedStopping){
-							return <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#222"}} onPress={onAddStopping(stopping)}>
+							return <TouchableOpacity key={index} style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#222"}} onPress={onAddStopping(stopping)}>
 										<Text style={{padding: 2}}>{stopping.place}</Text>
 										<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteStoppingPlace(stopping.place)} />
 								</TouchableOpacity>
 						}else{
-							return <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddStopping(stopping)}>
+							return <TouchableOpacity key={index} style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddStopping(stopping)}>
 										<Text style={{padding: 2}}>{stopping.place}</Text>
 										<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteStoppingPlace(stopping.place)} />
 								</TouchableOpacity>
@@ -642,6 +619,7 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					console.log(data);
 					console.log("*****");
 					console.log(data.description)
+					console.log(Number(details.geometry.location.lat)+":"+Number(details.geometry.location.lng))
 					
 					var address=data.description;
 					
@@ -654,11 +632,12 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					refAutoComplete.current?.setAddressText("");
 					
 					if(selectedStopping != ""){
+
 						var index = appStore.routeBus.getIndex(selectedStopping);
-						appStore.routeBus.addStoppingPlaceAtIndex(address,details.geometry.location.lat,details.geometry.location.lng,index+1);
+						appStore.routeBus.addStoppingPlaceAtIndex(address,Number(details.geometry.location.lat),Number(details.geometry.location.lng),index+1);
 						setSelectedStopping("");
 					}else{
-						appStore.routeBus.addStoppingPlace(address,details.geometry.location.lat,details.geometry.location.lng);
+						appStore.routeBus.addStoppingPlace(address,Number(details.geometry.location.lat),Number(details.geometry.location.lng));
 					}
 					
 				}}
@@ -824,20 +803,23 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 							hideSeconds
 							LinearGradient={LinearGradient}
 							minuteLabel="mins"
-							initialValue={initialRunningTime}
+							initialValue={{
+								hours: appStore?.routeBus?.runningTime ? Number(appStore?.routeBus?.runningTime.match(/(\d+)\s*h\s*(\d+)\s*mins/)?.[1] || 0) : 0,
+								minutes: appStore?.routeBus?.runningTime ? Number(appStore?.routeBus?.runningTime.match(/(\d+)\s*h\s*(\d+)\s*mins/)?.[2] || 0) : 0
+							}}
 							padWithNItems={1}
 							hourLabel="h"
 							onConfirm={(pickedDuration) => {
 								console.log("pickedDuration::"+pickedDuration.minutes);
 								setRunningTimePickerVisible(false);
 								if(pickedDuration.hours > 0){
-									setInitialRunningTime({ hours: pickedDuration.hours, minutes:pickedDuration.minutes});
+									//setInitialRunningTime({ hours: pickedDuration.hours, minutes:pickedDuration.minutes});
 									//setDuration(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
 									
 									appStore.routeBus.setRunningTime(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
 									
 								}else{
-									setInitialRunningTime({ hours: 0, minutes:pickedDuration.minutes});
+									//setInitialRunningTime({ hours: 0, minutes:pickedDuration.minutes});
 									//setDuration(pickedDuration.minutes.toString()+" mins");
 									//initialDuration.minutes=pickedDuration.minutes;
 									appStore.routeBus.setRunningTime(pickedDuration.minutes.toString()+" mins");
@@ -872,7 +854,7 @@ export const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 						/>
 		
 		</ScrollView>
-		</SafeAreaLayout>
+	
 		
 	);
 });
@@ -991,3 +973,5 @@ const styles = StyleSheet.create({
         zIndex: 0, // Ensure border has z-index of 0
     }
 });
+
+export default observer(BusDetailsCard);

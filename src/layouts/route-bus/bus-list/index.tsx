@@ -364,7 +364,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 			
 			<View>
 				<View>
-					<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start" }}>	
+					<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start" , flexWrap: 'wrap'}}>	
 						<Button size="small" onPress={()=>onTransportServicePress(info.item)} style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 5 }}>{info.item.routeNo}</Button>
 						<Text category="h5">{info.item.title}</Text>
 					</View>	
@@ -398,7 +398,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 	</View>
 	
 	<View>
-			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-end" }}>	
+			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-end" , flexWrap: 'wrap'}}>	
 				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: 5 }} >Distance: {info.item.distance} km</Button>
 				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: 5 }} >Running Time: {info.item.runningTime}</Button>
 		</View>
