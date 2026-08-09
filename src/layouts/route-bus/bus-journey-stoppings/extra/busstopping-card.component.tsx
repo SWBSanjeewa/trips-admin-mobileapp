@@ -56,7 +56,12 @@ export const BusStoppingInfoCard = ({ stoppings ,bottomSheetRef ,mapRef}) => {
 					</View>
 					<View style={{ padding: 10 }}>	
 						<Text >{info.item.place}</Text>
-						<Text>{info.item.time}</Text>
+						{info.index!=0 && (
+						<View  style={{  paddingTop: 15, margin: 0}}>
+							<Text>{info.item.duration}</Text>
+						</View>
+						)}
+						
 					</View>	
 				</TouchableOpacity>
 			

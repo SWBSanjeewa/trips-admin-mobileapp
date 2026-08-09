@@ -5,7 +5,7 @@ import { StyleSheet ,Text} from "react-native";
 import { ArrowIosBackIcon } from "../../components/icons";
 import { PlusOutlineIcon } from "../../components/icons";
 import { SafeAreaLayout } from "../../components/safe-area-layout.component";
-import ContentView from "../../layouts/service-bus/bus-edit";
+import ContentView from "../../layouts/route-bus/bus-edit";
 import AppStore from "../../store/AppStore";
 import { observer, inject} from "mobx-react";
 import { useStore } from "mobx-store-provider";
@@ -14,12 +14,12 @@ export const RouteBusEditScreen = ({ navigation }): React.ReactElement => {
 
 	const appStore = useStore(AppStore);
 
-	const onAddDriverPress = () => {
-		navigation.goBack();
+	const onBackPress = () => {
+		navigation.navigate("RouteBusDetails", {reload: true});
 	};
 
 	const renderBackAction = (): React.ReactElement => (
-		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onAddDriverPress} />
+		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
 	);
 
 

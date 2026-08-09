@@ -1133,9 +1133,11 @@ const AppStore = types.model("App", {
   }),
   routeBuses: types.optional(RouteBuses, {
   }),
-  routeBusTimetable: types.optional(Timetable,{
-    
-  })
+  //routeBusTimetable: types.optional(Timetable,{
+  //})
+  routeBusTimetable: types.optional(Timetable, {
+    runningDays: ""
+  }),
   
 });
 

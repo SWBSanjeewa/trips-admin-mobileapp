@@ -127,10 +127,10 @@ const BusStoppingEdit = ({ navigation }): React.ReactElement => {
 	const onUpdatePress = (): void => {
 		if(isValidValues()){
 			if(route.params.journeyType == "RouteBusJourney"){
-				appStore.routeBus.journey.updateStopping(oldLatitude, oldLongitude, place,latitude.toString(),longitude.toString(),duration);
+				appStore.routeBus.journey.updateStopping(oldLatitude, oldLongitude, place,latitude,longitude,duration);
 				navigation.navigate('RouteBusJourneyStoppingsList',{"journeyType": route.params.journeyType});
 			} else if(route.params.journeyType == "RouteBusReturnJourney"){
-				appStore.routeBus.returnJourney.updateStopping(oldLatitude, oldLongitude, place,latitude.toString(),longitude.toString(),duration);
+				appStore.routeBus.returnJourney.updateStopping(oldLatitude, oldLongitude, place,latitude,longitude,duration);
 				navigation.navigate('RouteBusJourneyStoppingsList',{"journeyType": route.params.journeyType});
 			}
 		}

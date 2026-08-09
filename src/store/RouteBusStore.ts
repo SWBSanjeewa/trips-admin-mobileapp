@@ -207,7 +207,8 @@ const Turn = types.model({
 
 export const Timetable = types.model({
   type: types.optional(types.string, ""),
-  turns: types.array(Turn)
+  turns: types.array(Turn),
+  runningDays: types.optional(types.string, "")
 })
 
 .actions((self) => ({
@@ -242,7 +243,6 @@ const Route = types.model({
   addTimetable(type,runningDays){
     console.log("addTimetable"+type);
     self.timetables.push({type,runningDays});
-   
   },
   addTurn(onboardStartTime,startTime,runningNo,stoppings){
     var timetable = self.timetables.pop();
@@ -352,8 +352,8 @@ const NewRouteVirtualBusStore = types
       self.runningTime = "";
       self.transportAuthority = "";
       self.typeOfService = "";
-      self.stoppingPlaces= StoppingPlace[0];
-      self.rotationBuses= RotationBus[0];
+      self.stoppingPlaces.clear();
+      self.rotationBuses.clear();
       self.journey.reset();
       self.returnJourney.reset();
     },

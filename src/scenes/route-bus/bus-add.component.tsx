@@ -15,8 +15,8 @@ export const RouteBusAddScreen = ({ navigation }): React.ReactElement => {
 	const appStore = useStore(AppStore);
 
 	const onBackPress = () => {
-		//appStore.bus.reset();	
-		navigation.popTo('BusList', {reload: false, routeType: "route"});
+		appStore.routeBus.reset();	
+		navigation.popTo('RouteBusList', {reload: false, routeType: "route"});
 		
 	};
 

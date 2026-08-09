@@ -37,6 +37,11 @@ export const RouteBusDetailsScreen = ({ navigation }): React.ReactElement => {
 
 	const onBackPress = () => {
 		appStore.routeBus.reset();		
+		navigation.navigate("RouteBusList", {reload: false});
+	};
+
+	const onBackPressBck = () => {
+		appStore.routeBus.reset();		
 		var localreload = false;
 		var localreload = route.params?.reload;
 		console.log("localreload::"+localreload);

@@ -170,12 +170,13 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		console.log("onTimetableAddPress");
 		setTimetableIndex(-1);
 		setSelectedTurn(-1);
+		console.log("appStore.routeBusTimetable.type:"+appStore.routeBusTimetable.type);
 		if(appStore.routeBusTimetable.type == ""){
 			appStore.routeBusTimetable.setTimetableType(routeBusTimetableTypes[0]);
 		}
 		if(appStore.routeBusTimetable.type == "Selected Days"){
 			if(appStore.routeBusTimetable.runningDays == ""){
-			appStore.routeBusTimetable.setRunningDays(runningDays.toString());
+			appStore.routeBusTimetable.setRunningDays(runningDays?.toString());
 			}
 		}
 		console.log(">>"+JSON.stringify(toJS(appStore.routeBusTimetable)));	
@@ -187,6 +188,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		setRunningDays([2,3,4,5,6]);
 		setSelectedIndex(new IndexPath(0));
 		setSelectedDaysSelected(false);
+		console.log("Adding:"+appStore.routeBusTimetable.type+" - "+appStore.routeBusTimetable.runningDays?.toString())
 		appStore.routeBus.addTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
 
 	}
@@ -198,7 +200,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		}
 		if(appStore.routeBusTimetable.type == "Selected Days"){
 			if(appStore.routeBusTimetable.runningDays == ""){
-			appStore.routeBusTimetable.setRunningDays(runningDays.toString());
+				appStore.routeBusTimetable.setRunningDays(runningDays.toString());
 			}
 		}
 		
@@ -210,6 +212,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		}
 		console.log("*****");
 		setDefaultDate(new Date());
+		setSelectedIndex(new IndexPath(0));
+		setSelectedDaysSelected(false);
 		setSelectedTurn(-1);
 		setTimetableIndex(-1);
 		addCallback(false);
@@ -336,11 +340,12 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const onRouteTimetableTypeSelect = (index): void => {
 		setSelectedIndex(index);
 		if(routeBusTimetableTypes[index-1] == "Selected Days"){
-			console.log(routeBusTimetableTypes[index-1]);
+			console.log("&&&&"+routeBusTimetableTypes[index-1]);
 			setSelectedDaysSelected(true);
 		}else{
 			setSelectedDaysSelected(false);
 		}
+		console.log("routeBusTimetableTypes[index-1]:"+routeBusTimetableTypes[index-1]);
 		appStore.routeBusTimetable.setTimetableType(routeBusTimetableTypes[index-1]);
 	};
 

@@ -91,6 +91,10 @@ export const getTourTypeColor = (tourType) => {
 export const getRouteBusThemePhotoUrl = (operator,typeOfService) => {
 	console.log("### operator:"+operator+" typeOfService:"+typeOfService);
 	const vType = busThemePhoto.find(p => p.operator === operator && p.typeOfService === typeOfService);
-	return vType.url;
+	return vType?.url;
+}
+
+export const getSelectedDaysFromNumbers = (selectedDays) => {
+	return selectedDays.replace("1", "SUN").replace("2", "MON").replace("3", "TUE").replace("4", "THU").replace("5", "FRI").replace("6", "SAT").replace("7", "SUN"); 
 }
 

@@ -17,7 +17,7 @@ import { HomeOutlineIcon, PersonOutlineIcon } from "../../../components/icons";
 import { useFocusEffect } from '@react-navigation/native';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 
-import {routeBusTypes, operatorTypes, getRouteBusThemePhotoUrl}  from "../../../app/routes-common";
+import {routeBusTypes, operatorTypes, getRouteBusThemePhotoUrl, getSelectedDaysFromNumbers}  from "../../../app/routes-common";
 
 import { TranportServiceSuggestions}  from "./extra/transportservices-auto-suggestions"
 
@@ -352,6 +352,13 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 		return false;
 	};
 
+	
+	const getTimetableTypeText = (timetable) => {
+		if(timetable.type =="Selected Days"){
+			return getSelectedDaysFromNumbers(timetable.runningDays);
+		}
+		return timetable.type;
+	};
 
 	const renderItem = (info: ListRenderItemInfo<RouteBus>, index): React.ReactElement => (
 		<Card
@@ -404,11 +411,14 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 		</View>
 	</View>
 	
-	<View>
-		<Text>{info.item.stoppingPlaces[0].place}</Text>
-		<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start" }}>	
+	<View style={{marginVertical: 20}}>
+		<Text category="h6">{info.item.stoppingPlaces[0].place}</Text>
+			<View>
 			{info.item.journey.timetables.map((timetable,timetable_index) => (
 				<>
+				<Text>{getTimetableTypeText(timetable)}</Text>
+				<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start" }}>	
+				
 				{timetable.turns.length <= 4 && (
 				<>
 				{timetable.turns.map((turn,turn_index) => (
@@ -424,17 +434,23 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{timetable.turns[timetable.turns.length-1].startTime}</Button>
 				</>
 				)}
+				</View>	
 				</>
 			))}
-		</View>	
+			</View>	
+		
 		
 	</View>
 
+
 	<View>
-		<Text>{info.item.stoppingPlaces[info.item.stoppingPlaces.length-1].place}</Text>
-		<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start" }}>	
+		<Text category="h6">{info.item.stoppingPlaces[info.item.stoppingPlaces.length-1].place}</Text>
+		<View>
 			{info.item.returnJourney.timetables.map((timetable,timetable_index) => (
 				<>
+				<Text>{getTimetableTypeText(timetable)}</Text>
+				<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start" }}>	
+				
 				{timetable.turns.length <= 4 && (
 				<>
 				{timetable.turns.map((turn,turn_index) => (
@@ -450,9 +466,10 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{timetable.turns[timetable.turns.length-1].startTime}</Button>
 				</>
 				)}
+				</View>	
 				</>
 			))}
-		</View>
+			</View>	
 	</View>
 
 	
@@ -511,6 +528,8 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
       .catch((error: any) => setExpoPushToken(`${error}`));
 	}, []);
 	*/
+
+	
 	
 	const renderOptionBusTypes = (routeType): React.ReactElement => (
 		<SelectItem key={routeType.name} title={evaProps => <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>

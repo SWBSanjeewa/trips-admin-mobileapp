@@ -47,13 +47,13 @@ export const RouteBusListScreen = ({ navigation }): React.ReactElement => {
 		}
 	};
 
-	const onAddDriverPress = () => {
-			navigation.goBack();
-		};
+	const onBackPress = () => {
+		navigation.navigate("BusHome");
+	};
 	
-		const renderBackAction = (): React.ReactElement => (
-			<TopNavigationAction icon={ArrowIosBackIcon} onPress={onAddDriverPress} />
-		);
+	const renderBackAction = (): React.ReactElement => (
+		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
+	);
 
 	const onBusSearchPress = (): void => {
 		console.log("Bus Search");
