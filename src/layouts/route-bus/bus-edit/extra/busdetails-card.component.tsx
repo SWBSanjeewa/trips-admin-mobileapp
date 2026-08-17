@@ -10,7 +10,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 import { CachedImage } from '@georstat/react-native-image-cache';
 
-import {routeBusTypes, operatorTypes, transportAuthorityTypes}  from "../../../../app/routes-common";
+import {routeBusTypes, operatorTypes, transportAuthorityTypes,getTransportAuthorityTypesIndexNumber, getOperatorTypesIndexNumber,getServiceTypesIndexNumber}  from "../../../../app/routes-common";
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
@@ -144,6 +144,77 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	const MenuIcon = (props): IconElement => (
 		<MaterialIcons name="more-vert" size={24} color="black" />
 	);
+
+
+	const onTransportAuthorityUpdate = async() => {
+		console.log(JSON.stringify(toJS(appStore.routeBus)));	
+
+		const config: AxiosRequestConfig = {
+			headers: {
+			  'Accept': 'application/json',
+			  'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		  };
+		  try {
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/transportAuthority/`+appStore.routeBus.transportAuthority , config);
+			console.log(response.status);
+		  } catch(err) {
+			console.log(err);
+		  }  
+	}
+
+	// "operator":"Private","transportAuthority":"NTC","typeOfService":"Normal",
+	const onTypeOfServiceUpdate = async() => {
+		console.log(JSON.stringify(toJS(appStore.routeBus.typeOfService)));	
+
+		const config: AxiosRequestConfig = {
+			headers: {
+			  'Accept': 'application/json',
+			  'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		  };
+		  try {
+			console.log("&&&"+`/routebuses/`+appStore.routeBus.objectId+`/typeOfService/`+appStore.routeBus.typeOfService);
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/typeOfService/`+appStore.routeBus.typeOfService, appStore.routeBus.typeOfService , config);
+			console.log(response.status);
+		  } catch(err) {
+			console.log(err);
+		  }  
+	}
+
+	const onOperatorUpdate = async() => {
+		console.log(JSON.stringify(toJS(appStore.routeBus.operator)));	
+
+		const config: AxiosRequestConfig = {
+			headers: {
+			  'Accept': 'application/json',
+			  'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		  };
+		  try {
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/operator/`+appStore.routeBus.operator, appStore.routeBus.operator , config);
+			console.log(response.status);
+		  } catch(err) {
+			console.log(err);
+		  }  
+	}
+
+	const onTitleUpdate = async() => {
+		console.log(JSON.stringify(toJS(appStore.routeBus.title)));	
+
+		const config: AxiosRequestConfig = {
+			headers: {
+			  'Accept': 'application/json',
+			  'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		  };
+		  try {
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/title/`+appStore.routeBus.operator, appStore.routeBus.title , config);
+			console.log(response.status);
+		  } catch(err) {
+			console.log(err);
+		  }  
+	}
 
 	
 	const loadBusses = async() => {
@@ -288,11 +359,14 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	const onBusTypeSelect = (index): void => {
 		setSelectedIndexBusType(index);
 		appStore.routeBus.setTypeOfService(routeBusTypes[index-1].name);
+		onTypeOfServiceUpdate();
+
 	};
 
 	const onOperatorTypeSelect = (index): void => {
 		setSelectedOperatorIndex(index);
 		appStore.routeBus.setOperator(operatorTypes[index-1].name);
+		onOperatorUpdate();
 	};
 
 	
@@ -301,6 +375,14 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		setTitle(appStore.routeBus.title);
 		setRouteNo(appStore.routeBus.routeNo);
 		setDistance(appStore.routeBus.distance);
+
+		console.log("useefefct:"+appStore.routeBus.transportAuthority);
+		console.log(">>"+getTransportAuthorityTypesIndexNumber(appStore.routeBus.transportAuthority));
+		
+		setSelectedIndexTransportAuthorityType(new IndexPath(getTransportAuthorityTypesIndexNumber(appStore.routeBus.transportAuthority)));
+		setSelectedOperatorIndex(new IndexPath(getOperatorTypesIndexNumber(appStore.routeBus.operator)));
+		setSelectedIndexBusType(new IndexPath(getServiceTypesIndexNumber(appStore.routeBus.typeOfService)));
+		
 
 		if(route.params?.reload){
 			const fetch = async ()=>{
@@ -319,6 +401,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	const onTransportAuthorityTypeSelect = (index): void => {
 		setSelectedIndexTransportAuthorityType(index);
 		appStore.routeBus.setTransportAuthority(transportAuthorityTypes[index-1].name);
+		onTransportAuthorityUpdate();
 	};
 
 	const renderItemHeader = (): React.ReactElement => (
@@ -356,93 +439,63 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	};
 
 	const onEditTitleButtomPress = async () => {
-		/*
+		
 		const config: AxiosRequestConfig = {
 			headers: {
-				'Accept': 'application/json',
-				'token': appStore.user.accessToken
+			  'Accept': 'application/json',
+			  'token': appStore.user.accessToken
 			} as RawAxiosRequestHeaders,
-		};
-		
-		console.log("Name:::"+name);
-			
-		try {
-		
-		const response: AxiosResponse = await client.put('/users/'+appStore.user.mobileNumber+'/name/'+name , config);
-		console.log(response.data);
-		
-		if(response.data!=null && response.data.success == "true"){
-			appStore.user.setName(name);
-		}
-		
-		
-		} catch(err) {
-			console.log(err);
-		}
-			*/
+		  };
 
-		//appStore.routeBus.setTitle(title);
+		  try {
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/title/`+title , config);
+			console.log(response.status);
+		  } catch(err) {
+			console.log(err);
+		  }  
+
+		appStore.routeBus.setTitle(title);
 			
 		refRBSheetTitleEdit.current.close();
 		
 	};
 
 	const onEditRouteNoButtomPress = async () => {
-		/*
+		
 		const config: AxiosRequestConfig = {
 			headers: {
-				'Accept': 'application/json',
-				'token': appStore.user.accessToken
+			  'Accept': 'application/json',
+			  'token': appStore.user.accessToken
 			} as RawAxiosRequestHeaders,
-		};
-		
-		console.log("Name:::"+name);
-			
-		try {
-		
-		const response: AxiosResponse = await client.put('/users/'+appStore.user.mobileNumber+'/name/'+name , config);
-		console.log(response.data);
-		
-		if(response.data!=null && response.data.success == "true"){
-			appStore.user.setName(name);
-		}
-		
-		
-		} catch(err) {
+		  };
+
+		  try {
+			console.log(`/routebuses/`+appStore.routeBus.objectId+`/routeNo/`+routeNo);
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/routeNo/`+encodeURIComponent(routeNo) , config);
+			console.log(response.status);
+		  } catch(err) {
 			console.log(err);
-		}
-			*/
-		//appStore.routeBus.setRouteNo(routeNo);	
+		  }  
+		appStore.routeBus.setRouteNo(routeNo);	
 		refRBSheetRouteNoEdit.current.close();
 		
 	};
 
 	const onEditDistanceButtomPress = async () => {
-		/*
 		const config: AxiosRequestConfig = {
 			headers: {
 				'Accept': 'application/json',
 				'token': appStore.user.accessToken
 			} as RawAxiosRequestHeaders,
 		};
-		
-		console.log("Name:::"+name);
-			
+
 		try {
-		
-		const response: AxiosResponse = await client.put('/users/'+appStore.user.mobileNumber+'/name/'+name , config);
-		console.log(response.data);
-		
-		if(response.data!=null && response.data.success == "true"){
-			appStore.user.setName(name);
-		}
-		
-		
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/distance/`+encodeURIComponent(distance) , config);
+			console.log(response.status);
 		} catch(err) {
 			console.log(err);
-		}
-			*/
-		//appStore.routeBus.setDistance(distance);	
+		}  
+		appStore.routeBus.setDistance(distance);	
 		refRBSheetDistanceEdit.current.close();
 		
 	};

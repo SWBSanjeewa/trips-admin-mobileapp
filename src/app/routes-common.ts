@@ -14,12 +14,63 @@ export const routeBusTypes = [
 		{name: "Normal", themeColor: "#A9A9A9", ac: false, details: "Leyland/ Tata Bus"}
 ]
 
+
+export const serviceTypes = [
+		{name: "Super Luxury", themeColor: "#483248", ac: true, details: "Kinglong/ Yutong Coach"},
+		{name: "Luxury", themeColor: "#00008B", ac: true, details: "Toyota Coaster/ Mitsubishi Rosa Bus"},
+		{name: "Normal", themeColor: "#A9A9A9", ac: false, details: "Leyland/ Tata Bus"}
+]
+
 export const transportAuthorityTypes = [
 		{name: "NTC", themeColor: "#483248", details: "National Transport Commission"},
 		{name: "WP-RPTA", themeColor: "#23a038", ac: false, details: "Western Province Road Passenger Transport Authority"},
 		{name: "CP-TSA", themeColor: "#00008B", details: "Central Province Transport Service Authority"},
 		{name: "SP-RPTA", themeColor: "#A9A9A9", ac: false, details: "Southern Province Road Passenger Transport Authority"}
 ]
+
+export const getTransportAuthorityTypesIndexNumber1 = (transportAuthorityType): number => {
+	
+	//var index = 0;
+	transportAuthorityTypes.map(function(element, index){
+		console.log(index+"="+element?.name);
+		if(element?.name == transportAuthorityType){
+			console.log(index);
+			return index;
+		}
+	});
+	return 0;
+};
+
+export const getTransportAuthorityTypesIndexNumber = (transportAuthorityType): number => {
+	var myindex = 0;
+	transportAuthorityTypes.map(function(element, index){
+		if(element.name == transportAuthorityType){
+			myindex=index;
+		}
+	});
+	return myindex;
+};
+
+export const getOperatorTypesIndexNumber = (operatorType): number => {
+	var myindex = 0;
+	operatorTypes.map(function(element, index){
+		if(element.name == operatorType){
+			myindex=index;
+		}
+	});
+	return myindex;
+};
+
+
+export const getServiceTypesIndexNumber = (serviceType): number => {
+	var myindex = 0;
+	serviceTypes.map(function(element, index){
+		if(element.name == serviceType){
+			myindex=index;
+		}
+	});
+	return myindex;
+};
 
 export const operatorTypes = [
 		{name: "Private", themeColor: "#00008B"},

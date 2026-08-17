@@ -26,10 +26,10 @@ export const RouteBusJourneyStoppingsListScreen = ({ navigation }): React.ReactE
 		<TopNavigation title={props => (
 			<Text {...props} style={{fontWeight: "500", fontSize: 18}}>
 				{route.params?.journeyType == "RouteBusReturnJourney" && (
-					<>Route Bus Return Journey Stoppings List</>
+					<>Return Journey Stoppings</>
 				)}
 				{route.params?.journeyType == "RouteBusJourney" && (
-					<>Route Bus Journey Stoppings List</>
+					<>Journey Stoppings</>
 				)}
 			</Text>)} accessoryLeft={renderBackAction} />
 		<ContentView navigation={navigation} />

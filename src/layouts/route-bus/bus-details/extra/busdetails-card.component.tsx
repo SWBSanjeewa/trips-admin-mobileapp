@@ -285,11 +285,12 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 			
 		</Card>
 		
-		<Card style={styles.item} onPress={() => navigation.navigate("RouteBusJourneyDetails", {id: appStore.routeBus.objectId})}>
+		<Card style={styles.item}>
 			<View style={{flex: 1, flexDirection: "row", justifyContent: "space-between"}}>
 				<Text style={{ flex: 1 , margin: 5}} category="h6">{appStore.routeBus?.stoppingPlaces[0]?.place} - {appStore.routeBus.stoppingPlaces[appStore.routeBus.stoppingPlaces.length-1]?.place}</Text>
 			</View>
 
+			{appStore.routeBus.journey.timetables.length == 1 && (
 			<Card style={{ marginTop: 10, borderRadius:10}} disabled={true} >
 				<View style={{marginHorizontal: -24,marginVertical: -16}}>
 				<Text style={{marginHorizontal: 10,marginVertical: 10}}>Timetables</Text>
@@ -297,7 +298,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					<>
 						<Card style={{ marginTop: 10, borderRadius:10}} disabled={true}>
 
-						<Accordion.Accordion isOpen={getOpenStatus(timetable_index)}>
+						<Accordion.Accordion isOpen={false}>
 							<Accordion.Header>
 								<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 									<Text>{getTimetableTypeText(timetable)}</Text>
@@ -320,7 +321,15 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				))}		
 			</View>	
 			</Card>
-
+			)}
+			{appStore.routeBus.journey.timetables.length != 1 && (
+				<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id,journeyType: "RouteBusJourney"})}>
+					<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+						<Text>Timetables</Text>
+						<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id, journeyType: "RouteBusJourney"})}/>
+					</View>
+				</Card>
+			)}
 		
 			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppings", {id: appStore.routeBus.objectId, latitude: appStore.routeBus.journey.stoppings[0].latitude,  longitude: appStore.routeBus.journey.stoppings[0].longitude, journeyType: "RouteBusJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
@@ -329,12 +338,14 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				</View>
 			</Card>	
 		</Card>
+			
 
 		<Card style={styles.item}>
 			<View style={{flex: 1, flexDirection: "row", justifyContent: "space-between"}}>
 				<Text style={{ flex: 1 , margin: 5}} category="h6">{appStore.routeBus?.stoppingPlaces[appStore.routeBus.stoppingPlaces.length-1]?.place} - {appStore.routeBus.stoppingPlaces[0]?.place}</Text>
 			</View>
-			
+
+			{appStore.routeBus.returnJourney.timetables.length == 1 && (
 			<Card style={{ marginTop: 10, borderRadius:10}} disabled={true} >
 				<View style={{marginHorizontal: -24,marginVertical: -16}}>
 				<Text style={{marginHorizontal: 10,marginVertical: 10}}>Timetables</Text>
@@ -343,7 +354,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 
 						<Card style={{ marginTop: 10, borderRadius:10}} disabled={true}>
 
-						<Accordion.Accordion isOpen={getOpenStatus(timetable_index)}>
+						<Accordion.Accordion isOpen={false}>
 							<Accordion.Header>
 								<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 									<Text>{getTimetableTypeText(timetable)}</Text>
@@ -366,7 +377,16 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				))}	
 				</View>	
 			</Card>
+			)}
+			{appStore.routeBus.returnJourney.timetables.length != 1 && (
+				<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id,journeyType: "RouteBusReturnJourney"})}>
+					<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+						<Text>Timetables</Text>
+						<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id, journeyType: "RouteBusReturnJourney"})}/>
+					</View>
+				</Card>
 
+			)}
 			
 			
 			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppings", {id: appStore.routeBus.objectId, latitude: appStore.routeBus.returnJourney.stoppings[0].latitude,  longitude: appStore.routeBus.returnJourney.stoppings[0].longitude, journeyType: "RouteBusReturnJourney"})}>

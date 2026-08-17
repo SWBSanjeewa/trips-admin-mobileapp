@@ -16,7 +16,8 @@ export const TourAddScreen = ({ navigation }): React.ReactElement => {
 
 	const onBackPress = () => {
 		//appStore.bus.reset();	
-		navigation.popTo('BusList', {reload: false, routeType: "tour"});
+		appStore.bus.setRouteType("tour");
+		navigation.navigate("TourList", {reload: false});
 		
 	};
 

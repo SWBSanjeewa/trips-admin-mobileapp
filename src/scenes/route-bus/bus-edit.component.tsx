@@ -15,7 +15,7 @@ export const RouteBusEditScreen = ({ navigation }): React.ReactElement => {
 	const appStore = useStore(AppStore);
 
 	const onBackPress = () => {
-		navigation.navigate("RouteBusDetails", {reload: true});
+		navigation.navigate("RouteBusDetails", {reload: false});
 	};
 
 	const renderBackAction = (): React.ReactElement => (

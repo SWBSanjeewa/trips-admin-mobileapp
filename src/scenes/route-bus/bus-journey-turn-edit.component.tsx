@@ -17,7 +17,7 @@ export const RouteBusJourneyTurnEditScreen = ({ navigation }): React.ReactElemen
 		<SafeAreaLayout style={styles.container} insets="top">
 		<TopNavigation title={props => (
 			<Text {...props} style={{fontWeight: "500", fontSize: 18}}>
-			Journey Turn Edit
+			Turn Edit
 			</Text>)} accessoryLeft={renderBackAction} />
 		<ContentView navigation={navigation} />
 	</SafeAreaLayout>
