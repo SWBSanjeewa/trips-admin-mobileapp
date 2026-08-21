@@ -21,6 +21,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { RoutesValidationService } from "../../../services/routes-validation.service";
 import ImageLoad from "../image-load/index";
 import { selectContactPhone } from 'react-native-select-contact';
+import * as Contacts from 'expo-contacts';
 
 const BusPassengersList = ({ navigation }): React.ReactElement => {
 
@@ -52,7 +53,9 @@ const BusPassengersList = ({ navigation }): React.ReactElement => {
 	
 	});
 
-	function getPhoneNumber() {
+	async function getPhoneNumber() {
+	  openContactPicker();
+		/*
 		if (Platform.OS === 'android') {
 			console.log("On android");
 			PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
@@ -69,7 +72,37 @@ const BusPassengersList = ({ navigation }): React.ReactElement => {
 			
 			getPhoneNumberInternal();
 		}
+		*/
 	}
+
+	async function openContactPicker() {
+		const { status } = await Contacts.requestPermissionsAsync();
+
+		if (status === 'granted') {
+			const contact = await Contacts.presentContactPickerAsync();
+			if (contact) {
+				
+				var phNo = contact.phoneNumbers[0]?.number?.replace(/[^+\d]+/g, "").replace(/^0+/, '');
+				if(!phNo.startsWith("+")){
+					phNo = appStore.bus.countryCode+""+phNo;
+				}
+				console.log('Selected contact:', contact);
+				let fullName = contact.name;
+
+				// 2. Fallback approach if 'name' is missing
+				if (!fullName) {
+					const first = contact.firstName || '';
+					const middle = contact.middleName ? ` ${contact.middleName}` : '';
+					const last = contact.lastName || '';
+					
+					fullName = `${first}${middle} ${last}`.trim().replace(/\s+/g, ' ');
+				}
+				appStore.bus.addPassenger(fullName,phNo);
+			} else {
+				console.log('Selection canceled.');
+			}
+		}
+		}
 
 
 	function getPhoneNumberInternal() {
