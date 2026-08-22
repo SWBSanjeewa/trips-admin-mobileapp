@@ -434,8 +434,24 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
        // setUploadPhotos(prevState => !prevState);
     };
 
-	const onDeleteStoppingPlace = (stopping: string) => () =>  {
-		appStore.routeBus.deleteStoppingPlaceByPlace(stopping);
+	const onDeleteStoppingPlace =  (stopping: string) => async() =>  {
+		const config: AxiosRequestConfig = {
+			headers: {
+			  'Accept': 'application/json',
+			  'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		  };
+
+		  try {
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/stoppingPlaces/delete/`+stopping , config);
+			if(response.status == 200){
+				appStore.routeBus.deleteStoppingPlaceByPlace(stopping);
+			}
+			console.log(response.status);
+		  } catch(err) {
+			console.log(err);
+		  }  
+		
 	};
 
 	const onEditTitleButtomPress = async () => {
@@ -667,7 +683,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				}}
 				minLength={2}
 				fetchDetails={true}
-				onPress={(data, details = null) => {
+				onPress={async (data, details = null) => {
 					// 'details' is provided when fetchDetails = true
 					console.log(data);
 					console.log("*****");
@@ -685,11 +701,57 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					refAutoComplete.current?.setAddressText("");
 					
 					if(selectedStopping != ""){
-
 						var index = appStore.routeBus.getIndex(selectedStopping);
-						appStore.routeBus.addStoppingPlaceAtIndex(address,Number(details.geometry.location.lat),Number(details.geometry.location.lng),index+1);
-						setSelectedStopping("");
+						const data = {
+											place: address,
+											latitude: details.geometry.location.lat,
+											longitude: details.geometry.location.lng,
+											index: index+1
+											};
+						console.log("data>> "+JSON.stringify(data));
+						//const jsonObject = JSON.parse(jsonString);
+						const config: AxiosRequestConfig = {
+							headers: {
+								'Accept': 'application/json',
+								'token': appStore.user.accessToken
+							} as RawAxiosRequestHeaders,
+						};
+
+						try {
+							const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/stoppingPlaces/add` , data, config);
+							console.log(response.status);
+							if(response.status == 200){
+								appStore.routeBus.addStoppingPlaceAtIndex(address,Number(details.geometry.location.lat),Number(details.geometry.location.lng),index+1);
+								setSelectedStopping("");
+							}
+						} catch(err) {
+							console.log(err);
+						}  
+						
+						
 					}else{
+						
+							
+						const data = {
+											place: address,
+											latitude: details.geometry.location.lat,
+											longitude: details.geometry.location.lng
+											};
+						console.log("data>> "+JSON.stringify(data));
+						//const jsonObject = JSON.parse(jsonString);
+						const config: AxiosRequestConfig = {
+							headers: {
+								'Accept': 'application/json',
+								'token': appStore.user.accessToken
+							} as RawAxiosRequestHeaders,
+						};
+
+						try {
+							const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/stoppingPlaces/add` , data, config);
+							console.log(response.status);
+						} catch(err) {
+							console.log(err);
+						}  
 						appStore.routeBus.addStoppingPlace(address,Number(details.geometry.location.lat),Number(details.geometry.location.lng));
 					}
 					
@@ -862,21 +924,33 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 							}}
 							padWithNItems={1}
 							hourLabel="h"
-							onConfirm={(pickedDuration) => {
+							onConfirm={async (pickedDuration) => {
 								console.log("pickedDuration::"+pickedDuration.minutes);
 								setRunningTimePickerVisible(false);
+								var runningTime="";
 								if(pickedDuration.hours > 0){
-									//setInitialRunningTime({ hours: pickedDuration.hours, minutes:pickedDuration.minutes});
-									//setDuration(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
-									
-									appStore.routeBus.setRunningTime(pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins");
-									
+									runningTime = pickedDuration.hours.toString()+"h "+pickedDuration.minutes.toString()+"mins"
 								}else{
-									//setInitialRunningTime({ hours: 0, minutes:pickedDuration.minutes});
-									//setDuration(pickedDuration.minutes.toString()+" mins");
-									//initialDuration.minutes=pickedDuration.minutes;
-									appStore.routeBus.setRunningTime(pickedDuration.minutes.toString()+" mins");
+									runningTime = pickedDuration.minutes.toString()+" mins"
+									
 								}
+								const config: AxiosRequestConfig = {
+									headers: {
+										'Accept': 'application/json',
+										'token': appStore.user.accessToken
+									} as RawAxiosRequestHeaders,
+								};
+
+								try {
+									const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/runningTime/`+encodeURIComponent(runningTime) , config);
+									if(response.status==200){
+										appStore.routeBus.setRunningTime(runningTime);
+									}
+									console.log(response.status);
+								} catch(err) {
+									console.log(err);
+								}  
+								
 							}}
 							
 							

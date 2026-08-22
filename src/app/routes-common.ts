@@ -142,6 +142,7 @@ export const getTourTypeColor = (tourType) => {
 export const getRouteBusThemePhotoUrl = (operator,typeOfService) => {
 	console.log("### operator:"+operator+" typeOfService:"+typeOfService);
 	const vType = busThemePhoto.find(p => p.operator === operator && p.typeOfService === typeOfService);
+	console.log("## vType ##"+vType?.url);
 	return vType?.url;
 }
 
