@@ -431,11 +431,17 @@ const NewRouteVirtualBusStore = types
       self.journey.addTimetable(type,runningDays);
       console.log("end addTimetable"+self.journey.timetables.length);
     },
+    deleteJourneyTimetable(index){
+      self.journey.timetables.remove(self.journey.timetables[index]);
+    },
     addReturnJourneyTimetable(type,runningDays){
       console.log("addTimetable::"+type);
      // self.journey.timetables.push({type,runningDays,turns});
       self.returnJourney.addTimetable(type,runningDays);
       console.log("end addTimetable"+self.returnJourney.timetables.length);
+    },
+    deleteReturnJourneyTimetable(index){
+      self.returnJourney.timetables.remove(self.returnJourney.timetables[index]);
     },
     addRotationBus(regNo,licenseNo){
       self.rotationBuses.push({regNo,licenseNo})

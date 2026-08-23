@@ -790,10 +790,10 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyStoppings",{id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
 				</View>
 			</Card>
-			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}>
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Timetables</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
 				</View>
 			</Card>
 
@@ -815,10 +815,10 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				</View>
 			</Card>
 
-			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}>
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Timetables</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}/>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}/>
 				</View>
 			</Card>
 		

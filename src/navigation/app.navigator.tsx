@@ -55,6 +55,7 @@ import { RouteBusStoppingAddScreen } from "../scenes/route-bus/bus-stopping-add.
 import { RouteBusJourneyTimetablesListScreen } from "../scenes/route-bus/bus-journey-timetables-list.component";
 import { RouteBusJourneyDetailsScreen } from "../scenes/route-bus/bus-journey-details.component";
 import { RouteBusJourneyTimetablesScreen } from "../scenes/route-bus/bus-journey-timetables.component";
+import { RouteBusJourneyTimetablesEditScreen } from "../scenes/route-bus/bus-journey-timetables-edit.component";
 import { RouteBusTimetableDetailsScreen } from "../scenes/route-bus/bus-timetable-details.component";
 import { RouteBusJourneyTurnEditScreen } from "../scenes/route-bus/bus-journey-turn-edit.component";
 import { JourneyTurnCustomDurationsListScreen } from "../scenes/route-bus/journey-turn-custom-duration-list.component";
@@ -63,6 +64,7 @@ import { RouteBusAllowedBusesListScreen } from "../scenes/route-bus/bus-allowed-
 import { RouteBusRotationBusesListScreen } from "../scenes/route-bus/bus-rotation-buses-list.component";
 
 import { RouteBusJourneyStoppingsScreen } from "../scenes/route-bus/bus-journey-stoppings.componenet";
+
 
 import { TourAddScreen } from "../scenes/round-tour/tour-add.component";
 import { TourListScreen } from "../scenes/round-tour/tour-list.component";
@@ -157,7 +159,7 @@ export const AppNavigator = (): React.ReactElement => {
 				<Stack.Screen name="RouteBusAllowedBusesList" component={RouteBusAllowedBusesListScreen} />
 				<Stack.Screen name="RouteBusRotationBusesList" component={RouteBusRotationBusesListScreen} />
 				<Stack.Screen name="RouteBusJourneyStoppings" component={RouteBusJourneyStoppingsScreen} />
-
+				<Stack.Screen name="RouteBusJourneyTimetablesEdit" component={RouteBusJourneyTimetablesEditScreen} />
 
 				<Stack.Screen name="TourAdd" component={TourAddScreen} />
 				<Stack.Screen name="TourList" component={TourListScreen} />
