@@ -92,11 +92,37 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		refRBSheetActions.current.open();
 	};
 
-	const onDeleteTurn = (tIndex: number,index: number) => () =>  {
+	// outer.put('/:id/journey/timetables/:timetableIndex/turns/:turnIndex/delete', as
+	const onDeleteTurn = (tIndex: number,index: number) => async() =>  {
+
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		try {
+			if(route.params?.journeyType=="RouteBusJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+timetableIndex+`/turns/`+tIndex+`/delete` , config);
+				if(response.status == 200){
+					appStore.routeBus.journey.deleteTurnByIndex(tIndex,index);
+				}
+			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/timetables/`+timetableIndex+`/turns/`+tIndex+`/delete` , config);
+				if(response.status == 200){
+					appStore.routeBus.returnJourney.deleteTurnByIndex(tIndex,index);
+				}
+			}
+			
+		} catch(err) {
+			console.log(err);
+		}
+
 		if(route.params?.journeyType=="RouteBusJourney"){
-			appStore.routeBus.journey.deleteTurnByIndex(tIndex,index);
+			
 		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			appStore.routeBus.returnJourney.deleteTurnByIndex(tIndex,index);
+			
 		}
 		setSelectedTurn(-1);
 	}
@@ -403,18 +429,47 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		appStore.routeBusTimetable.setRunningDays(value.toString());
 	}
 
-	const handleEditModeConfirm = (date) => {	
+	const handleEditModeConfirm = async(date) => {	
 			hideEditModeDatePicker();  
 			setSelectedTurn(selectedTurn+1); 
 			console.warn("A date has been actualDate: ", date);
 			console.warn("A date has been actualDate: ", format(date, 'p'));
-			if(route.params?.journeyType=="RouteBusJourney"){
-				appStore.routeBus.journey.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
-			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-				appStore.routeBus.returnJourney.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
-			}
 			
-			//appStore.routeBusTimetable.addTurn("",format(date, 'HH:mm'),"",[],[]);	
+			
+			const config: AxiosRequestConfig = {
+				headers: {
+					'Accept': 'application/json',
+					'token': appStore.user.accessToken
+				} as RawAxiosRequestHeaders,
+			};
+			//. '/:id/journey/timetables/:timetableIndex/turns/add',
+			console.log("timetableIndex>>"+timetableIndex);
+			console.log("route.params?.journeyType>>"+route.params?.journeyType);
+			console.log(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+timetableIndex+`/turns/add`);
+
+			const data = {
+				startTime: format(date, 'HH:mm')
+			};
+
+		
+
+			try {
+				if(route.params?.journeyType=="RouteBusJourney"){
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+timetableIndex+`/turns/add`, data, config);
+					if(response.status == 200){
+						appStore.routeBus.journey.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
+					}
+				}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/timetables/`+timetableIndex+`/turns/add`, data, config);
+					if(response.status == 200){
+						appStore.routeBus.returnJourney.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
+					}
+				}
+				
+				
+			} catch(err) {
+				console.log(err);
+			}
 	};
 
 	
@@ -596,11 +651,14 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 								        style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
 										onPress={({ nativeEvent }) => {
 												console.log('On Press action:', nativeEvent.event);
-												navigation && navigation.navigate("RouteBusJourneyTurnEdit",{ "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
+												navigation && navigation.navigate("RouteBusTurnUpdate",{ "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
 												}}
 										onLongPress={({ nativeEvent }) => {
 												setSelectedTurn(index);
 												setTimetableIndex(timetable_index);
+
+												//navigation && navigation.navigate("RouteBusJourneyTurnEdit",{ "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
+												
 												console.log("##"+turn.startTime);
 												console.log('On Long Press action:', nativeEvent.event);
 												}}

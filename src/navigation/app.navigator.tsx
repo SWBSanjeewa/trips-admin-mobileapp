@@ -62,6 +62,9 @@ import { JourneyTurnCustomDurationsListScreen } from "../scenes/route-bus/journe
 import { ReturnJourneyTurnCustomDurationsListScreen } from "../scenes/route-bus/return-journey-turn-custom-duration-list.component";
 import { RouteBusAllowedBusesListScreen } from "../scenes/route-bus/bus-allowed-buses-list.component";
 import { RouteBusRotationBusesListScreen } from "../scenes/route-bus/bus-rotation-buses-list.component";
+import { RouteBusTurnUpdateScreen } from "../scenes/route-bus/bus-turn-update.component";
+
+
 
 import { RouteBusJourneyStoppingsScreen } from "../scenes/route-bus/bus-journey-stoppings.componenet";
 
@@ -160,6 +163,8 @@ export const AppNavigator = (): React.ReactElement => {
 				<Stack.Screen name="RouteBusRotationBusesList" component={RouteBusRotationBusesListScreen} />
 				<Stack.Screen name="RouteBusJourneyStoppings" component={RouteBusJourneyStoppingsScreen} />
 				<Stack.Screen name="RouteBusJourneyTimetablesEdit" component={RouteBusJourneyTimetablesEditScreen} />
+				<Stack.Screen name="RouteBusTurnUpdate" component={RouteBusTurnUpdateScreen} />
+
 
 				<Stack.Screen name="TourAdd" component={TourAddScreen} />
 				<Stack.Screen name="TourList" component={TourListScreen} />
