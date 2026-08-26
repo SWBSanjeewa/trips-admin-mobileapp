@@ -249,6 +249,21 @@ const BusTurnUpdateCard = React.forwardRef(({navigation},refStandard) => {
 
 		<View>
 
+			<Card style={{ margin: 10, borderRadius:10}}>
+				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+					<Text style={{ padding: 5, paddingLeft: 10}}>Start Time</Text>
+					<View style={{backgroundColor: "#F1F1F1"}}>
+						<View pointerEvents="none">
+							{route.params?.journeyType == "RouteBusJourney" && (
+							<Input placeholder="Onboard start time..." value={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime}/>
+							)}
+							{route.params?.journeyType == "RouteBusReturnJourney" && (
+							<Input placeholder="Onboard start time..." value={appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime}/>
+							)}
+						</View>
+					</View>
+				</View>
+			</Card>
 			
 			<Card style={{ margin: 10, borderRadius:10}}>
 				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>

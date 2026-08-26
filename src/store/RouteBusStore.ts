@@ -173,10 +173,11 @@ const Turn = types.model({
   },
   setRunningNo(runningNo){
     self.runningNo=runningNo;
-  }
-
-  ,
-   setRegistrationNo(registrationNo){
+  },
+  setStartTime(startTime){
+    self.startTime=startTime;
+  },
+  setRegistrationNo(registrationNo){
     self.registrationNo=registrationNo;
   },
    setLicenseNo(licenseNo){
@@ -266,6 +267,15 @@ const Route = types.model({
     timetable.turns.splice(previousTurnIndex+1, 0, {
         onboardStartTime,startTime,runningNo,stoppingTimes,registrationNo,licenseNo
     })
+  },
+  editTurnAtIndex(timetableIndex,turnIndex,startTime){
+    console.log("timetableIndex:"+timetableIndex+" turnIndex:"+turnIndex+" startTime:"+startTime);
+    var timetable = self.timetables[timetableIndex];
+    //const turn = timetable.turns.find(s => s.startTime === previousStartTime);
+   // console.log("## turn startTime:"+turn?.startTime);
+   // var index = timetable.turns.findIndex(turn);
+    var turn = timetable.turns[turnIndex];
+    turn.setStartTime(startTime);
   },
   addStopping(place,latitude, longitude,duration){
       console.log("storing:"+place+","+latitude);

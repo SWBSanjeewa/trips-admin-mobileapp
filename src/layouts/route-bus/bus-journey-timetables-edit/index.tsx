@@ -72,6 +72,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
 	const [isEditModeDatePickerVisible, setEditModeDatePickerVisibility] = useState(false);
+
+	const [isEditModeEditStartTimeDatePickerVisible, setEditModeEditStartTimeDatePickerVisible] = useState(false);
 	
 
 
@@ -125,6 +127,16 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			
 		}
 		setSelectedTurn(-1);
+	}
+
+
+	const onEditTurn = (tIndex: number,index: number) => async() =>  {
+		const [hours, minutes] = appStore.routeBus.journey.timetables[timetableIndex]?.turns[index].startTime?.split(':');
+		console.log("hours>>"+hours);
+		console.log("minutes>>"+minutes);
+		defaultDate.setHours(hours, minutes, 0, 0); 
+		//setDefaultDate(new Date());
+		setEditModeEditStartTimeDatePickerVisible(true);
 	}
 
 	
@@ -183,8 +195,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
     };
 
 	
-	const hideDatePicker = () => {
-		setDatePickerVisibility(false);
+	const hideEditModeEditStartTimeDatePicker = () => {
+		setEditModeEditStartTimeDatePickerVisible(false);
 	};
 
 	const hideEditModeDatePicker = () => {
@@ -472,6 +484,47 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			}
 	};
 
+	const handleEditModeEditStartTimeConfirm = async(date) => {	
+			hideEditModeEditStartTimeDatePicker();  
+			
+			console.warn("A date has been actualDate: ", date);
+			console.warn("A date has been actualDate: ", format(date, 'p'));
+			
+			
+			const config: AxiosRequestConfig = {
+				headers: {
+					'Accept': 'application/json',
+					'token': appStore.user.accessToken
+				} as RawAxiosRequestHeaders,
+			};
+			//. '/:id/journey/timetables/:timetableIndex/turns/add',
+			console.log("timetableIndex>>"+timetableIndex);
+			console.log("route.params?.journeyType>>"+route.params?.journeyType);
+			console.log(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+timetableIndex+`/turns/`+selectedTurn+`/startTime/`+format(date, 'HH:mm'));
+
+			
+
+			try {
+				if(route.params?.journeyType=="RouteBusJourney"){
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+timetableIndex+`/turns/`+selectedTurn+`/startTime/`+format(date, 'HH:mm'), config);
+					if(response.status == 200){
+						appStore.routeBus.journey.editTurnAtIndex(timetableIndex,selectedTurn,format(date, 'HH:mm'));
+						setSelectedTurn(-1); 
+					}
+				}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/timetables/`+timetableIndex+`/turns/`+selectedTurn+`/startTime/`+format(date, 'HH:mm'), config);
+					if(response.status == 200){
+						appStore.routeBus.returnJourney.editTurnAtIndex(timetableIndex,selectedTurn,format(date, 'HH:mm'));
+						setSelectedTurn(-1); 
+					}
+				}
+				
+				
+			} catch(err) {
+				console.log(err);
+			}
+	};
+
 	
 
 
@@ -643,6 +696,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 										>
 											<View style={{flexDirection: "row", flexWrap: "wrap"}}>
 											<Text style={{padding: 2,paddingHorizontal: 10}}>{turn.startTime}</Text>
+											<AntDesign style={{top: 4}} name="edit" size={18} color="#D69200" onPress={onEditTurn(timetable_index,index)} />
 											<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteTurn(timetable_index,index)} />
 											</View>
 									</Pressable>
@@ -792,6 +846,13 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							timeZoneName={'Asia/Colombo'} 
 							onConfirm={handleEditModeConfirm}
 							onCancel={hideEditModeDatePicker}/>	
+			<DateTimePickerModal
+							isVisible={isEditModeEditStartTimeDatePickerVisible}
+							mode="time"
+							date={defaultDate} 
+							timeZoneName={'Asia/Colombo'} 
+							onConfirm={handleEditModeEditStartTimeConfirm}
+							onCancel={hideEditModeEditStartTimeDatePicker}/>	
 
 
 					
