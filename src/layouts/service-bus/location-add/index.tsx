@@ -137,6 +137,12 @@ export default ({ navigation }): React.ReactElement => {
 		}else if(route.params.id == "routebus-stopping-edit"){	
 			console.log("&&"+region.latitude+":"+region.longitude);
 			navigation.navigate(route.params.returnroute, { id: route.params.id, latitude: region.latitude, longitude: region.longitude, place: placeName, oldLatitude: route.params.oldLatitude, oldLongitude: route.params.oldLongitude, time: route.params.time, parentReturnRoute: route.params.parentReturnRoute, journeyType: route.params.journeyType, duration:  route.params.duration});
+		}else if(route.params.id == "routebus-stopping-add-edit"){
+			console.log("Duration for place:"+route.params?.duration);
+			navigation.navigate(route.params.returnroute, { id: route.params.id, latitude: region.latitude, longitude: region.longitude, index: route.params.index, place: placeName,returnRoute: route.params.parentReturnRoute,journeyType: route.params.journeyType, duration:  route.params.duration});
+		}else if(route.params.id == "routebus-stopping-edit-edit"){	
+			console.log("&&"+region.latitude+":"+region.longitude);
+			navigation.navigate(route.params.returnroute, { id: route.params.id, latitude: region.latitude, longitude: region.longitude, place: placeName, oldLatitude: route.params.oldLatitude, oldLongitude: route.params.oldLongitude, time: route.params.time, parentReturnRoute: route.params.parentReturnRoute, journeyType: route.params.journeyType, duration:  route.params.duration, index: route.params.index});
 		}
 		
 	};

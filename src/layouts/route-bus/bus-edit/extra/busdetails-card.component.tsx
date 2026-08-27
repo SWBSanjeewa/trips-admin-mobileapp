@@ -784,10 +784,10 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 			</View>
 
 		
-			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppings", {id: appStore.routeBus.objectId, latitude: appStore.routeBus.journey.stoppings[0].latitude,  longitude: appStore.routeBus.journey.stoppings[0].longitude, journeyType: "RouteBusJourney"})}>
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppingsListEdit", {id: appStore.routeBus.objectId, latitude: appStore.routeBus.journey.stoppings[0].latitude,  longitude: appStore.routeBus.journey.stoppings[0].longitude, journeyType: "RouteBusJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Stoppings</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyStoppings",{id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyStoppingsListEdit",{id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
 				</View>
 			</Card>
 			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}>
@@ -808,10 +808,10 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 			<Divider />
 			
 			
-			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppings", {id: appStore.routeBus.objectId, latitude: appStore.routeBus.returnJourney.stoppings[0].latitude,  longitude: appStore.routeBus.returnJourney.stoppings[0].longitude, journeyType: "RouteBusReturnJourney"})}>
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppingsListEdit", {id: appStore.routeBus.objectId, latitude: appStore.routeBus.returnJourney.stoppings[0].latitude,  longitude: appStore.routeBus.returnJourney.stoppings[0].longitude, journeyType: "RouteBusReturnJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Stoppings</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyStoppings",{id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}/>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyStoppingsListEdit",{id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}/>
 				</View>
 			</Card>
 

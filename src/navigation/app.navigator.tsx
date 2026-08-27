@@ -49,8 +49,11 @@ import { RouteBusDetailsScreen } from "../scenes/route-bus/bus-details.component
 import { RouteBusJourneyListScreen } from "../scenes/route-bus/busjourney-list.component";
 import { RouteBusJourneyAddScreen } from "../scenes/route-bus/bus-journey-add.component";
 import { RouteBusJourneyStoppingsListScreen } from "../scenes/route-bus/bus-journey-stoppings-list.componenet";
+import { RouteBusJourneyStoppingsListEditScreen } from "../scenes/route-bus/bus-journey-stoppings-list-edit.component";
 import { RouteBusStoppingEditScreen } from "../scenes/route-bus/bus-stopping-edit.component";
 import { RouteBusStoppingAddScreen } from "../scenes/route-bus/bus-stopping-add.component";
+import { RouteBusStoppingEditEditScreen } from "../scenes/route-bus/bus-stopping-edit-edit.component";
+import { RouteBusStoppingAddEditScreen } from "../scenes/route-bus/bus-stopping-add-edit.component";
 
 import { RouteBusJourneyTimetablesListScreen } from "../scenes/route-bus/bus-journey-timetables-list.component";
 import { RouteBusJourneyDetailsScreen } from "../scenes/route-bus/bus-journey-details.component";
@@ -149,6 +152,7 @@ export const AppNavigator = (): React.ReactElement => {
 				<Stack.Screen name="RouteBusJourneyList" component={RouteBusJourneyListScreen} />
 				<Stack.Screen name="RouteBusJourneyAdd" component={RouteBusJourneyAddScreen} />
 				<Stack.Screen name="RouteBusJourneyStoppingsList" component={RouteBusJourneyStoppingsListScreen} />
+				<Stack.Screen name="RouteBusJourneyStoppingsListEdit" component={RouteBusJourneyStoppingsListEditScreen} />
 				<Stack.Screen name="RouteBusDetails" component={RouteBusDetailsScreen} />
 				<Stack.Screen name="RouteBusJourneyTimetablesList" component={RouteBusJourneyTimetablesListScreen} />
 				<Stack.Screen name="RouteBusJourneyDetails" component={RouteBusJourneyDetailsScreen} />
@@ -156,6 +160,8 @@ export const AppNavigator = (): React.ReactElement => {
 				<Stack.Screen name="RouteBusJourneyTurnEdit" component={RouteBusJourneyTurnEditScreen} />
 				<Stack.Screen name="RouteBusTimetableDetails" component={RouteBusTimetableDetailsScreen} />
 				<Stack.Screen name="RouteBusStoppingEditScreen" component={RouteBusStoppingEditScreen} />
+				<Stack.Screen name="RouteBusStoppingAddEditScreen" component={RouteBusStoppingAddEditScreen} />
+				<Stack.Screen name="RouteBusStoppingEditEditScreen" component={RouteBusStoppingEditEditScreen} />
 				<Stack.Screen name="RouteBusStoppingAddScreen" component={RouteBusStoppingAddScreen} />
 				<Stack.Screen name="RouteBusJourneyTurnCustomDurationsList" component={JourneyTurnCustomDurationsListScreen} />
 				<Stack.Screen name="RouteBusReturnJourneyTurnCustomDurationsList" component={ReturnJourneyTurnCustomDurationsListScreen} />

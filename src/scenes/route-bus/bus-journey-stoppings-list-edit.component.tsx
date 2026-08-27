@@ -1,0 +1,44 @@
+import { TopNavigation, TopNavigationAction } from "@ui-kitten/components";
+import React from "react";
+import { StyleSheet ,Text} from "react-native";
+
+import { ArrowIosBackIcon } from "../../components/icons";
+import { PlusOutlineIcon } from "../../components/icons";
+import { SafeAreaLayout } from "../../components/safe-area-layout.component";
+import ContentView from "../../layouts/route-bus/bus-journey-stoppings-list-edit";
+import { useRoute } from "@react-navigation/native";
+
+export const RouteBusJourneyStoppingsListEditScreen = ({ navigation }): React.ReactElement => {
+	
+	const route = useRoute();
+
+	const onBackPress = (): void => {
+		navigation && navigation.navigate("RouteBusEdit",{"journeyType":route.params?.journeyType, "reload": false});
+	};
+
+	const renderBackAction = (): React.ReactElement => (
+		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
+	);
+
+
+	return (
+		<SafeAreaLayout style={styles.container} insets="top">
+		<TopNavigation title={props => (
+			<Text {...props} style={{fontWeight: "500", fontSize: 18}}>
+				{route.params?.journeyType == "RouteBusReturnJourney" && (
+					<>Edit - Return Journey Stoppings</>
+				)}
+				{route.params?.journeyType == "RouteBusJourney" && (
+					<>Edit - Journey Stoppings</>
+				)}
+			</Text>)} accessoryLeft={renderBackAction} />
+		<ContentView navigation={navigation} />
+	</SafeAreaLayout>
+	);
+};
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+	},
+});

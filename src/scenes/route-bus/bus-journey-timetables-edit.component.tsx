@@ -25,7 +25,7 @@ export const RouteBusJourneyTimetablesEditScreen = ({ navigation }): React.React
 
 	const onBackPress = (): void => {
 		//console.log(" RouteBusJourneyStoppingsScreen appStore.routeBus.objectId::"+appStore.routeBus.objectId);
-		navigation && navigation.navigate("RouteBusDetails", { id: appStore.routeBus.objectId,reload: false });
+		navigation && navigation.navigate("RouteBusEdit", { id: appStore.routeBus.objectId,reload: false });
 	};
 
 
