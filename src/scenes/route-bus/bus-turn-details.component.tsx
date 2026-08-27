@@ -33,15 +33,7 @@ export const RouteBusTurnDetailsScreen = ({ navigation }): React.ReactElement =>
 	}
 
 
-	const renderAddAction = (): React.ReactElement => (
-			<>
-			<TopNavigationAction icon={PlusOutlineIcon} onPress={onBusAddPress} />
-			</>		
-		);
-
-	const MenuIcon = (props): IconElement => (
-		<MaterialIcons name="more-vert" size={24} color="black" />
-	);
+	
 
 
 	const onBackPress = () => {
@@ -52,18 +44,12 @@ export const RouteBusTurnDetailsScreen = ({ navigation }): React.ReactElement =>
 		navigation && navigation.goBack();
 	};
 
-	const onBusAddPress = () => {
-		setAdd(!add);
-		appStore.routeBusTimetable.reset();
-		ref.current?.open();
-	};
-
 	return (
 		<SafeAreaLayout style={styles.container} insets="top">
 			<TopNavigation title={props => (
 				<RNText {...props} style={{fontWeight: "500", fontSize: 18}}>
 					Bus Turn
-				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
+				</RNText>)} accessoryLeft={renderBackAction}/>
 				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>
 			
 		</SafeAreaLayout>	

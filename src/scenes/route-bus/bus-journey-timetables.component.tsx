@@ -37,19 +37,6 @@ export const RouteBusJourneyTimetablesScreen = ({ navigation }): React.ReactElem
 		setAdd(localAdd);
 		appStore.routeBusTimetable.reset();
 	}
-
-
-	const renderAddAction = (): React.ReactElement => (
-			<>
-			<TopNavigationAction icon={PlusOutlineIcon} onPress={onBusAddPress} />
-			</>		
-		);
-
-	const MenuIcon = (props): IconElement => (
-		<MaterialIcons name="more-vert" size={24} color="black" />
-	);
-
-
 	
 
 	const onBusAddPress = () => {
@@ -69,7 +56,7 @@ export const RouteBusJourneyTimetablesScreen = ({ navigation }): React.ReactElem
 						<>Route Bus Journey Timetables </>
 					)}
 					
-				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
+				</RNText>)} accessoryLeft={renderBackAction}/>
 				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>
 			
 		</SafeAreaLayout>	

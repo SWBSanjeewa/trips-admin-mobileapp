@@ -1,9 +1,30 @@
 import { ImageSourcePropType } from "react-native";
 
-export class Stopping {
+class StopppingPlace {
 	constructor(
-		readonly time: string,
-		readonly place: string
+		readonly place: string,
+		readonly latitude: string,
+		readonly longitude: string,
 	) {}
+}
 
+export class RouteBus {
+	constructor(
+		readonly _id: string,
+		readonly title: string,
+		readonly routeNo: string,
+		readonly operator: string,
+		readonly transportAuthority: string,
+		readonly typeOfService: string,
+		readonly stoppingPlaces: StopppingPlace[],
+	) {}
+	/*
+	static bus1(): Bus {
+		return new Bus(
+			"NC-2882 Warakapola to bambalapitiya",
+			"Warakapola-Nittambuwa-Kadawatha Interchange-Peliyagoda Interchange-Fort-Kolpety-Bambalapitiya",
+			require("../assets/image-bus.jpg"),
+		);
+	}
+	*/
 }

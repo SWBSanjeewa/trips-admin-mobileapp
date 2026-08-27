@@ -348,82 +348,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	return (
 	
 		<ScrollView>
-			{add && (
-			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
-			    <View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>	
-					<AntDesign style={{top: 4}} name="close" size={18} color="#444" onPress={onAddClosePress} />
-				</View>
-				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
-					<View style={{ margin: 10}}>
-						
-						<Select
-							selectedIndex={selectedIndex}
-							onSelect={(index) => onRouteTimetableTypeSelect(index)}
-							value={displayValue}>
-							{routeBusTimetableTypes.map((title, index) => (
-							<SelectItem key={index} title={title} />
-							))}
-						</Select>
-					</View>
-					{selectedDaysSelected && (
-					<DayPicker
-						weekdays={runningDays}
-						setWeekdays={setSelectedDaysRunningDays}
-						activeColor='#142169'
-						textColor='white'
-						inactiveColor='grey'
-						
-						/>
-					)}
-					
-				</View>
-				
-				<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
-					<Button style={{ flex: 1 , margin: 2, borderRadius:50, margin: 10 }} onPress={()=>onTimetableAddPress()} >Add Timetable</Button>
-				</View>
-			</View>
 			
-			)}
-
-			{edit && (
-			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
-			    <View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>	
-					<AntDesign style={{top: 4}} name="close" size={18} color="#444" onPress={onEditClosePress} />
-				</View>
-				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
-					<View style={{ margin: 10}}>
-						
-						<Select
-							selectedIndex={selectedIndexEdit}
-							onSelect={(index) => onRouteEditTimetableTypeSelect(index)}
-							value={displayValueEdit}>
-							{routeBusTimetableTypes.map((title, index) => (
-							<SelectItem key={index} title={title} />
-							))}
-						</Select>
-					</View>
-					{selectedDaysSelected && (
-					<DayPicker
-						weekdays={runningDays}
-						setWeekdays={setSelectedDaysRunningDays}
-						activeColor='#142169'
-						textColor='white'
-						inactiveColor='grey'
-						
-						/>
-					)}
-					
-				</View>
-				
-				<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
-					<Button style={{ flex: 1 , margin: 2, borderRadius:50, margin: 10 }} onPress={()=>onTimetableEditPress()} >Edit Timetable</Button>
-				</View>
-			</View>
-			
-			)}
-
 			{route.params?.journeyType == "RouteBusJourney" && (
 			<View>	
 				{appStore.routeBus.journey.timetables.map((timetable,timetable_index) => (
@@ -431,9 +356,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					<Card key={timetable_index} 
 					style={[
 					timetableIndex == timetable_index? styles.item : styles.itemSelected
-					]}
-					//style={styles.itemSelected} 
-					onPress={()=>onTimetableDetailsPress(timetable,timetable_index)}>
+					]}>
 						<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
 						<View>
 							<Select value={timetable.type}>
@@ -461,53 +384,20 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							
 						{timetable.turns.map(function(turn, index){
 							
-							if(index == selectedTurn && timetable_index == timetableIndex){
-								return <Pressable 
-								         style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#000"}}
-										onPress={({ nativeEvent }) => {
-												console.log('On Press action:', nativeEvent.event);
-												}}
-										onLongPress={({ nativeEvent }) => {
-											   // setSelectedTurn(turn);
-											   console.log("selectedTurn:"+selectedTurn);
-												console.log("index:"+index);
-												if(selectedTurn == index){
-													setSelectedTurn(-1);
-												}
-												
-												console.log('On Long Press action:', nativeEvent.event);
-												}}
-										delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
-										>
-											<View style={{flexDirection: "row", flexWrap: "wrap"}}>
-											<Text style={{padding: 2,paddingHorizontal: 10}}>{turn.startTime}</Text>
-											<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteTurn(timetable_index,index)} />
-											</View>
-									</Pressable>
-							}else{
+							
 								return <Pressable 
 								        style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
 										onPress={({ nativeEvent }) => {
 												console.log('On Press action:', nativeEvent.event);
-												navigation && navigation.navigate("RouteBusJourneyTurnEdit",{ "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
-												}}
-										onLongPress={({ nativeEvent }) => {
-												setSelectedTurn(index);
-												setTimetableIndex(timetable_index);
-												console.log("##"+turn.startTime);
-												console.log('On Long Press action:', nativeEvent.event);
-												}}
-										delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
-										>
+												navigation && navigation.navigate("RouteBusTurnDetails",{ "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
+												}}>
 											<Text style={{padding: 2, paddingHorizontal: 10}}>{turn.startTime}</Text>
 									</Pressable>
-							}
+							
 							
 						})}	
 						
-						
-						<AntDesign style={{top: 0}} name="plus" size={30} color="black" onPress={onEditModeAddTurn(timetable_index)} />
-						
+					
 						
 					</View>
 					</View>

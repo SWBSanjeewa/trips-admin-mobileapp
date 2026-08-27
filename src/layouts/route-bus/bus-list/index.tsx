@@ -257,18 +257,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 		navigation && navigation.navigate("RouteBusDetails", { id: routeBus.objectId , reload: true, runningTime: routeBus.runningTime});
 	};
 
-	const renderItemHeader1 = (info: ListRenderItemInfo<RouteBus>): React.ReactElement => (
-		<View>
-			<View style={{  width: 100}}>
-					<Image
-						contentFit="contain"
-						style={styles.itemHeader} source={"https://routes.lk:7007/route_buses/"+getRouteBusThemePhotoUrl(info.item.operator, info.item.typeOfService)}/>
-				</View>
-			<View style={{  flexDirection: "row", justifyContent: "flex-end" , paddingHorizontal: 10, marginHorizontal: 20 }}>
-				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2, marginHorizontal: -10 }} onPress={()=>onRouteTypePress(info.item.noOfDays)}>{info.item.operator}</Button>
-			</View>
-		</View>
-	);
+	
 
 	const renderItemHeader = (info: ListRenderItemInfo<RouteBus>): React.ReactElement => (
 		<View>
@@ -421,101 +410,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 		</View>
 	</View>
 	
-	<View style={{marginVertical: 20}}>
-		<Text category="h6">{info.item.stoppingPlaces[0].place} - {info.item.stoppingPlaces[info.item.stoppingPlaces.length-1].place}</Text>
-			<Card style={{ marginTop: 10, borderRadius:10}} disabled={true} >
-				<View style={{marginHorizontal: -24,marginVertical: -16}}>
-				<Text style={{marginHorizontal: 10,marginVertical: 10}}>Timetables</Text>
-				
-				{info.item.journey.timetables.length > 0 && (
-					<>
-						<Card style={{ marginTop: 10, borderRadius:10}} disabled={true}>
-
-						<Accordion.Accordion isOpen={true}>
-							<Accordion.Header>
-								<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-									<Text>{getTimetableTypeText(info.item.journey.timetables[0])}</Text>
-									<Accordion.HeaderIcon>
-									<Entypo name="chevron-up" size={24} color="black" />;
-									</Accordion.HeaderIcon>
-								</View>	
-							</Accordion.Header>
-							<Accordion.Expanded>
-								<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start", flexWrap: 'wrap' }}>	
-								{info.item.journey.timetables[0].turns.length <= 4 && (
-				<>
-				{info.item.journey.timetables[0].turns.map((turn,turn_index) => (
-					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{turn.startTime}</Button>
-				))}
-				</>
-				)}
-				{info.item.journey.timetables[0].turns.length > 4 && (
-				<>
-					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{info.item.journey.timetables[0].turns[0].startTime}</Button>
-					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{info.item.journey.timetables[0].turns[1].startTime}</Button>
-					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >...</Button>
-					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{info.item.journey.timetables[0].turns[info.item.journey.timetables[0].turns.length-1].startTime}</Button>
-				</>
-				)}
-								</View>
-							</Accordion.Expanded>
-						
-						</Accordion.Accordion>
-						</Card>
-					</>
-				)}		
-			</View>	
-			</Card>
-		
-		
-	</View>
-
-
-	<View>
-		<Text category="h6">{info.item.stoppingPlaces[info.item.stoppingPlaces.length-1].place} - {info.item.stoppingPlaces[0].place}</Text>
-		<Card style={{ marginTop: 10, borderRadius:10}} disabled={true} >
-				<View style={{marginHorizontal: -24,marginVertical: -16}}>
-				<Text style={{marginHorizontal: 10,marginVertical: 10}}>Timetables</Text>
-				{info.item.returnJourney.timetables.length > 0 && (
-					<>
-						<Card style={{ marginTop: 10, borderRadius:10}} disabled={true}>
-
-						<Accordion.Accordion isOpen={true}>
-							<Accordion.Header>
-								<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-									<Text>{getTimetableTypeText(info.item.returnJourney.timetables[0])}</Text>
-									<Accordion.HeaderIcon>
-									<Entypo name="chevron-up" size={24} color="black" />;
-									</Accordion.HeaderIcon>
-								</View>	
-							</Accordion.Header>
-							<Accordion.Expanded>
-								<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start", flexWrap: 'wrap' }}>	
-								{info.item.returnJourney.timetables[0].turns.length <= 4 && (
-				<>
-				{info.item.returnJourney.timetables[0].turns.map((turn,turn_index) => (
-					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{turn.startTime}</Button>
-				))}
-				</>
-				)}
-				{info.item.returnJourney.timetables[0].turns.length > 4 && (
-				<>
-					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{info.item.journey.timetables[0].turns[0].startTime}</Button>
-					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{info.item.journey.timetables[0].turns[1].startTime}</Button>
-					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >...</Button>
-					<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{info.item.journey.timetables[0].turns[info.item.journey.timetables[0].turns.length-1].startTime}</Button>
-				</>
-				)}
-								</View>
-							</Accordion.Expanded>
-						
-						</Accordion.Accordion>
-						</Card>
-					</>
-				)}
-			</View>	
-			</Card>
-	</View>
+	
 
 	
 			
