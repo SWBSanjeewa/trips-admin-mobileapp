@@ -57,6 +57,7 @@ import { RouteBusStoppingAddEditScreen } from "../scenes/route-bus/bus-stopping-
 
 
 import { RouteBusJourneyTimetablesListScreen } from "../scenes/route-bus/bus-journey-timetables-list.component";
+import { RouteBusJourneySchedulesListScreen } from "../scenes/route-bus/bus-journey-schedules-list.component";
 import { RouteBusJourneyDetailsScreen } from "../scenes/route-bus/bus-journey-details.component";
 import { RouteBusJourneyTimetablesScreen } from "../scenes/route-bus/bus-journey-timetables.component";
 import { RouteBusJourneyTimetablesEditScreen } from "../scenes/route-bus/bus-journey-timetables-edit.component";
@@ -68,6 +69,10 @@ import { RouteBusAllowedBusesListScreen } from "../scenes/route-bus/bus-allowed-
 import { RouteBusRotationBusesListScreen } from "../scenes/route-bus/bus-rotation-buses-list.component";
 import { RouteBusTurnUpdateScreen } from "../scenes/route-bus/bus-turn-update.component";
 import { RouteBusTurnDetailsScreen } from "../scenes/route-bus/bus-turn-details.component";
+
+import { RouteTurnBusAddScreen } from "../scenes/route-turn-bus/bus-add.component";
+import { RouteTurnBusListScreen } from "../scenes/route-turn-bus/bus-list.component";
+import { RouteTurnBusDetailsScreen } from "../scenes/route-turn-bus/bus-details.component";
 
 
 
@@ -157,6 +162,7 @@ export const AppNavigator = (): React.ReactElement => {
 				<Stack.Screen name="RouteBusJourneyStoppingsListEdit" component={RouteBusJourneyStoppingsListEditScreen} />
 				<Stack.Screen name="RouteBusDetails" component={RouteBusDetailsScreen} />
 				<Stack.Screen name="RouteBusJourneyTimetablesList" component={RouteBusJourneyTimetablesListScreen} />
+				<Stack.Screen name="RouteBusJourneySchedulesList" component={RouteBusJourneySchedulesListScreen} />
 				<Stack.Screen name="RouteBusJourneyDetails" component={RouteBusJourneyDetailsScreen} />
 				<Stack.Screen name="RouteBusJourneyTimetables" component={RouteBusJourneyTimetablesScreen} />
 				<Stack.Screen name="RouteBusJourneyTurnEdit" component={RouteBusJourneyTurnEditScreen} />
@@ -173,6 +179,10 @@ export const AppNavigator = (): React.ReactElement => {
 				<Stack.Screen name="RouteBusJourneyTimetablesEdit" component={RouteBusJourneyTimetablesEditScreen} />
 				<Stack.Screen name="RouteBusTurnUpdate" component={RouteBusTurnUpdateScreen} />
 				<Stack.Screen name="RouteBusTurnDetails" component={RouteBusTurnDetailsScreen} />
+
+				<Stack.Screen name="RouteTurnBusAdd" component={RouteTurnBusAddScreen} />
+				<Stack.Screen name="RouteTurnBusList" component={RouteTurnBusListScreen} />
+				<Stack.Screen name="RouteTurnBusDetails" component={RouteTurnBusDetailsScreen} />
 
 
 				<Stack.Screen name="TourAdd" component={TourAddScreen} />

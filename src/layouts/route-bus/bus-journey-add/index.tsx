@@ -84,13 +84,14 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				</View>
 			</Card>
 
-			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id,journeyType: route.params?.journeyType})}>
+			<Card style={{ margin: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneySchedulesList", {id: appStore.routeBus.id,journeyType: route.params?.journeyType})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Timetables</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id, journeyType: route.params?.journeyType})}/>
+					<Text>Schedules</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneySchedulesList", {id: appStore.routeBus.id, journeyType: route.params?.journeyType})}/>
 				</View>
 			</Card>
 
+			
 				
 			
 

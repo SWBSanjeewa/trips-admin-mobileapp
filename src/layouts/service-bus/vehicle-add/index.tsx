@@ -1,4 +1,4 @@
-import { Button, Card, Text, Select, IndexPath, SelectItem, Divider } from "@ui-kitten/components";
+import { Button, Card, Text, Select, IndexPath, SelectItem, CheckBox } from "@ui-kitten/components";
 import React,{useEffect, useState, useRef} from "react";
 import { StyleSheet, View, Modal, TextInput,ScrollView, ActivityIndicator, TouchableOpacity} from "react-native";
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -12,7 +12,8 @@ import {
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import VehiclePhotosAddCard from "../vehicle-photos-add/extra/vehiclephotos-add-card.component";
 
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { RouteBusSuggestions}  from "./extra/routebus-auto-suggestions";
+
 
 
 import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
@@ -32,6 +33,8 @@ const VehicleAdd = ({ navigation }): React.ReactElement => {
 	const refAutoComplete = useRef(null);
 
 	const GOOGLE_GEO_API_KEY="AIzaSyDmFlx79dIq9lzTupQGttpE8m8eQ5ZS5yA"
+
+	const [isRouteBus, setRouteBus] = React.useState(false);
 
 	const appStore = useStore(AppStore);
 
@@ -79,6 +82,10 @@ const VehicleAdd = ({ navigation }): React.ReactElement => {
 	const routeType = routeTypes[selectedIndexBusType.row];
 
 
+	const onPressRouteBusCheckbox = (): void => {
+		setRouteBus(!isRouteBus);
+		
+	};
 
 	const onVehicleTypeSelect = (index): void => {
 		console.log("Slected index:"+index);
@@ -264,6 +271,23 @@ const VehicleAdd = ({ navigation }): React.ReactElement => {
 									<Text style={styles.errorLabel}>{photosErrorMessage}</Text>	
 							)}
 			</Card>
+
+			<Card style={{ margin: 10, borderRadius:10}} onPress={onPhotosPress}>	
+				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+					<CheckBox style={{ margin: 2}}  checked={isRouteBus} onChange={onPressRouteBusCheckbox} >Route Turn Bus</CheckBox>
+					{ isRouteBus && (
+						<View>
+							<View>
+								<RouteBusSuggestions/>
+							</View>
+						</View>
+					)}
+				</View>
+							
+			</Card>
+
+
+			
 			
 			<View style={{flexDirection: "row", justifyContent: "space-between"}}>
 				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onCreatePress()}>Add</Button>

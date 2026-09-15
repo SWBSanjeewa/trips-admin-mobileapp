@@ -17,6 +17,9 @@ import { useRoute } from "@react-navigation/native";
 
 import RBSheet from 'react-native-raw-bottom-sheet';
 
+import { Accordion } from '@animatereactnative/accordion';
+import Entypo from '@expo/vector-icons/Entypo';
+
 
 const TransportService = ({ navigation }): React.ReactElement => {
 
@@ -165,6 +168,12 @@ const TransportService = ({ navigation }): React.ReactElement => {
 		navigation.navigate("TransportserviceOwners")
 	};
 
+	const onRouteTurnBusesPress = () => {
+		console.log("#### onRouteTurnBusesPress ####");
+		setBusesErrorMessage("");
+		navigation.navigate("RouteTurnBusList")
+	};
+
 	const onBusesPress = () => {
 		setBusesErrorMessage("");
 		navigation.navigate("BusList")
@@ -224,17 +233,40 @@ const TransportService = ({ navigation }): React.ReactElement => {
 				</Card>
 				
 			</View>
-			
-			<Card style={{ margin: 10, borderRadius:10}} onPress={onBusesPress}>	
-				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Buses</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onBusesPress}/>
-				</View>
-				{busesErrorMessage!="" && (
-					<Text style={styles.errorLabel}>{busesErrorMessage}</Text>	
-				)}
-			</Card>
 
+			
+			<Card style={{ margin: 10, borderRadius:10}} disabled={true}>	
+				<Accordion.Accordion isOpen={false}>
+					<Accordion.Header>
+						<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+							<Text>Buses</Text>
+							<Accordion.HeaderIcon>
+							<Entypo name="chevron-down" size={24} color="black" />;
+							</Accordion.HeaderIcon>
+						</View>	
+					</Accordion.Header>
+					<Accordion.Expanded>
+						<Card style={{ marginTop: 10, borderRadius:10}} onPress={onRouteTurnBusesPress}>
+							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+								<Text>Route Buses</Text>
+								<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onRouteTurnBusesPress}/>
+							</View>
+						</Card>
+						<Card style={{ marginTop: 10, borderRadius:10}}>
+							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+								<Text>Staff Buses</Text>
+								<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onRouteTurnBusesPress}/>
+							</View>
+						</Card>
+						<Card style={{ marginTop: 10, borderRadius:10}}>
+							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+								<Text>School Buses</Text>
+								<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onRouteTurnBusesPress}/>
+							</View>
+						</Card>
+					</Accordion.Expanded>
+				</Accordion.Accordion>
+			</Card>
 			<Card style={{ margin: 10, borderRadius:10}} onPress={onVehiclesPress}>	
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Vehicles</Text>

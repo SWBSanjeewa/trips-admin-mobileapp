@@ -2,6 +2,7 @@ import { remove } from "mobx";
 import { types } from "mobx-state-tree";
 import { cast } from "mobx-state-tree"
 
+
 /*
 id: String,
    routeNumber: String, //Eg: Colombo - Kandy 01
@@ -209,6 +210,7 @@ const Turn = types.model({
 export const Timetable = types.model({
   type: types.optional(types.string, ""),
   turns: types.array(Turn),
+  dates: types.array(types.string),
   runningDays: types.optional(types.string, "")
 })
 
@@ -223,23 +225,51 @@ export const Timetable = types.model({
     console.log("Add turns");
     self.turns.push({onboardStartTime,startTime,runningNo,stoppings,registrationNo,licenseNo})
   },
+  addDate(index,date){
+    console.log("index:"+index+" date:"+date);
+   // if(index==-1){
+   //   self.dates.push(date)
+   // }else{
+      self.dates.splice(index+1, 0, date)
+   // }
+  },
   setTimetableType(timetableType){
     self.type = timetableType;
   },
   setRunningDays(runningDays){
     self.runningDays = runningDays;
-  }
+  },
+  deleteDateByIndex(index){
+     var date = self.dates[index];
+     console.log("deleting date:"+date);
+     self.dates.remove(date);
+  },
+  addDateAfterIndex(index, date){
+    self.dates.splice(index, 0, date)
+  },
+  editTurnAtIndex(index,date){
+    self.dates[index]=date;
+  },
 }))
 
-const Route = types.model({
-  stoppings: types.array(Stopping),
+export const Schedule = types.model({
+  fromDate: types.optional(types.string, ""),
+  toDate: types.optional(types.string, ""),
   timetables: types.array(Timetable)
 })
+
 .actions((self) => ({
   
-  reset(){  
-    self.stoppings= Stopping[0];
-    self.timetables= Timetable[0];
+  reset(){
+    self.fromDate = "";
+    self.toDate = "";
+    self.timetables=Timetable[0];
+  },
+  setFromDate(fromDate){
+    self.fromDate = fromDate;
+  },
+  setToDate(toDate){
+    self.toDate = toDate;
   },
   addTimetable(type,runningDays){
     console.log("addTimetable"+type);
@@ -277,6 +307,25 @@ const Route = types.model({
     var turn = timetable.turns[turnIndex];
     turn.setStartTime(startTime);
   },
+}))
+
+const Route = types.model({
+  stoppings: types.array(Stopping),
+  schedules: types.array(Schedule),
+})
+.actions((self) => ({
+  
+  reset(){  
+    self.stoppings= Stopping[0];
+    self.schedules= Schedule[0];
+  },
+
+  addSchedule(fromDate,toDate){
+      self.schedules.push({
+       fromDate,toDate
+      })
+  },
+  
   addStopping(place,latitude, longitude,duration){
       console.log("storing:"+place+","+latitude);
       self.stoppings.push({
@@ -308,6 +357,9 @@ const Route = types.model({
       longitude,
       duration,
     });
+  },
+  deleteScheduleByIndex(index){
+    self.schedules.remove(self.schedules[index]);
   },
 
 }))
@@ -443,6 +495,12 @@ const NewRouteVirtualBusStore = types
     },
     deleteJourneyTimetable(index){
       self.journey.timetables.remove(self.journey.timetables[index]);
+    },
+    addJourneySchedule(fromDate,toDate){
+      self.journey.addSchedule(fromDate,toDate);
+    },
+    addReturnJourneySchedule(fromDate,toDate){
+      self.returnJourney.addSchedule(fromDate,toDate);
     },
     addReturnJourneyTimetable(type,runningDays){
       console.log("addTimetable::"+type);

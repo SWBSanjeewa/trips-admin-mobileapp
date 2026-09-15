@@ -24,6 +24,7 @@ import { CacheManager } from '@georstat/react-native-image-cache';
 import { Dirs } from 'react-native-file-access';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 preventAutoHideAsync();
 
@@ -59,6 +60,7 @@ const App: React.FC<{ mapping: Mapping; theme: Theme }> = ({ mapping, theme }) =
 		<GestureHandlerRootView>
 			<AutocompleteDropdownContextProvider>
 			<Provider value={appStore}>
+			<KeyboardProvider>
 			<React.Fragment>
 				<IconRegistry icons={[ AppIconsPack]} />
 				<ApplicationProvider {...currentMapping} theme={currentTheme}>
@@ -74,6 +76,7 @@ const App: React.FC<{ mapping: Mapping; theme: Theme }> = ({ mapping, theme }) =
 				</ApplicationProvider>
 				<FlashMessage position="top" />
 			</React.Fragment>
+			</KeyboardProvider>
 			</Provider>
 			</AutocompleteDropdownContextProvider>
 			

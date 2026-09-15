@@ -94,8 +94,6 @@ export const routeBusTimetableTypes = [
 		"Weekdays",
 		"Weekends",
 		"Selected Days",
-		"Odd Days",
-		"Even Days",
 		"Selected Dates"
 ]
 
@@ -145,6 +143,8 @@ export const getRouteBusThemePhotoUrl = (operator,typeOfService) => {
 	console.log("## vType ##"+vType?.url);
 	return vType?.url;
 }
+
+//https://routes.lk:7007/route_buses/combined_super_luxury.png
 
 export const getSelectedDaysFromNumbers = (selectedDays) => {
 	return selectedDays.replace("1", "SUN").replace("2", "MON").replace("3", "TUE").replace("4", "THU").replace("5", "FRI").replace("6", "SAT").replace("7", "SUN"); 

@@ -56,8 +56,8 @@
     },
     "android": {
       "package": "lk.trips.admin",
+      "softwareKeyboardLayoutMode": "adjustResize",
       "edgeToEdgeEnabled": true,
-      "googleServicesFile": "./google-services.json",
       "permisisons": [
         "android.permission.INTERNET",
         "android.permission.ACCESS_COARSE_LOCATION",

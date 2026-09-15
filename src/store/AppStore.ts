@@ -1,7 +1,8 @@
 import { remove, toJS } from "mobx";
 import { types } from "mobx-state-tree";
 import { cast } from "mobx-state-tree"
-import NewRouteVirtualBusStore, {Timetable} from "./RouteBusStore";
+import NewRouteVirtualBusStore, {Timetable,Schedule} from "./RouteBusStore";
+
 
 import TourStore from "./TourStore";
 import StoppingStore from "./Stopping";
@@ -90,6 +91,47 @@ const Owner = types.model({
 }))
 
 
+const RouteBus = types.model({
+  id: types.optional(types.string, ""),
+  title: types.optional(types.string, ""),
+  routeNo: types.optional(types.string, ""),
+  transportAuthority: types.optional(types.string, ""),
+  typeOfService: types.optional(types.string, "")
+
+})
+.actions((self) => ({
+  addRouteBus(id, title, routeNo, transportAuthority, typeOfService){
+      self.id=id;
+      self.title=title;
+      self.routeNo=routeNo;
+      self.transportAuthority=transportAuthority;
+      self.typeOfService=typeOfService;  
+  },
+  setTitle(title){
+    self.title= title;
+  },
+  setId(id){
+    self.id= id;
+  },
+  setRouteNo(routeNo){
+    self.routeNo=routeNo;
+  },
+  setTransportAuthority(transportAuthority) {
+    self.transportAuthority = transportAuthority;
+  },
+  setTypeOfService(typeOfService){
+    self.typeOfService=typeOfService;
+  },
+  reset(){
+    self.id="";
+    self.title="";
+    self.routeNo="";
+    self.transportAuthority="";
+    self.typeOfService="";
+  }
+}))
+
+
 const Vehicle = types.model({
   vehicleType: types.optional(types.string, "Van"),
   id: types.optional(types.string, ""),
@@ -97,6 +139,7 @@ const Vehicle = types.model({
   regNumber: types.optional(types.string, ""),
   noOfSeats: types.optional(types.string, ""),
   photos: types.array(types.string),
+  routeBus: types.optional(RouteBus,{}) 
 })
 .actions((self) => ({
   addVehicle(id, title, regNumber, vehicleType, noOfSeats){
@@ -105,6 +148,13 @@ const Vehicle = types.model({
       self.regNumber=regNumber;
       self.vehicleType=vehicleType;
       self.noOfSeats=noOfSeats;  
+  },
+  addRouteBus(id, title, routeNo, transportAuthority, typeOfService){
+      self.routeBus.id=id;
+      self.routeBus.title=title;
+      self.routeBus.routeNo=routeNo;
+      self.routeBus.transportAuthority=transportAuthority;
+      self.routeBus.typeOfService=typeOfService;  
   },
   setTitle(title){
     self.title= title;
@@ -1052,6 +1102,7 @@ const RouteBuses = types.model({
 				});
 		 }
      
+     /*
      if(journey?.timetables != null){
 				journey.timetables.forEach((element,index)=> {
 					rBus.journey.addTimetable( element.type,element.runningDays)
@@ -1071,7 +1122,7 @@ const RouteBuses = types.model({
        
 				});
 		 }
-     
+     */
      console.log("## rBus ##");
     console.log(JSON.stringify(toJS(rBus)));	
     
@@ -1137,6 +1188,10 @@ const AppStore = types.model("App", {
   //})
   routeBusTimetable: types.optional(Timetable, {
     runningDays: ""
+  }),
+  routeBusSchedule: types.optional(Schedule, {
+    fromDate: "",
+    toDate: ""
   }),
   
 });

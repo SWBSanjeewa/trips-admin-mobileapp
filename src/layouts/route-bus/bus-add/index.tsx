@@ -1,6 +1,6 @@
 import { Button, Card, Text, Select, IndexPath, SelectItem, Input } from "@ui-kitten/components";
 import React,{useEffect, useState, useRef} from "react";
-import { StyleSheet, View, Modal, TextInput,ScrollView, Pressable, TouchableOpacity} from "react-native";
+import { StyleSheet, View, Modal, TextInput,ScrollView, Pressable, TouchableOpacity,SafeAreaView,KeyboardAvoidingView,Platform} from "react-native";
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import AppStore from "../../../store/AppStore";
 import { observer, inject} from "mobx-react";
@@ -21,7 +21,11 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 import { LinearGradient } from "expo-linear-gradient";
 import { TimerPickerModal } from "react-native-timer-picker";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { SafeAreaLayout, SafeAreaLayoutProps } from "./../../../components/safe-area-layout.component";
+//import { KeyboardController, AndroidSoftInputModes } from 'react-native-keyboard-controller';
+import { KeyboardAwareScrollView, KeyboardToolbar } from 'react-native-keyboard-controller';
 
 const BusAdd = ({ navigation }): React.ReactElement => {
 
@@ -57,6 +61,7 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 	const [returnJourneyStoppingsErrorMessage, setReturnJourneyStoppingsErrorMessage] = React.useState<string>("");
 
 
+	const insetsConfig = useSafeAreaInsets();
 
 	const [selectedOperatorIndex, setSelectedOperatorIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
 	const operatorType = operatorTypes[selectedOperatorIndex.row];
@@ -102,7 +107,6 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 
 	
-
 	const isValidValues = (): any => {
 		
 		var inputValid =true;
@@ -114,11 +118,11 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 	
 
-	const onCreatePress= async() => {
+	const onCreatePress1= async() => {
 		console.log(JSON.stringify(toJS(appStore.routeBus)));	
 	}
 
-	const onCreatePress1 = async() => {
+	const onCreatePress = async() => {
 		console.log(JSON.stringify(toJS(appStore.routeBus)));	
 
 		//var json = '{"title":"Galle - Kadawatha","routeNo":"EX1","operator":"Combined","transportAuthority":"NTC","typeOfService":"Super Luxury","duration":"","stoppingPlaces":[{"place":"Galle","latitude":"6.032894799999999","longitude":"80.2167912"},{"place":"Dewata","latitude":"6.0297661","longitude":"80.2439809"},{"place":"Pinnaduwa Interchange","latitude":"6.0690063","longitude":"80.26453939999999"},{"place":"Kottawa Interchange","latitude":"6.8404498","longitude":"79.9811617"},{"place":"Makumbura Highway bus & train station","latitude":"6.840224900000001","longitude":"79.9760596"}],"journey":{"timetables":[{"type":"Everyday","runningDays":"","turns":[{"onboardStartTime":"5:30","startTime":"5:00","runningNo":"G1","assignedBuses":[{"ntcNumber":"12322", "busRegNo":"NB-4321"},{"ntcNumber":"12325", "busRegNo":"NB-1234"}],"stoppings":[{"place":"Galle","latitude":"7.0034343","longitude":"80.23432","plusDays":"0","time":"5:00"},{"place":"Dewata","latitude":"7.0030043","longitude":"81.23432","plusDays":"0","time":"5:20"}]}]}]},"returnJourney":{"timetables":[{"type":"Everyday","runningDays":"","turns":[{"onboardStartTime":"5:30","startTime":"5:00","runningNo":"G1","assignedBuses":[{"ntcNumber":"12322", "busRegNo":"NB-4321"},{"ntcNumber":"12325", "busRegNo":"NB-1234"}],"stoppings":[{"place":"Galle","latitude":"7.0034343","longitude":"80.23432","plusDays":"0","time":"5:00"},{"place":"Dewata","latitude":"7.0030043","longitude":"81.23432","plusDays":"0","time":"5:20"}]}]}]}}';
@@ -203,9 +207,9 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 	
 	
 	return (
+		<SafeAreaView style={{ flex: 1,marginTop: insetsConfig.top,marginBottom: insetsConfig.bottom}}>	
 		
-		<ScrollView keyboardShouldPersistTaps='handled'>
-			
+			<KeyboardAwareScrollView bottomOffset={300} keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1 }} >
 			<View>
 
 				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
@@ -326,14 +330,21 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 						
 					})}	
 					</View>	
+
+					
+					
 						<GooglePlacesAutocomplete
-				keyboardShouldPersistTaps={ "handled" }
+
+				
 				ref={refAutoComplete}
 				styles={{
+					
 					container:{
-						
 						borderColor: "grey",
-						borderWidth: 1
+						flexGrow: 1,
+						borderWidth: 1,
+						flex: 0, 
+    					zIndex: 1000, 
 					},
 					textInputContainer: {
 						marginTop: 0,
@@ -402,7 +413,7 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 				predefinedPlaces={[]}
 				debounce={200}
 				timeout={20000}
-			
+			    keyboardShouldPersistTaps={'handled'} 
 			
 				query={{
 					key: 'AIzaSyDmFlx79dIq9lzTupQGttpE8m8eQ5ZS5yA',
@@ -412,6 +423,8 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 					libraries: 'places'
 				}}
 			/>
+			
+			
 					</View>	
 					
 				</View>
@@ -445,6 +458,13 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToRotationBuses}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Rotation Buses</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToRotationBuses}/>
+				</View>
+			</Card>
+
+			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToRotationBuses}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Rotation Plans</Text>
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToRotationBuses}/>
 				</View>
 			</Card>
@@ -509,8 +529,11 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 								}
 							}}
 						/>
+						</KeyboardAwareScrollView>
 			
-		</ScrollView>
+		
+		
+</SafeAreaView>
 		
 		
 		
@@ -518,6 +541,9 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 };
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+	},
 	errorLabel: {
 		color: "#8B0000", 
 		fontSize:12,

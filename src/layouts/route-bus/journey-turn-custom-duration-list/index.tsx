@@ -72,7 +72,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	const onDeleteConfirmPress = (): void => {
-		var turn = appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex];
+		var turn = appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex];
 		turn.deleteStoppingTimeByPlace(stoppingPlace);
 		refRBSheetDeleteConfirm.current.close()
 		refRBSheetActions.current.close()
@@ -84,7 +84,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const handleEditModeConfirm = (date) => {	
 			hideEditModeDatePicker();  
 			
-			var turn = appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex];
+			var turn = appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex];
 			var sPlace = turn.getStoppingTimeByPlace(stoppingPlace);
 			
 			if(sPlace){
@@ -100,7 +100,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	
 	const getStoppingTime = (place, duration): string => {
 
-		var turn = appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex];
+		var turn = appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex];
 		var stoppingPlace = turn.getStoppingTimeByPlace(place);
 		console.log(">>"+place);
 		if(stoppingPlace){
@@ -109,7 +109,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 		var oldDate = new Date();
 		console.log("Date1"+oldDate);
-		const [hours, minutes] = appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime.split(':');
+		const [hours, minutes] = appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime.split(':');
 		console.log("hours>>"+hours);
 		console.log("minutes>>"+minutes);
 		oldDate.setHours(hours, minutes, 0, 0); 
@@ -142,7 +142,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	const getCardStyle = (place) => {	
-		var turn = appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex];
+		var turn = appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex];
 		var sPlace = turn.getStoppingTimeByPlace(place);
 			
 		if(sPlace){
@@ -154,7 +154,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	const onStoppingTimePress = async (stopping,index) => {
-		var turn = appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex];
+		var turn = appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex];
 		var sPlace = turn.getStoppingTimeByPlace(stopping.place);
 		setStoppingPlace(stopping.place);
 		if(sPlace){
@@ -166,7 +166,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	useEffect(() => {
     
-    }, [appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].stoppingTimes.length]); 
+    }, [appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].stoppingTimes.length]); 
 	
 
 	

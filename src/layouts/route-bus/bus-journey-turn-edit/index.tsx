@@ -44,8 +44,12 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const handleEditModeConfirm = (date) => {	
 		setDatePickerVisible(false);
 		console.warn("A date has been actualDate: ", date);
-		appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateOnboardStartTime(format(date, 'HH:mm'));
-	};
+		if(route.params.journeyType == "RouteBusJourney"){
+			appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateOnboardStartTime(format(date, 'HH:mm'));
+		}else if(route.params.journeyType == "RouteBusReturnJourney"){
+			appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateOnboardStartTime(format(date, 'HH:mm'));
+		}
+	}	
 
 
 	const hideEditModeDatePicker = () => {
@@ -53,14 +57,14 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	}
 
 	const onNavigateToAllowedBuses = (): void => {
-		navigation.navigate("RouteBusAllowedBusesList", {timetableIndex: route.params.timetableIndex, turnIndex: route.params.turnIndex, "journeyType": route.params?.journeyType})
+		navigation.navigate("RouteBusAllowedBusesList", {scheduleIndex: route.params.scheduleIndex, timetableIndex: route.params.timetableIndex, turnIndex: route.params.turnIndex, "journeyType": route.params?.journeyType})
 	};
 
 	const onNavigateToStoppingTimes = (): void => {
 		if(route.params.journeyType == "RouteBusJourney"){
-			navigation.navigate("RouteBusJourneyTurnCustomDurationsList",{timetableIndex: route.params.timetableIndex, turnIndex: route.params.turnIndex, "journeyType": route.params?.journeyType})
+			navigation.navigate("RouteBusJourneyTurnCustomDurationsList",{ scheduleIndex: route.params.scheduleIndex,timetableIndex: route.params.timetableIndex, turnIndex: route.params.turnIndex, "journeyType": route.params?.journeyType})
 		}else if(route.params.journeyType == "RouteBusReturnJourney"){
-			navigation.navigate("RouteBusReturnJourneyTurnCustomDurationsList",{timetableIndex: route.params.timetableIndex, turnIndex: route.params.turnIndex, "journeyType": route.params?.journeyType})
+			navigation.navigate("RouteBusReturnJourneyTurnCustomDurationsList",{ scheduleIndex: route.params.scheduleIndex, timetableIndex: route.params.timetableIndex, turnIndex: route.params.turnIndex, "journeyType": route.params?.journeyType})
 		}
 	};
 
@@ -85,10 +89,10 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 						<Pressable>
 						<View pointerEvents="none">
 							{route.params?.journeyType == "RouteBusJourney" && (
-							<Input placeholder="Start time..." value={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime}/>
+							<Input placeholder="Start time..." value={appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime}/>
 							)}
 							{route.params?.journeyType == "RouteBusReturnJourney" && (
-							<Input placeholder="Start time..." value={appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime}/>
+							<Input placeholder="Start time..." value={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime}/>
 							)}
 						</View>
 					</Pressable>
@@ -103,10 +107,10 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 						<Pressable onPress={() => onSetOnboardStartPress()}>
 						<View pointerEvents="none">
 							{route.params?.journeyType == "RouteBusJourney" && (
-							<Input placeholder="Onboard start time..." value={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].onboardStartTime}/>
+							<Input placeholder="Onboard start time..." value={appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].onboardStartTime}/>
 							)}
 							{route.params?.journeyType == "RouteBusReturnJourney" && (
-							<Input placeholder="Onboard start time..." value={appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].onboardStartTime}/>
+							<Input placeholder="Onboard start time..." value={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].onboardStartTime}/>
 							)}
 						</View>
 					</Pressable>
@@ -122,10 +126,10 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				<View style={runningNoCustomStyle}>
 					
 					{route.params?.journeyType == "RouteBusJourney" && (
-					<TextInput placeholder="KDW1" onChangeText={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].setRunningNo} value={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].runningNo} />
+					<TextInput placeholder="KDW1" onChangeText={appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].setRunningNo} value={appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].runningNo} />
 					)}
 					{route.params?.journeyType == "RouteBusReturnJourney" && (
-					<TextInput placeholder="KDW1" onChangeText={appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].setRunningNo} value={appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].runningNo} />
+					<TextInput placeholder="KDW1" onChangeText={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].setRunningNo} value={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].runningNo} />
 					)}
 				</View>
 			</View>
@@ -138,10 +142,10 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					</View>
 					<View style={runningNoCustomStyle}>
 						{route.params?.journeyType == "RouteBusJourney" && (
-						<TextInput placeholder="NB-2323" onChangeText={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].setRegistrationNo} value={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].registrationNo} />
+						<TextInput placeholder="NB-2323" onChangeText={appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].setRegistrationNo} value={appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].registrationNo} />
 						)}
 						{route.params?.journeyType == "RouteBusReturnJourney" && (
-						<TextInput placeholder="NB-2323" onChangeText={appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].setRegistrationNo} value={appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].registrationNo} />
+						<TextInput placeholder="NB-2323" onChangeText={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].setRegistrationNo} value={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].registrationNo} />
 						)}
 						
 					</View>
@@ -152,10 +156,10 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					</View>
 					<View style={runningNoCustomStyle}>
 						{route.params?.journeyType == "RouteBusJourney" && (
-						<TextInput placeholder="12345" onChangeText={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].setLicenseNo} value={appStore.routeBus.journey.timetables[route.params.timetableIndex].turns[route.params.turnIndex].licenseNo} />
+						<TextInput placeholder="12345" onChangeText={appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].setLicenseNo} value={appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].licenseNo} />
 						)}
 						{route.params?.journeyType == "RouteBusReturnJourney" && (
-						<TextInput placeholder="12345" onChangeText={appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].setLicenseNo} value={appStore.routeBus.returnJourney.timetables[route.params.timetableIndex].turns[route.params.turnIndex].licenseNo} />
+						<TextInput placeholder="12345" onChangeText={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].setLicenseNo} value={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].licenseNo} />
 						)}
 						
 					</View>

@@ -210,6 +210,7 @@ const TourSchedulesList = ({ navigation }): React.ReactElement => {
 							isVisible= {isDatePickerVisible}
 							date={startDate}
 							mode="date"
+							display="inline"
 							onConfirm={handleConfirm}
 							onCancel={hideDatePicker}/>	
 		</SafeAreaLayout>	

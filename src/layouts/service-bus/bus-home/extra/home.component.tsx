@@ -119,6 +119,12 @@ const HomeComponent = ({ navigation }): React.ReactElement => {
 				</TouchableOpacity>
 				<Text category="h5">Route Bus</Text>
 			</Card>
+			<Card style={styles.item} onPress={()=>onRouteBusPress()}>
+				<TouchableOpacity style={styles.image}  onPress={()=>onRouteBusPress()}>
+					<Image source={require("./../../../../assets/images/routeslk/staff-bus.png")}/>
+				</TouchableOpacity>
+				<Text category="h5">Turn Bus</Text>
+			</Card>
 			</View>
 			<View style={{ marginBottom: 0 }}>
 				<BottomNavigation

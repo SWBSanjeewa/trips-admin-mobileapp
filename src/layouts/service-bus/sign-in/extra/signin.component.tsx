@@ -35,6 +35,7 @@ import { OtpInput } from "react-native-otp-entry";
 
 //import Spinner from 'react-native-loading-spinner-overlay';	
 import { showMessage } from "react-native-flash-message";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 
 const SignInComponent = ({ navigation }): React.ReactElement => {
@@ -357,8 +358,7 @@ const SignInComponent = ({ navigation }): React.ReactElement => {
 
 	return (
 		<View>
-			
-		<KeyboardAvoidingView style={styles.container}>
+			<KeyboardAwareScrollView bottomOffset={300} keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1 }} >
 			<View style={styles.logoContainer}>
 				<ImageBackground style={styles.logo} source={require("../../../../assets/images/logo.png")} />
 			</View>
@@ -461,7 +461,7 @@ const SignInComponent = ({ navigation }): React.ReactElement => {
 				Don't have an account? <Text style={{color: "green"}}>Sign Up</Text> 
 			</Button>
 			
-		</KeyboardAvoidingView>
+		
 
 		
 			<RBSheet draggable dragOnContent key="forgotPassword" ref={refRBSheet} height={400}>
@@ -487,6 +487,8 @@ const SignInComponent = ({ navigation }): React.ReactElement => {
 					</View>
 				</View>
 			</RBSheet>
+
+			</KeyboardAwareScrollView>
 			
 		</View>
 		
