@@ -383,6 +383,45 @@ const RotationBus = types.model({
   }
 }))
 
+const BusAssign = types.model({
+  regNo: types.optional(types.string, ""),
+  runningNo: types.optional(types.string, ""),
+})
+.actions((self) => ({
+  
+  reset(){
+  },
+  setRegNo(regNo){
+    self.regNo = regNo;
+  },
+  setRunningNo(runningNo){
+    self.runningNo = runningNo;
+  }
+  
+}))
+
+
+const RotationPlan = types.model({
+  fromDate: types.optional(types.string, ""),
+  toDate: types.optional(types.string, ""),
+  busAassigns: types.array(BusAssign)
+})
+.actions((self) => ({
+  
+  reset(){
+    self.fromDate = "";
+    self.toDate = "";
+    self.busAassigns=BusAssign[0];
+  },
+  setFromDate(fromDate){
+    self.fromDate = fromDate;
+  },
+  setToDate(toDate){
+    self.toDate = toDate;
+  },
+  
+}))
+
 const NewRouteVirtualBusStore = types
   .model({
     objectId: types.optional(types.string, ""),
@@ -393,6 +432,7 @@ const NewRouteVirtualBusStore = types
     typeOfService: types.optional(types.string, "Super Luxury"),   // Normal, Luxury, Super Luxury
     stoppingPlaces: types.array(StoppingPlace),
     rotationBuses: types.array(RotationBus),
+    rotationPlans: types.array(RotationPlan),
     runningTime: types.optional(types.string, ""),
     distance: types.optional(types.string, ""),
     journey: types.optional(Route, {
@@ -525,6 +565,14 @@ const NewRouteVirtualBusStore = types
      // console.log("####"+stopping.latitude+","+stopping.longitude);
      rotationBuses.setRegNo(regNo);
      rotationBuses.setLicenseNo(licenseNo);
+    },
+    addRotationPlan(fromDate,toDate){
+      self.rotationPlans.push({
+       fromDate,toDate
+      })
+    },
+    deleteRotationPlanByIndex(index){
+        self.rotationPlans.remove(self.rotationPlans[index]);
     }
   }))
   .views((self) => ({

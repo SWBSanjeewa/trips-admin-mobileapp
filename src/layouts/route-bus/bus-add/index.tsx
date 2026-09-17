@@ -200,6 +200,10 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 		navigation.navigate("RouteBusRotationBusesList")
 	};
 
+	const onNavigateToRotationPlans = (): void => {
+		navigation.navigate("RouteBusRotationPlansList")
+	};
+
 	const onRunningTimePress = (): void => {
 		setRunningTimePickerVisible(true);
 	};
@@ -461,16 +465,6 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToRotationBuses}/>
 				</View>
 			</Card>
-
-			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToRotationBuses}>
-				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Rotation Plans</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToRotationBuses}/>
-				</View>
-			</Card>
-
-		
-			
 		
 			<View style={{flexDirection: "row", justifyContent: "space-between"}}>
 				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onCreatePress()}>Create</Button>

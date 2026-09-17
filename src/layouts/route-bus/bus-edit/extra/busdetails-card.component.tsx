@@ -516,6 +516,10 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		
 	};
 
+	const onNavigateToRotationPlans = (): void => {
+		navigation.navigate("RouteBusRotationPlansList")
+	};
+
 
 	
 	
@@ -796,6 +800,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
 				</View>
 			</Card>
+			
 
 			
 			
@@ -821,7 +826,15 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}/>
 				</View>
 			</Card>
+
+			
 		
+		</Card>
+		<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToRotationPlans}>
+			<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+				<Text>Rotation Plans</Text>
+				<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToRotationPlans}/>
+			</View>
 		</Card>
 
 

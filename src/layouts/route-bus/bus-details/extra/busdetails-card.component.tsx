@@ -13,6 +13,8 @@ import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { SafeAreaLayout } from "./../../../../components/safe-area-layout.component";
+
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 
@@ -231,7 +233,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 
 	return (
 		
-		<ScrollView style={{ flex: 1}} keyboardShouldPersistTaps='handled'>
+		<ScrollView style={{ flex: 1}}  keyboardShouldPersistTaps='handled'>
 		
 		<Card
 			style={styles.item}
@@ -290,50 +292,15 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				<Text style={{ flex: 1 , margin: 5}} category="h6">{appStore.routeBus?.stoppingPlaces[0]?.place} - {appStore.routeBus.stoppingPlaces[appStore.routeBus.stoppingPlaces.length-1]?.place}</Text>
 			</View>
 
-			{appStore.routeBus.journey.timetables.length == 1 && (
-			<Card style={{ marginTop: 10, borderRadius:10}} disabled={true} >
-				<View>
-				
-				{appStore.routeBus.journey.timetables.map((timetable,timetable_index) => (
-					<>
-						
-
-						<Accordion.Accordion isOpen={false}>
-							<Accordion.Header>
-								<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-									<Text>Timetable</Text>	
-									<Accordion.HeaderIcon>
-									<Entypo name="chevron-down" size={24} color="black" />;
-									</Accordion.HeaderIcon>
-								</View>	
-							</Accordion.Header>
-							<Accordion.Expanded>
-								<View>
-								<Text>{getTimetableTypeText(timetable)}</Text>
-								</View>
-								<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start", flexWrap: 'wrap' }}>	
-									
-								{timetable.turns.map((turn,turn_index) => (
-									<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{turn.startTime}</Button>
-								))}
-								</View>
-							</Accordion.Expanded>
-						
-						</Accordion.Accordion>
-						
-					</>
-				))}		
-			</View>	
-			</Card>
-			)}
-			{appStore.routeBus.journey.timetables.length != 1 && (
+			
+			
 				<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.id,journeyType: "RouteBusJourney"})}>
 					<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 						<Text>Timetables</Text>
 						<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetables", {id: appStore.routeBus.id, journeyType: "RouteBusJourney"})}/>
 					</View>
 				</Card>
-			)}
+			
 		
 			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppings", {id: appStore.routeBus.objectId, latitude: appStore.routeBus.journey.stoppings[0].latitude,  longitude: appStore.routeBus.journey.stoppings[0].longitude, journeyType: "RouteBusJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
@@ -349,49 +316,14 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				<Text style={{ flex: 1 , margin: 5}} category="h6">{appStore.routeBus?.stoppingPlaces[appStore.routeBus.stoppingPlaces.length-1]?.place} - {appStore.routeBus.stoppingPlaces[0]?.place}</Text>
 			</View>
 
-			{appStore.routeBus.returnJourney.timetables.length == 1 && (
-			<Card style={{ marginTop: 10, borderRadius:10}} disabled={true} >
-				<View style={{marginHorizontal: -24,marginVertical: -16}}>
-				<Text style={{marginHorizontal: 10,marginVertical: 10}}>Timetables</Text>
-				{appStore.routeBus.returnJourney.timetables.map((timetable,timetable_index) => (
-					<>
-
-						<Card style={{ marginTop: 10, borderRadius:10}} disabled={true}>
-
-						<Accordion.Accordion isOpen={false}>
-							<Accordion.Header>
-								<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-									<Text>{getTimetableTypeText(timetable)}</Text>
-									<Accordion.HeaderIcon>
-									<Entypo name="chevron-down" size={24} color="black" />;
-									</Accordion.HeaderIcon>
-								</View>	
-							</Accordion.Header>
-							<Accordion.Expanded>
-								<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start", flexWrap: 'wrap' }}>	
-								{timetable.turns.map((turn,turn_index) => (
-									<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 1, marginHorizontal: 2}} >{turn.startTime}</Button>
-								))}
-								</View>
-							</Accordion.Expanded>
-						
-						</Accordion.Accordion>
-						</Card>
-					</>
-				))}	
-				</View>	
-			</Card>
-			)}
-			{appStore.routeBus.returnJourney.timetables.length != 1 && (
-				<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id,journeyType: "RouteBusReturnJourney"})}>
-					<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-						<Text>Timetables</Text>
-						<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id, journeyType: "RouteBusReturnJourney"})}/>
-					</View>
-				</Card>
-
-			)}
 			
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id,journeyType: "RouteBusReturnJourney"})}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Timetables</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id, journeyType: "RouteBusReturnJourney"})}/>
+				</View>
+			</Card>
+
 			
 			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyStoppings", {id: appStore.routeBus.objectId, latitude: appStore.routeBus.returnJourney.stoppings[0].latitude,  longitude: appStore.routeBus.returnJourney.stoppings[0].longitude, journeyType: "RouteBusReturnJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
@@ -440,6 +372,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		</RBSheet>
 		
 		</ScrollView>
+		
 	
 		
 	);
