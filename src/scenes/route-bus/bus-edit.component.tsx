@@ -25,11 +25,13 @@ export const RouteBusEditScreen = ({ navigation }): React.ReactElement => {
 
 	return (
 		<SafeAreaLayout style={styles.container} insets="top">
+			<SafeAreaLayout style={styles.container} insets="bottom">
 			<TopNavigation title={props => (
 				<Text {...props} style={{fontWeight: "500", fontSize: 18}}>
 				Edit Bus
 				</Text>)} accessoryLeft={renderBackAction} />
 			<ContentView navigation={navigation} />
+			</SafeAreaLayout>
 		</SafeAreaLayout>
 	);
 };

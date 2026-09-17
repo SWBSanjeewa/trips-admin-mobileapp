@@ -235,9 +235,9 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 
 			appStore.routeBus.populate(response.data);
 
-			console.log("Populate finished!!");
+			console.log("Populate finished!! XXX");
 			
-			//console.log("#### Passengers count :"+response.data.passengers.length);
+			console.log("#### Passengers count :"+response.data.passengers.length);
 			if(response.data.stoppingPlaces != null){
 				response.data.stoppingPlaces.forEach(element => {
 					appStore.routeBus.addStoppingPlace( element.place,Number(element.latitude),Number(element.longitude))
@@ -251,6 +251,22 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				});
 		    }
 
+			console.log("journey.schedules?.length::"+response.data.journey.schedules?.length);
+
+			if(response.data.journey.schedules != null){
+				response.data.journey.schedules.forEach((schedule,schedule_index) => {
+					appStore.routeBus.journey.addSchedule(schedule.fromDate, schedule.toDate);
+					schedule.timetables.forEach((timetable,timetable_index) => {
+						appStore.routeBus.journey.schedules[schedule_index].addTimetable(timetable.type, timetable.runningDays);
+						timetable.turns.forEach(turn => {
+							appStore.routeBus.journey.schedules[schedule_index].timetables[timetable_index].addTurn(turn.onboardStartTime,turn.startTime,turn.runningNo,turn.stoppings,turn.registrationNo,turn.licenseNo);
+							console.log("Turn"+schedule.fromDate+" "+schedule.toDate);
+						});
+					});
+				});
+		    }
+
+			/*
 			if(response.data.journey.timetables != null){
 				response.data.journey.timetables.forEach((timetable,index) => {
 					appStore.routeBus.journey.addTimetable(timetable.type, timetable.runningDays);
@@ -259,6 +275,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					});
 				});
 		    }
+			*/
 
 			if(response.data.returnJourney.stoppings != null){
 				response.data.returnJourney.stoppings.forEach(element => {
@@ -267,6 +284,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				});
 		    }
 
+			/*
 			if(response.data.returnJourney.timetables != null){
 				response.data.returnJourney.timetables.forEach((timetable,index) => {
 					appStore.routeBus.returnJourney.addTimetable(timetable.type, timetable.runningDays);
@@ -275,7 +293,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					});
 				});
 		    }
-
+			*/
 			
 			console.log(JSON.stringify(toJS(appStore.routeBus)));
 
@@ -519,6 +537,11 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	const onNavigateToRotationPlans = (): void => {
 		navigation.navigate("RouteBusRotationPlansList")
 	};
+
+	const onNavigateToRotationBuses = (): void => {
+		navigation.navigate("RouteBusRotationBusesList")
+	};
+
 
 
 	
@@ -794,6 +817,12 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyStoppingsListEdit",{id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
 				</View>
 			</Card>
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneySchedulesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Schedules</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneySchedulesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
+				</View>
+			</Card>
 			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Timetables</Text>
@@ -820,15 +849,25 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				</View>
 			</Card>
 
+			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneySchedulesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Schedules</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneySchedulesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}/>
+				</View>
+			</Card>
+
 			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Timetables</Text>
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}/>
 				</View>
 			</Card>
-
-			
-		
+		</Card>
+		<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToRotationBuses}>
+			<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+				<Text>Rotation Buses</Text>
+				<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToRotationBuses}/>
+			</View>
 		</Card>
 		<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToRotationPlans}>
 			<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>

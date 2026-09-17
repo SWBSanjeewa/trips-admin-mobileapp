@@ -107,14 +107,21 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				});
 		    }
 
-			if(response.data.journey.timetables != null){
-				response.data.journey.timetables.forEach((timetable,index) => {
-					appStore.routeBus.journey.addTimetable(timetable.type, timetable.runningDays);
-					timetable.turns.forEach(turn => {
-						appStore.routeBus.journey.timetables[index].addTurn(turn.onboardStartTime,turn.startTime,turn.runningNo,turn.stoppings,turn.registrationNo,turn.licenseNo);
+			console.log("journey.schedules?.length::"+response.data.journey.schedules?.length);
+
+			if(response.data.journey.schedules != null){
+				response.data.journey.schedules.forEach((schedule,schedule_index) => {
+					appStore.routeBus.journey.addSchedule(schedule.fromDate, schedule.toDate);
+					schedule.timetables.forEach((timetable,timetable_index) => {
+						appStore.routeBus.journey.schedules[schedule_index].addTimetable(timetable.type, timetable.runningDays);
+						timetable.turns.forEach(turn => {
+							appStore.routeBus.journey.schedules[schedule_index].timetables[timetable_index].addTurn(turn.onboardStartTime,turn.startTime,turn.runningNo,turn.stoppings,turn.registrationNo,turn.licenseNo);
+							console.log("Turn"+schedule.fromDate+" "+schedule.toDate);
+						});
 					});
 				});
 		    }
+
 
 			if(response.data.returnJourney.stoppings != null){
 				response.data.returnJourney.stoppings.forEach(element => {
@@ -123,6 +130,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				});
 		    }
 
+			/*
 			if(response.data.returnJourney.timetables != null){
 				response.data.returnJourney.timetables.forEach((timetable,index) => {
 					appStore.routeBus.returnJourney.addTimetable(timetable.type, timetable.runningDays);
@@ -131,7 +139,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					});
 				});
 		    }
-
+			*/
 			
 			console.log(JSON.stringify(toJS(appStore.routeBus)));
 
