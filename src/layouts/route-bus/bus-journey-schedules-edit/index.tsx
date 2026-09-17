@@ -205,12 +205,45 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	}
 
 	const onScheduleAddPress = async() => {
+		/*
 		console.log(appStore.routeBusTimetable.type+"::"+appStore.routeBusTimetable.runningDays.toString());
 		if(route.params?.journeyType=="RouteBusJourney"){
 		    appStore.routeBus.addJourneySchedule(fromDate, toDate);
 		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
 			appStore.routeBus.addReturnJourneySchedule(fromDate, toDate);
 		}
+		*/
+
+		const data = {
+			fromDate: fromDate,
+			toDate: toDate
+		};
+		console.log("data>> "+JSON.stringify(data));
+		//const jsonObject = JSON.parse(jsonString);
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		try {
+			if(route.params?.journeyType=="RouteBusJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/add` , data, config);
+				if(response.status == 200){
+					appStore.routeBus.addJourneySchedule(fromDate, toDate);
+				}
+			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/add` , data, config);
+				if(response.status == 200){
+					appStore.routeBus.addReturnJourneySchedule(fromDate, toDate);
+				}
+			}
+			
+		} catch(err) {
+			console.log(err);
+		}
+
 		console.log("*****");
 		setDefaultDate(new Date());
 		addCallback(false);
@@ -219,36 +252,45 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const onScheduleEditPress = async() => {
 		console.log("Journey Type::"+route.params?.journeyType);
 		console.log(fromDate+"::"+toDate);
-		if(route.params?.journeyType=="RouteBusJourney"){
-			appStore.routeBus.journey.schedules[scheduleIndex].setFromDate(fromDate);
-		    appStore.routeBus.journey.schedules[scheduleIndex].setToDate(toDate);
-		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			appStore.routeBus.returnJourney.schedules[scheduleIndex].setFromDate(fromDate);
-		    appStore.routeBus.returnJourney.schedules[scheduleIndex].setToDate(toDate);
-		}
+		
 		console.log("*****");
+
+		const data = {
+			fromDate: fromDate,
+			toDate: toDate
+		};
+
+		console.log("#### "+JSON.stringify(data));
+		console.log("#### route.params?.journeyType "+route.params?.journeyType);
+			
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		try {
+			if(route.params?.journeyType=="RouteBusJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+scheduleIndex+`/edit` , data, config);
+				if(response.status == 200){
+					appStore.routeBus.journey.schedules[scheduleIndex].setFromDate(fromDate);
+		    		appStore.routeBus.journey.schedules[scheduleIndex].setToDate(toDate);
+				}
+			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/`+scheduleIndex+`/edit` , data, config);
+				if(response.status == 200){
+					appStore.routeBus.returnJourney.schedules[scheduleIndex].setFromDate(fromDate);
+		    		appStore.routeBus.returnJourney.schedules[scheduleIndex].setToDate(toDate);
+				}
+			}
+		} catch(err) {
+			console.log(err);
+		}
 		setDefaultDate(new Date());
 		setEdit(false);
 	}
 
-	
-	const onTimetableEditPress = (): void => {	
-		let timetable;
-		if(route.params?.journeyType=="RouteBusJourney"){
-		    timetable = appStore.routeBus.journey.timetables[timetableIndex];
-		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			timetable = appStore.routeBus.returnJourney.timetables[timetableIndex];
-		}
-		 
-	
-		timetable?.setTimetableType(routeBusTimetableTypes[selectedIndexEdit-1]);
-		if(timetable?.type == "Selected Days"){
-			timetable.setRunningDays(runningDays.toString());
-		}
-		setTimetableIndex(-1);
-		setSelectedTurn(-1);
-		setEdit(false);
-	}
 
 	
 
@@ -260,11 +302,32 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		refRBSheetDeleteConfirm.current.close()
 	};
 
-	const onDeleteConfirmPress = (): void => {
-		if(route.params?.journeyType=="RouteBusJourney"){
-			appStore.routeBus.journey.deleteScheduleByIndex(scheduleIndex);
-		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			appStore.routeBus.returnJourney.deleteScheduleByIndex(scheduleIndex);
+	const onDeleteConfirmPress = async (): void => {
+		
+
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		console.log("timetableIndex>>"+timetableIndex);
+		try {
+			if(route.params?.journeyType=="RouteBusJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/delete/`+scheduleIndex, config);
+				if(response.status == 200){
+					appStore.routeBus.journey.deleteScheduleByIndex(scheduleIndex);
+				}
+			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/delete/`+scheduleIndex, config);
+				if(response.status == 200){
+					appStore.routeBus.returnJourney.deleteScheduleByIndex(scheduleIndex);
+				}
+			}
+			
+		} catch(err) {
+			console.log(err);
 		}
 		refRBSheetDeleteConfirm.current.close()
 	};
@@ -482,7 +545,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				{appStore.routeBus.journey.schedules?.map((schedule,index) => (
 					
 					<Card key={index} 
-					onPress={() => navigation.navigate("RouteBusJourneyTimetablesList", {id: appStore.routeBus.id,journeyType: route.params?.journeyType, scheduleIndex: index})}
+					onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.id,journeyType: route.params?.journeyType, scheduleIndex: index})}
 					onLongPress={({ nativeEvent }) => {
 						console.log('On Long Press action:', nativeEvent.event);
 						onScheduleLongPress(schedule,index)

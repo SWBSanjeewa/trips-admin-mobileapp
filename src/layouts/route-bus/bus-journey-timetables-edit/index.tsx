@@ -261,9 +261,10 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 		try {
 			if(route.params?.journeyType=="RouteBusJourney"){
-				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/add` , data, config);
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/add` , data, config);
+				console.log("response.status::"+response.status);
 				if(response.status == 200){
-					appStore.routeBus.addJourneyTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
+					appStore.routeBus.journey.schedules[route.params?.scheduleIndex].addTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
 				}
 			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
 				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/timetables/add` , data, config);
@@ -641,7 +642,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 			{route.params?.journeyType == "RouteBusJourney" && (
 			<View>	
-				{appStore.routeBus.journey.timetables.map((timetable,timetable_index) => (
+				{appStore.routeBus.journey.schedules[route.params.scheduleIndex]?.timetables.map((timetable,timetable_index) => (
 					
 					<Card key={timetable_index} 
 					style={[
@@ -742,7 +743,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 			{route.params?.journeyType == "RouteBusReturnJourney" && (
 			<View>	
-				{appStore.routeBus.returnJourney.timetables.map((timetable,timetable_index) => (
+				{appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex]?.timetables.map((timetable,timetable_index) => (
 					
 					<Card key={timetable_index} 
 					style={[
