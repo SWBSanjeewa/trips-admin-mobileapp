@@ -54,6 +54,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const [selectedTurn, setSelectedTurn] = React.useState<number>(-1);
 
+	const [selectedDate, setSelectedDate] = React.useState<number>(-1);
+
 	const [defaultDate, setDefaultDate] = React.useState<Date>(new Date());
 
 	const [timetableIndex, setTimetableIndex] = React.useState<number>(-1);
@@ -104,16 +106,18 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			} as RawAxiosRequestHeaders,
 		};
 
+		console.log("tIndex:"+tIndex);
+		console.log("index:"+index);
 		try {
 			if(route.params?.journeyType=="RouteBusJourney"){
-				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+timetableIndex+`/turns/`+tIndex+`/delete` , config);
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/turns/`+index+`/delete` , config);
 				if(response.status == 200){
-					appStore.routeBus.journey.deleteTurnByIndex(tIndex,index);
+					appStore.routeBus.journey.schedules[route.params?.scheduleIndex].deleteTurnByIndex(tIndex,index);
 				}
 			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/timetables/`+timetableIndex+`/turns/`+tIndex+`/delete` , config);
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/turns/`+index+`/delete` , config);
 				if(response.status == 200){
-					appStore.routeBus.returnJourney.deleteTurnByIndex(tIndex,index);
+					appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].deleteTurnByIndex(tIndex,index);
 				}
 			}
 			
@@ -131,7 +135,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 
 	const onEditTurn = (tIndex: number,index: number) => async() =>  {
-		const [hours, minutes] = appStore.routeBus.journey.timetables[timetableIndex]?.turns[index].startTime?.split(':');
+		const [hours, minutes] = appStore.routeBus.journey.schedules[route.params?.scheduleIndex]?.timetables[timetableIndex]?.turns[index].startTime?.split(':');
 		console.log("hours>>"+hours);
 		console.log("minutes>>"+minutes);
 		defaultDate.setHours(hours, minutes, 0, 0); 
@@ -148,37 +152,13 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			if(tIndex > -1){
 				
 				if(selectedTurn > -1){
-					const [hours, minutes] = appStore.routeBus.journey.timetables[timetableIndex].turns[selectedTurn].startTime.split(':');
+					const [hours, minutes] = appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[timetableIndex].turns[selectedTurn].startTime.split(':');
 					console.log("hours>>"+hours);
 					defaultDate.setHours(hours, minutes, 0, 0); 
 				}else{
-					var turnsSize=appStore.routeBus.journey.timetables[timetableIndex]?.turns.length;
+					var turnsSize=appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[timetableIndex]?.turns.length;
 					if(turnsSize>0){
-						const [hours, minutes] = appStore.routeBus.journey.timetables[timetableIndex]?.turns[turnsSize-1].startTime.split(':');
-						console.log("hours>>"+hours);
-						defaultDate.setHours(hours, minutes, 0, 0); 
-					}
-
-				}
-			}
-
-		setEditModeDatePickerVisibility(true);
-		setTimetableIndex(tIndex);
-		if(selectedTurn == -1 || timetableIndex != tIndex){
-			setSelectedTurn(appStore.routeBus.journey.timetables[tIndex].turns.length-1);
-		}
-	
-	   }else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			if(tIndex > -1){
-				
-				if(selectedTurn > -1){
-					const [hours, minutes] = appStore.routeBus.returnJourney.timetables[timetableIndex].turns[selectedTurn].startTime.split(':');
-					console.log("hours>>"+hours);
-					defaultDate.setHours(hours, minutes, 0, 0); 
-				}else{
-					var turnsSize=appStore.routeBus.returnJourney.timetables[timetableIndex]?.turns.length;
-					if(turnsSize>0){
-						const [hours, minutes] = appStore.routeBus.returnJourney.timetables[timetableIndex]?.turns[turnsSize-1].startTime.split(':');
+						const [hours, minutes] = appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[timetableIndex]?.turns[turnsSize-1].startTime.split(':');
 						console.log("hours>>"+hours);
 						defaultDate.setHours(hours, minutes, 0, 0); 
 					}
@@ -189,7 +169,30 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		setEditModeDatePickerVisibility(true);
 		setTimetableIndex(tIndex);
 		if(selectedTurn == -1 || timetableIndex != tIndex)
-			setSelectedTurn(appStore.routeBus.returnJourney.timetables[tIndex].turns.length-1);
+			setSelectedTurn(appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[tIndex].turns.length-1);
+	
+	   }else if(route.params?.journeyType=="RouteBusReturnJourney"){
+			if(tIndex > -1){
+				
+				if(selectedTurn > -1){
+					const [hours, minutes] = appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables[timetableIndex].turns[selectedTurn].startTime.split(':');
+					console.log("hours>>"+hours);
+					defaultDate.setHours(hours, minutes, 0, 0); 
+				}else{
+					var turnsSize=appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables[timetableIndex]?.turns.length;
+					if(turnsSize>0){
+						const [hours, minutes] = appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables[timetableIndex]?.turns[turnsSize-1].startTime.split(':');
+						console.log("hours>>"+hours);
+						defaultDate.setHours(hours, minutes, 0, 0); 
+					}
+
+				}
+			}
+
+		setEditModeDatePickerVisibility(true);
+		setTimetableIndex(tIndex);
+		if(selectedTurn == -1 || timetableIndex != tIndex)
+			setSelectedTurn(appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables[tIndex].turns.length-1);
 	   }
 	   
     };
@@ -289,9 +292,9 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const onTimetableEditPress = async (): void => {	
 		let timetable;
 		if(route.params?.journeyType=="RouteBusJourney"){
-		    timetable = appStore.routeBus.journey.timetables[timetableIndex];
+		    timetable = appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[timetableIndex];
 		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			timetable = appStore.routeBus.returnJourney.timetables[timetableIndex];
+			timetable = appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex],timetables[timetableIndex];
 		}
 
 		timetable?.setTimetableType(routeBusTimetableTypes[selectedIndexEdit-1]);
@@ -318,12 +321,12 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 		try {
 			if(route.params?.journeyType=="RouteBusJourney"){
-				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+timetableIndex+`/edit` , data, config);
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/edit` , data, config);
 				if(response.status == 200){
 					//appStore.routeBus.addJourneyTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
 				}
 			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/timetables/`+timetableIndex+`/edit` , data, config);
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/edit` , data, config);
 				if(response.status == 200){
 					//appStore.routeBus.addJourneyTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
 				}
@@ -360,12 +363,13 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		console.log("timetableIndex>>"+timetableIndex);
 		try {
 			if(route.params?.journeyType=="RouteBusJourney"){
-		    	const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/delete/`+timetableIndex, data, config);
+		    	const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/delete/`+timetableIndex, data, config);
 				if(response.status == 200){
-					appStore.routeBus.deleteJourneyTimetable(timetableIndex);
+					//appStore.routeBus.deleteJourneyTimetable(timetableIndex);
+					appStore.routeBus.journey.schedules[route.params?.scheduleIndex].deleteTimetable(timetableIndex);
 				}
 			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/timetables/delete/`+timetableIndex, data, config);
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/`+route.params.scheduleIndex+`/timetables/delete/`+timetableIndex, data, config);
 			if(response.status == 200){
 				appStore.routeBus.deleteReturnJourneyTimetable(timetableIndex);
 			}
@@ -398,35 +402,35 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		//console.log(">"+appStore.routeBusTimetable.type);
 		//console.log("Timetable Index:"+getIndexNumber(appStore.routeBus.journey.timetables.at(timetableIndex)?.type));
 		if(route.params?.journeyType=="RouteBusJourney"){
-			setSelectedIndexEdit(new IndexPath(getIndexNumber(appStore.routeBus.journey.timetables.at(timetableIndex)?.type)));
-			if(appStore.routeBus.journey.timetables.at(timetableIndex)?.type == "Selected Days"){
+			setSelectedIndexEdit(new IndexPath(getIndexNumber(appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables.at(timetableIndex)?.type)));
+			if(appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables.at(timetableIndex)?.type == "Selected Days"){
 				setSelectedDaysSelected(true);
-				console.log(">>>>"+appStore.routeBus.journey.timetables.at(timetableIndex)?.runningDays);
-				if(appStore.routeBus.journey.timetables.at(timetableIndex)?.runningDays){
-					timetableRunningDays = appStore.routeBus.journey.timetables.at(timetableIndex)?.runningDays.split(',').map(function(item) {
+				console.log(">>>>"+appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables.at(timetableIndex)?.runningDays);
+				if(appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables.at(timetableIndex)?.runningDays){
+					timetableRunningDays = appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables.at(timetableIndex)?.runningDays.split(',').map(function(item) {
 						console.log(">>"+item);
 						return parseInt(item, 10);
 					});
 				}
 			}else{
 				setSelectedDaysSelected(false);
-				appStore.routeBus.journey.timetables.at(timetableIndex)?.setRunningDays("");
+				appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables.at(timetableIndex)?.setRunningDays("");
 
 			}
 			
 			console.log("timetableRunningDays::::"+timetableRunningDays);
 		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			setSelectedIndexEdit(new IndexPath(getIndexNumber(appStore.routeBus.returnJourney.timetables.at(timetableIndex)?.type)));
-			if(appStore.routeBus.returnJourney.timetables.at(timetableIndex)?.type == "Selected Days"){
+			setSelectedIndexEdit(new IndexPath(getIndexNumber(appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables.at(timetableIndex)?.type)));
+			if(appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables.at(timetableIndex)?.type == "Selected Days"){
 				setSelectedDaysSelected(true);
-				if(appStore.routeBus.returnJourney.timetables.at(timetableIndex)?.runningDays){
-					timetableRunningDays = appStore.routeBus.returnJourney.timetables.at(timetableIndex)?.runningDays.split(',').map(function(item) {
+				if(appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables.at(timetableIndex)?.runningDays){
+					timetableRunningDays = appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables.at(timetableIndex)?.runningDays.split(',').map(function(item) {
 						return parseInt(item, 10);
 					});
 				}
 			}else{
 				setSelectedDaysSelected(false);
-				appStore.routeBus.returnJourney.timetables.at(timetableIndex)?.setRunningDays("");
+				appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables.at(timetableIndex)?.setRunningDays("");
 			}
 			
 		}
@@ -458,7 +462,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			//. '/:id/journey/timetables/:timetableIndex/turns/add',
 			console.log("timetableIndex>>"+timetableIndex);
 			console.log("route.params?.journeyType>>"+route.params?.journeyType);
-			console.log(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+timetableIndex+`/turns/add`);
+			console.log(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/turns/add`);
 
 			const data = {
 				startTime: format(date, 'HH:mm')
@@ -468,14 +472,14 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 			try {
 				if(route.params?.journeyType=="RouteBusJourney"){
-					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+timetableIndex+`/turns/add`, data, config);
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/turns/add`, data, config);
 					if(response.status == 200){
-						appStore.routeBus.journey.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
+						appStore.routeBus.journey.schedules[route.params.scheduleIndex].addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
 					}
 				}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/timetables/`+timetableIndex+`/turns/add`, data, config);
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/turns/add`, data, config);
 					if(response.status == 200){
-						appStore.routeBus.returnJourney.addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
+						appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
 					}
 				}
 				
@@ -501,21 +505,21 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			//. '/:id/journey/timetables/:timetableIndex/turns/add',
 			console.log("timetableIndex>>"+timetableIndex);
 			console.log("route.params?.journeyType>>"+route.params?.journeyType);
-			console.log(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+timetableIndex+`/turns/`+selectedTurn+`/startTime/`+format(date, 'HH:mm'));
+			console.log(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/turns/`+selectedTurn+`/startTime/`+format(date, 'HH:mm'));
 
 			
 
 			try {
 				if(route.params?.journeyType=="RouteBusJourney"){
-					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+timetableIndex+`/turns/`+selectedTurn+`/startTime/`+format(date, 'HH:mm'), config);
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/turns/`+selectedTurn+`/startTime/`+format(date, 'HH:mm'), config);
 					if(response.status == 200){
-						appStore.routeBus.journey.editTurnAtIndex(timetableIndex,selectedTurn,format(date, 'HH:mm'));
+						appStore.routeBus.journey.schedules[route.params.scheduleIndex].editTurnAtIndex(timetableIndex,selectedTurn,format(date, 'HH:mm'));
 						setSelectedTurn(-1); 
 					}
 				}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/timetables/`+timetableIndex+`/turns/`+selectedTurn+`/startTime/`+format(date, 'HH:mm'), config);
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/turns/`+selectedTurn+`/startTime/`+format(date, 'HH:mm'), config);
 					if(response.status == 200){
-						appStore.routeBus.returnJourney.editTurnAtIndex(timetableIndex,selectedTurn,format(date, 'HH:mm'));
+						appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].editTurnAtIndex(timetableIndex,selectedTurn,format(date, 'HH:mm'));
 						setSelectedTurn(-1); 
 					}
 				}
@@ -558,6 +562,48 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			setSelectedDaysSelected(false);
 		}
 		appStore.routeBusTimetable.setTimetableType(routeBusTimetableTypes[index-1]);
+	};
+
+	const onEditModeAddDate = (tIndex: number) => () =>  {
+		setDatePickerVisibility(true);
+		setTimetableIndex(tIndex);
+		if(selectedDate == -1 || timetableIndex != tIndex)
+			setSelectedDate(appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[tIndex].dates.length-1);
+	}
+
+	const onDeleteDate = (tIndex: number,index: number) => () =>  {
+		if(route.params?.journeyType=="RouteBusJourney"){
+			appStore.routeBus.journey.schedules[route.params?.scheduleIndex]?.timetables[tIndex]?.deleteDateByIndex(index);
+		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+			appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex]?.timetables[tIndex]?.deleteDateByIndex(index);
+		}
+		setSelectedDate(-1);
+	}
+
+	const handleDateConfirm = (date) => {	
+			hideDatePicker();  
+			console.warn("From date has been actualDate: ", format(date, 'yyyy-MM-dd'));
+			//setSelectedTurn(selectedTurn+1); 
+			console.warn("A date has been actualDate: ", date);
+			console.warn("timetableIndex: ", timetableIndex);
+			if(route.params?.journeyType=="RouteBusJourney"){
+				appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[timetableIndex].addDate(selectedDate, format(date, 'yyyy-MM-dd'));
+			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+				appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables[timetableIndex].addDate(selectedDate,format(date, 'yyyy-MM-dd'));
+			}
+			setSelectedDate(selectedDate+1); 
+			
+			/*
+			if(route.params?.journeyType=="RouteBusJourney"){
+				appStore.routeBus.journey.schedules[route.params?.scheduleIndex].addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
+			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+				appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].addTurnAfterIndex(timetableIndex,selectedTurn,"",format(date, 'HH:mm'),"",[],"","");
+			}
+			*/
+		};
+
+	const hideDatePicker = () => {
+		setDatePickerVisibility(false);
 	};
 
 	
@@ -671,6 +717,69 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 								wrapperStyles={{ marginVertical: 10, justifyContent: 'space-left' }}
 							/>
 						)}
+
+						{timetable.type == "Selected Dates" && (
+						<>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Dates</Text>
+						<View style={styles.inputContainer}>
+							<View style={{flexDirection: "row", flexWrap: "wrap"}}>
+								
+							{timetable.dates.map(function(date, index){
+								
+								if(index == selectedDate && timetable_index == timetableIndex){
+									return <Pressable 
+											style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#000"}}
+											onPress={({ nativeEvent }) => {
+													console.log('On Press action:', nativeEvent.event);
+													}}
+											onLongPress={({ nativeEvent }) => {
+												// setSelectedTurn(turn);
+												console.log("selectedDate:"+selectedDate);
+													console.log("index:"+index);
+													if(selectedDate == index){
+														setSelectedDate(-1);
+													}
+													
+													console.log('On Long Press action:', nativeEvent.event);
+													}}
+											delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
+											>
+												<View style={{flexDirection: "row", flexWrap: "wrap"}}>
+												<Text style={{padding: 2,paddingHorizontal: 10}}>{date}</Text>
+												<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteDate(timetable_index,index)} />
+												</View>
+										</Pressable>
+								}else{
+									return <Pressable 
+											style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
+											onPress={({ nativeEvent }) => {
+													console.log('On Press action:', nativeEvent.event);
+													//navigation && navigation.navigate("RouteBusJourneyTurnEdit",{"scheduleIndex": route.params?.scheduleIndex,  "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
+													}}
+											onLongPress={({ nativeEvent }) => {
+													setSelectedDate(index);
+													setTimetableIndex(timetable_index);
+													console.log("##"+date);
+													console.log('On Long Press action:', nativeEvent.event);
+													}}
+											delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
+											>
+												<Text style={{padding: 2, paddingHorizontal: 10}}>{date}</Text>
+										</Pressable>
+								}
+								
+							})}	
+							
+							
+							<AntDesign style={{top: 0}} name="plus" size={30} color="black" onPress={onEditModeAddDate(timetable_index)} />
+							
+						</View>
+
+						
+					</View>
+					</>
+					)}
+
 						<Text style={{ padding: 5, paddingLeft: 10}}>Turns</Text>
 					<View style={styles.inputContainer}>
 						<View style={{flexDirection: "row", flexWrap: "wrap"}}>
@@ -839,6 +948,13 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			)}
 
 	
+			<DateTimePickerModal
+							isVisible= {isDatePickerVisible}
+							date={defaultDate}
+							mode="date"
+							display="inline"
+							onConfirm={handleDateConfirm}
+							onCancel={hideDatePicker}/>	
 
 			<DateTimePickerModal
 							isVisible={isEditModeDatePickerVisible}

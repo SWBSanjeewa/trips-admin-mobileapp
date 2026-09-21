@@ -275,6 +275,9 @@ export const Schedule = types.model({
     console.log("addTimetable"+type);
     self.timetables.push({type,runningDays});
   },
+  deleteTimetable(index){
+    self.timetables.remove(self.timetables[index]);
+  },
   addTurn(onboardStartTime,startTime,runningNo,stoppings){
     var timetable = self.timetables.pop();
     timetable?.addTurn(onboardStartTime,startTime,runningNo,stoppings)
