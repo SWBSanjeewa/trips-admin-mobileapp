@@ -6,7 +6,9 @@ import { observer, inject} from "mobx-react";
 import { useStore } from "mobx-store-provider";
 import { toJS } from "mobx";
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { useRoute } from "@react-navigation/native"
+import { useRoute } from "@react-navigation/native";
+
+import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
 import {
 	MaterialIcons as MDIcon
@@ -34,13 +36,17 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const licenseNoCustomStyle = licenseNoFocus ? styles.inputContainerFocus : styles.inputContainer;
 	const [licenseNoErrorMessage, setLicenseNoErrorMessage] = React.useState<string>("");
 
-	const [allowedBusIndex, setAllowedBusIndex] = React.useState<number>(-1);
+	const [eitherBusIndex, setEitherBusIndex] = React.useState<number>(-1);
 	
 	const refRBSheetActions = useRef();
 	
 	const refRBSheetDeleteConfirm = useRef();
 
 	const refRBSheetEdit = useRef();
+
+	const client = axios.create({
+		baseURL: 'https://routes.lk:7007'
+	});
 
 	const [startDate, setStartDate] = useState();
 
@@ -65,33 +71,62 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	
 	const onCreatePress = async() => {
-		if(route.params?.journeyType=="RouteBusJourney"){
-			if(appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].eitherBuses.length < 2){
-				isValidValues()
-				appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].addEitherBus(regNo,licenseNo,date);
-				console.log(JSON.stringify(toJS(appStore.routeBus)));	
-				setRegNo("");
-				setLicenseNo("");
-				setDate("");
-				addCallback(false);
-			}else{
-				console.log("Maximum 2 allowed");
-				addCallback(false);
+
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+		
+		const data = {
+			regNo: regNo,
+			licenseNo: licenseNo,
+			date: format(date, 'yyyy-MM-dd')
+		};
+		
+		console.log("XX oute.params?.journeyType"+route.params?.journeyType);
+		try {
+			if(route.params?.journeyType=="RouteBusJourney"){
+				if(appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].eitherBuses.length < 2){
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+route.params.timetableIndex+`/turns/`+route.params.turnIndex+`/eitherbuses/add`, data, config);
+					if(response.status == 200){
+						appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].addEitherBus(regNo,licenseNo,date);
+						//console.log(JSON.stringify(toJS(appStore.routeBus)));	
+						setRegNo("");
+						setLicenseNo("");
+						setDate("");
+						addCallback(false);
+					}
+				}else{
+					console.log("Maximum 2 allowed");
+					addCallback(false);
+				}
+				
+			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+
+				if(appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].eitherBuses.length < 2){
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+route.params.timetableIndex+`/turns/`+route.params.turnIndex+`/eitherbuses/add`, data, config);
+					if(response.status == 200){
+						appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].addEitherBus(regNo,licenseNo,date);
+						//console.log(JSON.stringify(toJS(appStore.routeBus)));	
+						setRegNo("");
+						setLicenseNo("");
+						setDate("");
+						addCallback(false);
+					}
+				}else{
+					console.log("Maximum 2 allowed");
+					addCallback(false);
+				}
 			}
-		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			if(appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].eitherBuses.length < 2){
-				isValidValues()
-				appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].addEitherBus(regNo,licenseNo,date);
-				console.log(JSON.stringify(toJS(appStore.routeBus)));	
-				setRegNo("");
-				setLicenseNo("");
-				setDate("");
-				addCallback(false);
-			}else{
-				console.log("Maximum 2 allowed");
-				addCallback(false);
-			}
+			
+			
+		} catch(err) {
+			console.log(err);
 		}
+
+		
 
 	}
 
@@ -124,16 +159,14 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	
 	const onAllowedBusPress = async (regNo,licenseNo,date,index) => {
-		setAllowedBusIndex(index);
+		setEitherBusIndex(index);
 		setRegNo(regNo);
 		setLicenseNo(licenseNo);
 		setDate(date);
 		refRBSheetActions.current.open();
 	};
 
-	const onEditPress = async() => {
-		refRBSheetEdit.current.open();
-	};
+	
 
 	const onDeletePress = (): void => {
 		refRBSheetDeleteConfirm.current.open()
@@ -141,7 +174,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const onUpdatePress = (): void => {
 		//appStore.routeBus.updateAllowedBusByIndex(regNo, licenseNo, allowedBusIndex);
-		appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateAEitherBusByIndex(regNo, licenseNo, date, allowedBusIndex);
+		appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateAEitherBusByIndex(regNo, licenseNo, date, eitherBusIndex);
 		setRegNo("");
 		setLicenseNo("");
 		setDate("");
@@ -153,8 +186,35 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		refRBSheetDeleteConfirm.current.close()
 	};
 
-	const onDeleteConfirmPress = (): void => {
-		appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].deleteAEitherBusByIndex(allowedBusIndex);
+		
+	const onDeleteConfirmPress = async() =>  {
+
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		console.log("onDeleteConfirmPress");
+		try {
+			if(route.params?.journeyType=="RouteBusJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+route.params.timetableIndex+`/turns/`+route.params.turnIndex+`/eitherbuses/`+eitherBusIndex+`/delete` , config);
+				if(response.status == 200){
+					appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].deleteAEitherBusByIndex(eitherBusIndex);
+				}
+			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/`+route.params.scheduleIndex+`/timetables/`+route.params.timetableIndex+`/turns/`+route.params.turnIndex+`/eitherbuses/`+eitherBusIndex+`/delete` , config);
+				if(response.status == 200){
+					appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].deleteAEitherBusByIndex(eitherBusIndex);
+				}
+			}
+			
+		} catch(err) {
+			console.log(err);
+		}
+
+		
 		setRegNo("");
 		setLicenseNo("");
 		refRBSheetDeleteConfirm.current.close();
@@ -203,7 +263,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 				<Card style={{ margin: 10, borderRadius:10}}>
 					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-						<Text style={{ padding: 5, paddingLeft: 10}}>Running Date</Text>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Running Date XXX</Text>
 						<View style={{backgroundColor: "#F1F1F1"}}>
 							<Pressable onPress={() => onSetRunningDatePress()}>
 							<View pointerEvents="none">
@@ -251,7 +311,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					
 					<Card key={index} 
 					style={[
-				     allowedBusIndex != index? styles.item : styles.itemSelected
+				     eitherBusIndex != index? styles.item : styles.itemSelected
 					]}
 					onPress={()=>onAllowedBusPress(allowedBus.regNo,allowedBus.licenseNo,allowedBus.date,index)}>
 						
@@ -299,7 +359,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					
 					<Card key={index} 
 					style={[
-				     allowedBusIndex != index? styles.item : styles.itemSelected
+				     eitherBusIndex != index? styles.item : styles.itemSelected
 					]}
 					onPress={()=>onAllowedBusPress(allowedBus.regNo,allowedBus.licenseNo,allowedBus.date,index)}>
 						
@@ -345,14 +405,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			<RBSheet ref={refRBSheetActions} draggable dragOnContent height={200}>
 					<View style={styles.listContainer}>
 						<View>
-								<TouchableOpacity
-								key="photo-camera"
-								style={styles.listButton}
-								onPress={() => onEditPress()}>
-									<AntDesign name="edit" size={24} color="black" style={styles.listIconEdit}/>
-								
-								<Text style={styles.listLabel}>Update</Text>
-							</TouchableOpacity>
 							<TouchableOpacity
 								key="upload"
 								style={styles.listButton}
@@ -371,8 +423,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							</View>
 						</View>
 					</RBSheet>
-					
-
 			</RBSheet>
 			<RBSheet draggable dragOnContent key="" ref={refRBSheetEdit} height={500}>
 				<View>
@@ -447,6 +497,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							isVisible= {isDatePickerVisible}
 							date={startDate}
 							mode="date"
+							display="inline"
 							onConfirm={handleConfirm}
 							onCancel={hideDatePicker}/>	
 			

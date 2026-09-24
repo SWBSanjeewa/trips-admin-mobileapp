@@ -1,4 +1,4 @@
-import { Button, Card, Text,Input } from "@ui-kitten/components";
+import { CheckBox, Card, Text,Input } from "@ui-kitten/components";
 import React,{useRef,useState} from "react";
 import { StyleSheet, View, Pressable, TextInput,ScrollView} from "react-native";
 import AppStore from "../../../store/AppStore";
@@ -118,10 +118,11 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				</View>
 			</Card>
 
+			
 				
 			<View style={{ margin: 10}}>
 				<View style={styles.labelContainer}>
-					<Text style={styles.label}>Running No</Text>
+					<Text style={styles.label}>Running Noxx</Text>
 				</View>
 				<View style={runningNoCustomStyle}>
 					

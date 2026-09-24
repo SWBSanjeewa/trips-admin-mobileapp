@@ -571,27 +571,76 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			setSelectedDate(appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[tIndex].dates.length-1);
 	}
 
-	const onDeleteDate = (tIndex: number,index: number) => () =>  {
-		if(route.params?.journeyType=="RouteBusJourney"){
-			appStore.routeBus.journey.schedules[route.params?.scheduleIndex]?.timetables[tIndex]?.deleteDateByIndex(index);
-		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex]?.timetables[tIndex]?.deleteDateByIndex(index);
+	const onDeleteDate = (tIndex: number,index: number) => async() =>  {
+
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		console.log("tIndex:"+tIndex);
+		console.log("index:"+index);
+		try {
+			if(route.params?.journeyType=="RouteBusJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/dates/`+index+`/delete` , config);
+				if(response.status == 200){
+					appStore.routeBus.journey.schedules[route.params?.scheduleIndex]?.timetables[tIndex]?.deleteDateByIndex(index);
+				}
+			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/dates/`+index+`/delete` , config);
+				if(response.status == 200){
+					appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex]?.timetables[tIndex]?.deleteDateByIndex(index);
+				}
+			}
+			
+		} catch(err) {
+			console.log(err);
 		}
+
+		
 		setSelectedDate(-1);
 	}
 
-	const handleDateConfirm = (date) => {	
+	const handleDateConfirm = async(date) => {	
 			hideDatePicker();  
 			console.warn("From date has been actualDate: ", format(date, 'yyyy-MM-dd'));
 			//setSelectedTurn(selectedTurn+1); 
 			console.warn("A date has been actualDate: ", date);
 			console.warn("timetableIndex: ", timetableIndex);
-			if(route.params?.journeyType=="RouteBusJourney"){
-				appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[timetableIndex].addDate(selectedDate, format(date, 'yyyy-MM-dd'));
-			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-				appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables[timetableIndex].addDate(selectedDate,format(date, 'yyyy-MM-dd'));
+			
+			const config: AxiosRequestConfig = {
+				headers: {
+					'Accept': 'application/json',
+					'token': appStore.user.accessToken
+				} as RawAxiosRequestHeaders,
+			};
+			
+			const data = {
+				date: format(date, 'yyyy-MM-dd')
+			};
+			
+
+			try {
+				if(route.params?.journeyType=="RouteBusJourney"){
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/dates/add`, data, config);
+					if(response.status == 200){
+						appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[timetableIndex].addDate(selectedDate, format(date, 'yyyy-MM-dd'));
+						setSelectedDate(selectedDate+1); 
+					}
+				}else if(route.params?.journeyType=="RouteBusReturnJourney"){
+					const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/`+route.params.scheduleIndex+`/timetables/`+timetableIndex+`/dates/add`,data, config);
+					if(response.status == 200){
+						appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables[timetableIndex].addDate(selectedDate,format(date, 'yyyy-MM-dd'));
+						setSelectedDate(selectedDate+1); 
+					}
+				}
+				
+				
+			} catch(err) {
+				console.log(err);
 			}
-			setSelectedDate(selectedDate+1); 
 			
 			/*
 			if(route.params?.journeyType=="RouteBusJourney"){
@@ -815,7 +864,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 								        style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
 										onPress={({ nativeEvent }) => {
 												console.log('On Press action:', nativeEvent.event);
-												navigation && navigation.navigate("RouteBusTurnUpdate",{ "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
+												navigation && navigation.navigate("RouteBusTurnUpdate",{ "scheduleIndex": route.params.scheduleIndex, "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
 												}}
 										onLongPress={({ nativeEvent }) => {
 												setSelectedTurn(index);

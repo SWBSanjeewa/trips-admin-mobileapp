@@ -823,16 +823,6 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneySchedulesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
 				</View>
 			</Card>
-			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}>
-				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Timetables</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusJourney"})}/>
-				</View>
-			</Card>
-			
-
-			
-			
 		</Card>
 
 		<Card style={styles.item}>
@@ -853,13 +843,6 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 					<Text>Schedules</Text>
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneySchedulesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}/>
-				</View>
-			</Card>
-
-			<Card style={{ marginTop: 10, borderRadius:10}} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}>
-				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Timetables</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.objectId, journeyType: "RouteBusReturnJourney"})}/>
 				</View>
 			</Card>
 		</Card>

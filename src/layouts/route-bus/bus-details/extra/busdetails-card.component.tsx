@@ -115,8 +115,12 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 					schedule.timetables.forEach((timetable,timetable_index) => {
 						appStore.routeBus.journey.schedules[schedule_index].addTimetable(timetable.type, timetable.runningDays);
 						timetable.turns.forEach(turn => {
-							appStore.routeBus.journey.schedules[schedule_index].timetables[timetable_index].addTurn(turn.onboardStartTime,turn.startTime,turn.runningNo,turn.stoppings,turn.registrationNo,turn.licenseNo);
+							appStore.routeBus.journey.schedules[schedule_index].timetables[timetable_index].addTurn(turn.onboardStartTime,turn.startTime,turn.runningNo,turn.stoppings,turn.registrationNo,turn.licenseNo,turn.eitherBuses);
 							console.log("Turn"+schedule.fromDate+" "+schedule.toDate);
+						});
+						timetable?.dates?.forEach((sdate,date_index) => {
+							appStore.routeBus.journey.schedules[schedule_index].timetables[timetable_index].addDate(date_index,sdate);
+							//console.log("Turn"+schedule.fromDate+" "+schedule.toDate);
 						});
 					});
 				});

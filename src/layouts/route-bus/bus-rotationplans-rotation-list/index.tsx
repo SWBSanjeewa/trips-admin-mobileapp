@@ -76,8 +76,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
 	const [isEditModeDatePickerVisible, setEditModeDatePickerVisibility] = useState(false);
-	
 
+	const [copyFromTimetablesChecked, setCopyFromTimetablesChecked] = useState(false);
 
 
 	const client = axios.create({
@@ -89,6 +89,15 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		addCallback(false);
 		
 	};
+
+	const onCopyFromTimetablesChecked = (): void => {
+		setCopyFromTimetablesChecked(!copyFromTimetablesChecked);
+	};
+
+	
+	const getJourneyTurnRunningNumbers = (): void => {
+     //  .journey.schedules[].timetables[].turns[].runningNo
+    };
 
 	
 	const onTimetableDetailsPress = async (timetable,index) => {
@@ -398,6 +407,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	return (
 	
 		<ScrollView>
+			<CheckBox style={{ margin: 2}}  checked={copyFromTimetablesChecked} onChange={onCopyFromTimetablesChecked}>Copy from timetables</CheckBox>
 			{add && (
 			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
 			    <View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>	

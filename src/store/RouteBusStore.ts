@@ -191,8 +191,8 @@ const Turn = types.model({
       self.eitherBuses.splice(index, 0, {regNo,licenseNo,date});
     },
     deleteAEitherBusByIndex(index){
-      console.log("deleteAllowedBusByIndex:"+index);
-      self.eitherBuses.remove(self.allowedBuses[index]);
+     // console.log("deleteAllowedBusByIndex:"+index);
+      self.eitherBuses.remove(self.eitherBuses[index]);
     },
     updateAEitherBusByIndex(regNo,licenseNo,date,index){
       const eitherBus = self.eitherBuses[index];
@@ -221,9 +221,9 @@ export const Timetable = types.model({
     self.runningDays = "";
     self.turns=Turn[0];
   },
-  addTurn(onboardStartTime,startTime,runningNo,stoppings,registrationNo,licenseNo){
+  addTurn(onboardStartTime,startTime,runningNo,stoppings,registrationNo,licenseNo,eitherBuses){
     console.log("Add turns");
-    self.turns.push({onboardStartTime,startTime,runningNo,stoppings,registrationNo,licenseNo})
+    self.turns.push({onboardStartTime,startTime,runningNo,stoppings,registrationNo,licenseNo,eitherBuses})
   },
   addDate(index,date){
     console.log("index:"+index+" date:"+date);
