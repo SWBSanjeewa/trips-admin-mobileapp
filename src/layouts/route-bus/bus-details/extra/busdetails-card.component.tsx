@@ -135,6 +135,21 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				});
 		    }
 
+			if(response.data.rotationBuses != null){
+				response.data.rotationBuses.forEach(element => {
+					appStore.routeBus.addRotationBus(element.regNo, element.licenseNo, element.startEnd);
+				});
+		    }
+
+			if(response.data.rotationPlans != null){
+				response.data.rotationPlans.forEach((rotationPlan, rotationPlan_index) => {
+					appStore.routeBus.addRotationPlan(rotationPlan.fromDate, rotationPlan.toDate);
+					rotationPlan.busAssigns.forEach((busAssign,busAssign_index) => {
+						appStore.routeBus.rotationPlans[rotationPlan_index].addBusAssgin(busAssign.regNo, busAssign.runningNo);
+					})	
+				});
+		    }
+
 			if(response.data.returnJourney.schedules != null){
 				response.data.returnJourney.schedules.forEach((schedule,schedule_index) => {
 					appStore.routeBus.returnJourney.addSchedule(schedule.fromDate, schedule.toDate);

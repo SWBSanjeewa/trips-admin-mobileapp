@@ -200,7 +200,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	}
 
-	const onRotationPlanAddPress = async() => {
+	const onRotationPlanAddPress1 = async() => {
 		//console.log(appStore.routeBusTimetable.type+"::"+appStore.routeBusTimetable.runningDays.toString());
 		appStore.routeBus.addRotationPlan(fromDate, toDate);
 		console.log("*****");
@@ -208,11 +208,75 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		addCallback(false);
 	}
 
-	const onRotationPlanEditPress = async() => {
+
+	const onRotationPlanAddPress = async() => {
+	
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		const data = {
+			fromDate: fromDate,
+			toDate: toDate
+		};
+
+		
+		try {
+			
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationPlans/add/`,data , config);
+			if(response.status == 200){
+				appStore.routeBus.addRotationPlan(fromDate, toDate);
+				console.log("*****");
+				setDefaultDate(new Date());
+				addCallback(false);
+			}
+			
+			
+		} catch(err) {
+			console.log(err);
+		}
+	}
+
+	const onRotationPlanEditPressBck = async() => {
 		appStore.routeBus.rotationPlans[rotationPlanIndex].setFromDate(fromDate);
 		appStore.routeBus.rotationPlans[rotationPlanIndex].setToDate(toDate);
 		setDefaultDate(new Date());
 		setEdit(false);
+	}
+
+
+	const onRotationPlanEditPress = async() => {
+	
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		const data = {
+			fromDate: fromDate,
+			toDate: toDate
+		};
+
+
+		try {
+			
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationPlans/`+rotationPlanIndex+`/edit`,data , config);
+			if(response.status == 200){
+				appStore.routeBus.rotationPlans[rotationPlanIndex].setFromDate(fromDate);
+				appStore.routeBus.rotationPlans[rotationPlanIndex].setToDate(toDate);
+				setDefaultDate(new Date());
+				setEdit(false);
+			}
+			
+			
+		} catch(err) {
+			console.log(err);
+		}
 	}
 
 	
@@ -226,10 +290,35 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		refRBSheetDeleteConfirm.current.close()
 	};
 
-	const onDeleteConfirmPress = (): void => {
+	const onDeleteConfirmPressBck = (): void => {
 		appStore.routeBus.deleteRotationPlanByIndex(rotationPlanIndex);
 		refRBSheetDeleteConfirm.current.close()
 	};
+
+
+	const onDeleteConfirmPress = async() => {
+			
+			
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		try {
+			
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationPlans/`+rotationPlanIndex+`/delete` , config);
+			if(response.status == 200){
+				appStore.routeBus.deleteRotationPlanByIndex(rotationPlanIndex);
+				refRBSheetDeleteConfirm.current.close()
+			}
+			
+			
+		} catch(err) {
+			console.log(err);
+		}
+	}
 
 	
 

@@ -79,7 +79,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const [selectedIndexReturnJourneyRegNo, setSelectedIndexReturnJourneyRegNo] = useState(new IndexPath(0));
 
 	
-
 	
   //	const displayValueEdit = routeBusTimetableTypes[selectedIndexEdit.row];
    
@@ -162,7 +161,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	
 	
 
-	const onAssignBusAddPress = async() => {
+	const onAssignBusAddPressBck = async() => {
 		if(tabSelectedIndex){
 			appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(returnJourneyRegNo, displayValueEdit);
 			setSelectedIndexReturnJourneyRegNo(0);
@@ -171,17 +170,97 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			setSelectedIndexReturnJourneyRegNo(0);
 			
 		}
-		
-		
 		addCallback(false);
 	}
 
+
+	const onAssignBusAddPress = async() => {
+		
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		const data = {
+			regNo: "",
+			runningNo: displayValueEdit
+		};
+
+		if(tabSelectedIndex==1){
+			data.regNo = returnJourneyRegNo;
+		}else{
+			data.regNo = regNo;
+		}
+
+		try {
+			console.log(`/routebuses/`+appStore.routeBus.objectId+`/rotationPlans/`+route.params.rotationPlan_index+`/busAssigns/add`);
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationPlans/`+route.params.rotationPlan_index+`/busAssigns/add`,data , config);
+			if(response.status == 200){
+				if(tabSelectedIndex==1){
+					appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(returnJourneyRegNo, displayValueEdit);
+					setSelectedIndexReturnJourneyRegNo(0);
+				}else{
+					appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(regNo, displayValueEdit);
+					setSelectedIndexReturnJourneyRegNo(0);
+					
+				}
+				addCallback(false);
+			}
+			
+			
+		} catch(err) {
+			console.log(err);
+		}
+	}
+
 	
-	const onAssignBusEditPress = (): void => {	
+	const onAssignBusEditPressbck = (): void => {	
 		console.log("assignBusIndex::"+assignBusIndex);
 		appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns[assignBusIndex].setRunningNo(displayValueEdit);
 		setAssignBusIndex(-1);
 		setEdit(false);
+	}
+
+	const onAssignBusEditPress = async() => {
+		
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		const data = {
+			regNo: "",
+			runningNo: displayValueEdit
+		};
+
+		if(tabSelectedIndex==1){
+			data.regNo = returnJourneyRegNo;
+		}else{
+			data.regNo = regNo;
+		}
+
+		try {
+			console.log(`/routebuses/`+appStore.routeBus.objectId+`/rotationPlans/`+route.params.rotationPlan_index+`/busAssigns/`+assignBusIndex+`/edit`);
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationPlans/`+route.params.rotationPlan_index+`/busAssigns/`+assignBusIndex+`/edit`,data , config);
+			if(response.status == 200){
+				if(tabSelectedIndex==1){
+					appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns[assignBusIndex].setRegNo(returnJourneyRegNo);
+				}else{
+					appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns[assignBusIndex].setRegNo(regNo);	
+				}
+				appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns[assignBusIndex].setRunningNo(displayValueEdit);
+				setAssignBusIndex(-1);
+				setEdit(false);
+			}
+			
+			
+		} catch(err) {
+			console.log(err);
+		}
 	}
 
 	
@@ -194,10 +273,35 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		refRBSheetDeleteConfirm.current.close()
 	};
 
-	const onDeleteConfirmPress = (): void => {
+	const onDeleteConfirmPressBck = (): void => {
 		appStore.routeBus.rotationPlans[route.params.rotationPlan_index].deleteAssignBusByIndex(assignBusIndex);
 		refRBSheetDeleteConfirm.current.close()
 	};
+
+
+	const onDeleteConfirmPress = async() => {
+				
+				
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		try {
+			
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationPlans/`+route.params.rotationPlan_index+`/busAssigns/`+assignBusIndex+`/delete` , config);
+			if(response.status == 200){
+				appStore.routeBus.rotationPlans[route.params.rotationPlan_index].deleteAssignBusByIndex(assignBusIndex);
+				refRBSheetDeleteConfirm.current.close()
+			}
+			
+			
+		} catch(err) {
+			console.log(err);
+		}
+	}
 
 	
 

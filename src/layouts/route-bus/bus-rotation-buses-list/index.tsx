@@ -8,9 +8,8 @@ import { toJS } from "mobx";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useRoute } from "@react-navigation/native"
 
-import {
-	MaterialIcons as MDIcon
-} from '@expo/vector-icons';
+import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
+
 import RBSheet from 'react-native-raw-bottom-sheet';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -49,7 +48,9 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const refRBSheetEdit = useRef();
 
 	
-
+	const client = axios.create({
+		baseURL: 'https://routes.lk:7007'
+	});
 
 	const isValidValues = (): any => {
 		
@@ -65,17 +66,47 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	
 	const onCreatePress = async() => {
-		console.log("selectedIndex::"+selectedIndex);
+		
 		isValidValues()
+	
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		const data = {
+			regNo: regNo,
+			licenseNo: licenseNo,
+			startEnd: ""
+		};
+
 		if(selectedIndex==0){
-			appStore.routeBus.addRotationBus(regNo,licenseNo,appStore.routeBus.journey.stoppings[0].place);
+			data.startEnd = regNo,licenseNo,appStore.routeBus.journey.stoppings[0].place;
 		}else{
-			appStore.routeBus.addRotationBus(regNo,licenseNo,appStore.routeBus.returnJourney.stoppings[0].place);
+			data.startEnd = appStore.routeBus.returnJourney.stoppings[0].place;
 		}
-		console.log(JSON.stringify(toJS(appStore.routeBus)));	
-		setRegNo("");
-		setLicenseNo("");
-		addCallback(false);
+
+		try {
+			
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationBuses/add/`,data , config);
+			if(response.status == 200){
+				if(selectedIndex==0){
+					appStore.routeBus.addRotationBus(regNo,licenseNo,appStore.routeBus.journey.stoppings[0].place);
+				}else{
+					appStore.routeBus.addRotationBus(regNo,licenseNo,appStore.routeBus.returnJourney.stoppings[0].place);
+				}
+		
+				setRegNo("");
+				setLicenseNo("");
+				addCallback(false);
+			}
+			
+			
+		} catch(err) {
+			console.log(err);
+		}
 	}
 
 	const onRotationBusEditPress = async() => {
@@ -134,7 +165,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		refRBSheetDeleteConfirm.current.open()
 	};
 
-	const onUpdatePress = (): void => {
+	const onUpdatePressBck = (): void => {
 		if(selectedIndex){
 			appStore.routeBus.updateRotationBusByIndex(regNo, licenseNo,appStore.routeBus.returnJourney.stoppings[0].place, allowedBusIndex);
 		}else{
@@ -146,16 +177,84 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		
 	};
 
+
+	const onUpdatePress = async() => {
+		
+		isValidValues()
+	
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		const data = {
+			regNo: regNo,
+			licenseNo: licenseNo,
+			startEnd: ""
+		};
+
+		if(selectedIndex==0){
+			data.startEnd = regNo,licenseNo,appStore.routeBus.journey.stoppings[0].place;
+		}else{
+			data.startEnd = appStore.routeBus.returnJourney.stoppings[0].place;
+		}
+
+		try {
+			
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationBuses/`+allowedBusIndex+`/edit`,data , config);
+			if(response.status == 200){
+				if(selectedIndex){
+					appStore.routeBus.updateRotationBusByIndex(regNo, licenseNo,appStore.routeBus.returnJourney.stoppings[0].place, allowedBusIndex);
+				}else{
+					appStore.routeBus.updateRotationBusByIndex(regNo, licenseNo,appStore.routeBus.journey.stoppings[0].place, allowedBusIndex);
+				}
+				setEdit(false);
+				setRegNo("");
+				setLicenseNo("");
+			}
+			
+			
+		} catch(err) {
+			console.log(err);
+		}
+	}
+
+
+
 	const onDeleteConfirmCancelPress = (): void => {
 		refRBSheetDeleteConfirm.current.close()
 	};
 
-	const onDeleteConfirmPress = (): void => {
-		appStore.routeBus.deleteRotationBusByIndex(allowedBusIndex);
-		setRegNo("");
-		setLicenseNo("");
-		refRBSheetDeleteConfirm.current.close();
-	};
+	
+
+
+	const onDeleteConfirmPress = async() => {
+		
+		
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		try {
+			
+			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationBuses/`+allowedBusIndex+`/delete` , config);
+			if(response.status == 200){
+				appStore.routeBus.deleteRotationBusByIndex(allowedBusIndex);
+				setRegNo("");
+				setLicenseNo("");
+				refRBSheetDeleteConfirm.current.close();
+			}
+			
+			
+		} catch(err) {
+			console.log(err);
+		}
+	}
 
 	
 	
