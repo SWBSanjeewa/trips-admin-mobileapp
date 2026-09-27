@@ -1,4 +1,4 @@
-import { Button, Card, Text,Input } from "@ui-kitten/components";
+import { Button, Card, Text,Input,Select,SelectItem,IndexPath ,Layout, TabView, Tab} from "@ui-kitten/components";
 import React,{useRef,useState} from "react";
 import { StyleSheet, View, TouchableOpacity, TextInput,ScrollView,Pressable} from "react-native";
 import AppStore from "../../../store/AppStore";
@@ -22,6 +22,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const appStore = useStore(AppStore);
 	const route = useRoute();
 
+	const [edit, setEdit] = useState(false);
+
 	const [regNo, setRegNo] = React.useState<string>("");
 	const [regNoFocus, setRegNoFocus] = React.useState<boolean>(false);
 	const regNoCustomStyle = regNoFocus ? styles.inputContainerFocus : styles.inputContainer;
@@ -32,6 +34,11 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const [licenseNoFocus, setLicenseNoFocus] = React.useState<boolean>(false);
 	const licenseNoCustomStyle = licenseNoFocus ? styles.inputContainerFocus : styles.inputContainer;
 	const [licenseNoErrorMessage, setLicenseNoErrorMessage] = React.useState<string>("");
+
+	
+	const [selectedIndex, setSelectedIndex] = useState(0);
+
+	const [displayValue, setDisplayValue] = useState(null);
 
 	const [allowedBusIndex, setAllowedBusIndex] = React.useState<number>(-1);
 	
@@ -58,19 +65,33 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	
 	const onCreatePress = async() => {
-		
+		console.log("selectedIndex::"+selectedIndex);
 		isValidValues()
-		appStore.routeBus.addRotationBus(regNo,licenseNo);
+		if(selectedIndex==0){
+			appStore.routeBus.addRotationBus(regNo,licenseNo,appStore.routeBus.journey.stoppings[0].place);
+		}else{
+			appStore.routeBus.addRotationBus(regNo,licenseNo,appStore.routeBus.returnJourney.stoppings[0].place);
+		}
 		console.log(JSON.stringify(toJS(appStore.routeBus)));	
 		setRegNo("");
 		setLicenseNo("");
 		addCallback(false);
-		
-
 	}
+
+	const onRotationBusEditPress = async() => {
+		console.log("#### onRotationBusEditPress ####");
+	}
+
+	
 
 	const onAddClosePress = (): void => {		
 		addCallback(false);
+		setRegNo("");
+		setLicenseNo("");
+	};
+
+	const onEditClosePress = (): void => {		
+		setEdit(false);
 		setRegNo("");
 		setLicenseNo("");
 	};
@@ -105,7 +126,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	const onEditPress = async() => {
-		refRBSheetEdit.current.open();
+		setEdit(true);
+		refRBSheetActions.current.close();
 	};
 
 	const onDeletePress = (): void => {
@@ -113,12 +135,15 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	const onUpdatePress = (): void => {
-		//appStore.routeBus.updateAllowedBusByIndex(regNo, licenseNo, allowedBusIndex);
-		appStore.routeBus.updateRotationBusByIndex(regNo, licenseNo, allowedBusIndex);
+		if(selectedIndex){
+			appStore.routeBus.updateRotationBusByIndex(regNo, licenseNo,appStore.routeBus.returnJourney.stoppings[0].place, allowedBusIndex);
+		}else{
+			appStore.routeBus.updateRotationBusByIndex(regNo, licenseNo,appStore.routeBus.journey.stoppings[0].place, allowedBusIndex);
+		}
+		setEdit(false);
 		setRegNo("");
 		setLicenseNo("");
-		refRBSheetEdit.current.close();
-		refRBSheetActions.current.close();
+		
 	};
 
 	const onDeleteConfirmCancelPress = (): void => {
@@ -130,7 +155,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		setRegNo("");
 		setLicenseNo("");
 		refRBSheetDeleteConfirm.current.close();
-		refRBSheetActions.current.close();
 	};
 
 	
@@ -140,6 +164,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		
 		<ScrollView>
 
+			
+			
 			{add && (
 			<View>
 				 <View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>	
@@ -176,37 +202,123 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 			)}
 
+			{edit && (
+			<View>
+				 <View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>	
+					<AntDesign style={{top: 4}} name="close" size={18} color="#444" onPress={onEditClosePress} />
+				</View>
+			
+			<View>
+				
+				<View style={{ margin: 10}}>
+					<View style={styles.labelContainer}>
+						<Text style={styles.label}>RegNo</Text>
+					</View>
+					<View style={regNoCustomStyle}>
+						<TextInput key="regno" placeholder="NB-2222" onChangeText={setRegNo} value={regNo} />
+					</View>
+				</View>
+				<View style={{ margin: 10}}>
+					<View style={styles.labelContainer}>
+						<Text style={styles.label}>License No</Text>
+					</View>
+					<View style={licenseNoCustomStyle}>
+						<TextInput placeholder="12323" onChangeText={setLicenseNo} value={licenseNo} />
+					</View>
+				</View>
+				
+			</View>
+		
+
+			<View style={{flexDirection: "row", justifyContent: "space-between"}}>
+				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onUpdatePress()}>Edit</Button>
+			</View>
+
+			</View>
+
+			)}
+
+			
+			<TabView
+				selectedIndex={selectedIndex}
+				onSelect={index => setSelectedIndex(index)}>
+				<Tab title={appStore.routeBus.journey.stoppings[0].place} style={{ padding: 10}}>
+					<Layout style={{ flex: 1, justifyContent: 'left', alignItems: 'left', padding: 5 }}>
+						{appStore.routeBus.rotationBuses?.map((allowedBus,index) => (
+							<>
+							{allowedBus.startEnd == appStore.routeBus.journey.stoppings[0]?.place && (
+							<Card key={index} 
+							style={[
+							allowedBusIndex != index? styles.item : styles.itemSelected
+							]}
+							onPress={()=>onRotationBusPress(allowedBus.regNo,allowedBus.licenseNo,index)}>
+								
+								<Card>
+									<Text style={styles.itemHeader}>Reg No</Text>
+									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+										<Text>{allowedBus.regNo}</Text>	
+									</View>
+								</Card>
+
+								
+								
+								<Card>
+									<Text style={styles.itemHeader}>License No</Text>
+									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+										<Text>{allowedBus.licenseNo}</Text>
+										
+									</View>
+								</Card>
+								
+							</Card>
+							)}
+							</>
+						
+						))}
+					</Layout>
+				</Tab>
+				<Tab title={appStore.routeBus.returnJourney.stoppings[0].place}>
+					<Layout style={{ flex: 1, justifyContent: 'left', alignItems: 'left', padding: 5 }}>
+						{appStore.routeBus.rotationBuses?.map((allowedBus,index) => (
+							<>
+							{allowedBus.startEnd == appStore.routeBus.returnJourney.stoppings[0]?.place && (
+							<Card key={index} 
+							style={[
+							allowedBusIndex != index? styles.item : styles.itemSelected
+							]}
+							onPress={()=>onRotationBusPress(allowedBus.regNo,allowedBus.licenseNo,index)}>
+								
+								<Card>
+									<Text style={styles.itemHeader}>Reg No</Text>
+									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+										<Text>{allowedBus.regNo}</Text>	
+									</View>
+								</Card>
+
+								
+								
+								<Card>
+									<Text style={styles.itemHeader}>License No</Text>
+									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+										<Text>{allowedBus.licenseNo}</Text>
+										
+									</View>
+								</Card>
+								
+							</Card>
+							)}
+							</>
+						
+						))}
+					</Layout>
+				</Tab>
+			</TabView>
+
+			
 
 			<View>	
 				
-				{appStore.routeBus.rotationBuses?.map((allowedBus,index) => (
-					
-					<Card key={index} 
-					style={[
-				     allowedBusIndex != index? styles.item : styles.itemSelected
-					]}
-					onPress={()=>onRotationBusPress(allowedBus.regNo,allowedBus.licenseNo,index)}>
-						
-						<Card style={{ margin: 10}}>
-							<Text style={styles.itemHeader}>Reg No</Text>
-							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-								<Text>{allowedBus.regNo}</Text>
-								
-							</View>
-						</Card>
-
-						{allowedBus.licenseNo!= "" && (
-						
-						<Card style={{ margin: 10}}>
-							<Text style={styles.itemHeader}>License No</Text>
-							<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-								<Text>{allowedBus.licenseNo}</Text>
-								
-							</View>
-						</Card>
-						)}
-					</Card>
-				))}
+				
 
 				 
 
@@ -245,62 +357,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					
 
 			</RBSheet>
-			<RBSheet draggable dragOnContent key="" ref={refRBSheetEdit} height={300}>
-				<View>
-				
-				<View style={{ margin: 10}}>
-					<View style={styles.labelContainer}>
-						<Text style={styles.label}>RegNo</Text>
-					</View>
-					<View style={regNoCustomStyle}>
-						<TextInput placeholder="NB-2222" onChangeText={setRegNo} value={regNo} />
-					</View>
-				</View>
-				<View style={{ margin: 10}}>
-					<View style={styles.labelContainer}>
-						<Text style={styles.label}>License No</Text>
-					</View>
-					<View style={licenseNoCustomStyle}>
-						<TextInput placeholder="12323" onChangeText={setLicenseNo} value={licenseNo} />
-					</View>
-				</View>
-				
-			</View>
-			</RBSheet>
-			<RBSheet draggable dragOnContent key="busAllowedBusEdit" ref={refRBSheetEdit} height={450}>
-					<View>
-
-						<View style={{padding: 10}}>
-							<Text style={{padding: 15}}>Reg No</Text>
-						
-							<Input
-								style={{paddingHorizontal: 10}}
-								placeholder="Name"
-								value={regNo}
-								selectionColor="#197519"
-								cursorColor="#197519"
-								onChangeText={(text) => setRegNo(text)} 
-							/>
-						</View>
-
-						<View style={{padding: 10}}>
-							<Text style={{padding: 15}}>License No</Text>
-						
-							<Input
-								style={{paddingHorizontal: 10}}
-								placeholder="License Number"
-								value={licenseNo}
-								selectionColor="#197519"
-								cursorColor="#197519"
-								onChangeText={(text) => setLicenseNo(text)} 
-							/>
-						</View>
-						
-						<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
-						<Button style={{ flex: 1, borderRadius:50, margin: 10}} size="large" onPress={()=>onUpdatePress()}>Update</Button>
-						</View>
-					</View>
-				</RBSheet>
+			
+			
 			
 		</ScrollView>
 		

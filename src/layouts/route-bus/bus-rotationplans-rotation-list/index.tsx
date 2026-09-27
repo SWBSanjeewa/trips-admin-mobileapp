@@ -1,4 +1,4 @@
-import { Select, TopNavigationAction, IndexPath,SelectItem } from "@ui-kitten/components";
+import { Select, TopNavigationAction, IndexPath,SelectItem, Layout, TabView, Tab } from "@ui-kitten/components";
 import { Button, Card, CheckBox, List, Divider,Input } from "@ui-kitten/components";
 import React,{useState,useEffect,useRef} from "react";
 import { useRoute } from "@react-navigation/native"
@@ -25,10 +25,6 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 
-
-
-
-
 //const RouteBusJourneyDetails = ({ navigation }): React.ReactElement => {
 export default observer(React.forwardRef(({ navigation,addCallback, add },ref) => {
 
@@ -41,6 +37,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const [displaySelectedDays, setDisplaySelectedDays] = useState(false);
 
 	const [runningDays, setRunningDays] = React.useState([2,3,4,5,6])
+
+	const [runningNos, setRunningNos] = React.useState([])
 	
 	const appStore = useStore(AppStore);
 
@@ -60,7 +58,11 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const [defaultDate, setDefaultDate] = React.useState<Date>(new Date());
 
-	const [timetableIndex, setTimetableIndex] = React.useState<number>(-1);
+	const [assignBusIndex, setAssignBusIndex] = React.useState<number>(-1);
+
+	const [tabSelectedIndex, setTabSelectedIndex] = useState(0);
+
+	const [selectedIndex1, setSelectedIndex1] = useState(0);
 
 	const refRBSheetActions = useRef();
 
@@ -71,15 +73,29 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
   	const displayValue = routeBusTimetableTypes[selectedIndex.row];
 
 	const [selectedIndexEdit, setSelectedIndexEdit] = useState(new IndexPath(0));
-  	const displayValueEdit = routeBusTimetableTypes[selectedIndexEdit.row];
+
+	const [selectedIndexRegNo, setSelectedIndexRegNo] = useState(new IndexPath(0));
+
+	const [selectedIndexReturnJourneyRegNo, setSelectedIndexReturnJourneyRegNo] = useState(new IndexPath(0));
+
+	
+
+	
+  //	const displayValueEdit = routeBusTimetableTypes[selectedIndexEdit.row];
+   
+	const [displayValueEdit, setDisplayValueEdit] = useState("");
+
+	const [regNo, setRegNo] = useState("");
+
+	const [returnJourneyRegNo, setReturnJourneyRegNo] = useState("");
+
+	
 
 	const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
 	const [isEditModeDatePickerVisible, setEditModeDatePickerVisibility] = useState(false);
 
-	const [copyFromTimetablesChecked, setCopyFromTimetablesChecked] = useState(false);
-
-
+	
 	const client = axios.create({
 		baseURL: 'https://routes.lk:7007'
 	});
@@ -90,88 +106,49 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		
 	};
 
-	const onCopyFromTimetablesChecked = (): void => {
-		setCopyFromTimetablesChecked(!copyFromTimetablesChecked);
-	};
-
 	
-	const getJourneyTurnRunningNumbers = (): void => {
-     //  .journey.schedules[].timetables[].turns[].runningNo
-    };
-
 	
-	const onTimetableDetailsPress = async (timetable,index) => {
-		setTimetableIndex(index);
+	
+	const onAssignBusPress = async (assignBus,index) => {
+		setAssignBusIndex(index);
 		refRBSheetActions.current.open();
 	};
 
-	const onDeleteTurn = (tIndex: number,index: number) => () =>  {
-		if(route.params?.journeyType=="RouteBusJourney"){
-			appStore.routeBus.journey.schedules[route.params?.scheduleIndex].deleteTurnByIndex(tIndex,index);
-		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].deleteTurnByIndex(tIndex,index);
+	
+
+	useEffect(() => {
+
+		var allRunningNos = appStore.routeBus.getAllRunningNos();
+		setDisplayValueEdit(allRunningNos[0]);
+		const stoppings = appStore.routeBus.journey.stoppings;
+		if (stoppings && stoppings.length > 0) {
+			const targetPlace = stoppings[0].place;
+
+			for (const rotationBus of appStore.routeBus.rotationBuses) {
+				if (rotationBus.startEnd === targetPlace) {
+				setRegNo(rotationBus.regNo);
+				break; // Successfully stops the loop early
+				}
+			}
 		}
-		setSelectedTurn(-1);
-	}
 
-	const onEditModeAddDate = (tIndex: number) => () =>  {
-		setDatePickerVisibility(true);
-		setTimetableIndex(tIndex);
-		if(selectedDate == -1 || timetableIndex != tIndex)
-			setSelectedDate(appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[tIndex].dates.length-1);
-	}
-	
-	const onEditModeAddTurn = (tIndex: number) => () =>  {
-       console.log("tIndex:"+tIndex+" selectedTurn:"+selectedTurn);
+		const returJourneyStoppings = appStore.routeBus.returnJourney.stoppings;
+		if (returJourneyStoppings && returJourneyStoppings.length > 0) {
+			const targetPlace = returJourneyStoppings[0].place;
 
-	   if(route.params?.journeyType=="RouteBusJourney"){
-		if(tIndex > -1){
-				
-				if(selectedTurn > -1){
-					const [hours, minutes] = appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[timetableIndex].turns[selectedTurn].startTime.split(':');
-					console.log("hours>>"+hours);
-					defaultDate.setHours(hours, minutes, 0, 0); 
-				}else{
-					var turnsSize=appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[timetableIndex]?.turns.length;
-					if(turnsSize>0){
-						const [hours, minutes] = appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[timetableIndex]?.turns[turnsSize-1].startTime.split(':');
-						console.log("hours>>"+hours);
-						defaultDate.setHours(hours, minutes, 0, 0); 
-					}
-
+			for (const rotationBus of appStore.routeBus.rotationBuses) {
+				if (rotationBus.startEnd === targetPlace) {
+				setReturnJourneyRegNo(rotationBus.regNo);
+				break; // Successfully stops the loop early
 				}
 			}
+		}
+		
+	}, [appStore.routeBus?.rotationPlans[route.params.rotationPlan_index]?.busAssigns?.length]); 
 
-		setEditModeDatePickerVisibility(true);
-		setTimetableIndex(tIndex);
-		if(selectedTurn == -1 || timetableIndex != tIndex)
-			setSelectedTurn(appStore.routeBus.journey.schedules[route.params?.scheduleIndex].timetables[tIndex].turns.length-1);
 	
-	   }else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			if(tIndex > -1){
-				
-				if(selectedTurn > -1){
-					const [hours, minutes] = appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables[timetableIndex].turns[selectedTurn].startTime.split(':');
-					console.log("hours>>"+hours);
-					defaultDate.setHours(hours, minutes, 0, 0); 
-				}else{
-					var turnsSize=appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables[timetableIndex]?.turns.length;
-					if(turnsSize>0){
-						const [hours, minutes] = appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables[timetableIndex]?.turns[turnsSize-1].startTime.split(':');
-						console.log("hours>>"+hours);
-						defaultDate.setHours(hours, minutes, 0, 0); 
-					}
-
-				}
-			}
-
-		setEditModeDatePickerVisibility(true);
-		setTimetableIndex(tIndex);
-		if(selectedTurn == -1 || timetableIndex != tIndex)
-			setSelectedTurn(appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].timetables[tIndex].turns.length-1);
-	   }
-	   
-    };
+	
+	
 
 	
 	const hideDatePicker = () => {
@@ -183,75 +160,27 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	
-	/*
-	const onTimetableAddPress1 = async() => {
-		console.log("onTimetableAddPress");
-		setTimetableIndex(-1);
-		setSelectedTurn(-1);
-		console.log("appStore.routeBusTimetable.type:"+appStore.routeBusTimetable.type);
-		if(appStore.routeBusTimetable.type == ""){
-			appStore.routeBusTimetable.setTimetableType(routeBusTimetableTypes[0]);
-		}
-		if(appStore.routeBusTimetable.type == "Selected Days"){
-			if(appStore.routeBusTimetable.runningDays == ""){
-			appStore.routeBusTimetable.setRunningDays(runningDays?.toString());
-			}
-		}
-		console.log(">>"+JSON.stringify(toJS(appStore.routeBusTimetable)));	
-		console.log(">>>>"+JSON.stringify(toJS(appStore.routeBusTimetable.type+","+appStore.routeBusTimetable.runningDays.toString())));	
-	   
-		addCallback(false);
-		console.log("Routebus:"+appStore.routeBus);
-		console.log("::"+JSON.stringify(toJS(appStore.routeBus)));	
-		setRunningDays([2,3,4,5,6]);
-		setSelectedIndex(new IndexPath(0));
-		setSelectedDaysSelected(false);
-		console.log("Adding:"+appStore.routeBusTimetable.type+" - "+appStore.routeBusTimetable.runningDays?.toString())
-		appStore.routeBus.journey.schedules[route.params?.scheduleIndex].addTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
+	
 
-	}
-	*/
-
-	const onTimetableAddPress = async() => {
-		console.log("onTimetableAddPress");
-		if(appStore.routeBusTimetable.type == ""){
-			appStore.routeBusTimetable.setTimetableType(routeBusTimetableTypes[0]);
+	const onAssignBusAddPress = async() => {
+		if(tabSelectedIndex){
+			appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(returnJourneyRegNo, displayValueEdit);
+			setSelectedIndexReturnJourneyRegNo(0);
+		}else{
+			appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(regNo, displayValueEdit);
+			setSelectedIndexReturnJourneyRegNo(0);
+			
 		}
-		if(appStore.routeBusTimetable.type == "Selected Days"){
-			if(appStore.routeBusTimetable.runningDays == ""){
-				appStore.routeBusTimetable.setRunningDays(runningDays.toString());
-			}
-		}
-		console.log("route.params?.journeyType::"+route.params?.journeyType);
-		console.log("route.params?.scheduleIndex::"+route.params?.scheduleIndex);
-		console.log(appStore.routeBusTimetable.type+"::"+appStore.routeBusTimetable.runningDays.toString());
-		if(route.params?.journeyType=="RouteBusJourney"){
-		    appStore.routeBus.journey.schedules[route.params?.scheduleIndex].addTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
-		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].addTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
-		}
-		console.log("*****");
-		setDefaultDate(new Date());
-		setTimetableIndex(-1);
+		
+		
 		addCallback(false);
 	}
 
 	
-	const onTimetableEditPress = (): void => {	
-		let timetable;
-		if(route.params?.journeyType=="RouteBusJourney"){
-		    timetable = appStore.routeBus.journey.timetables[timetableIndex];
-		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			timetable = appStore.routeBus.returnJourney.timetables[timetableIndex];
-		}
-		 
-	
-		timetable?.setTimetableType(routeBusTimetableTypes[selectedIndexEdit-1]);
-		if(timetable?.type == "Selected Days"){
-			timetable.setRunningDays(runningDays.toString());
-		}
-		setTimetableIndex(-1);
-		setSelectedTurn(-1);
+	const onAssignBusEditPress = (): void => {	
+		console.log("assignBusIndex::"+assignBusIndex);
+		appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns[assignBusIndex].setRunningNo(displayValueEdit);
+		setAssignBusIndex(-1);
 		setEdit(false);
 	}
 
@@ -266,60 +195,20 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	const onDeleteConfirmPress = (): void => {
+		appStore.routeBus.rotationPlans[route.params.rotationPlan_index].deleteAssignBusByIndex(assignBusIndex);
 		refRBSheetDeleteConfirm.current.close()
 	};
 
 	
 
-	const getIndexNumber = (timetableType): number => {	
-		var myindex = 0;
-		routeBusTimetableTypes.map(function(element, index){
-			if(element == timetableType){
-				myindex=index;
-			}
-		});
-		return myindex;
-	};
 	
 	const onEditPress = async() => {
-		//addCallback();
 		
-		var timetableRunningDays;
-
-		//console.log(">"+appStore.routeBusTimetable.type);
-		//console.log("Timetable Index:"+getIndexNumber(appStore.routeBus.journey.timetables.at(timetableIndex)?.type));
-		if(route.params?.journeyType=="RouteBusJourney"){
-			setSelectedIndex(new IndexPath(getIndexNumber(appStore.routeBus.journey.timetables.at(timetableIndex)?.type)));
-			if(appStore.routeBus.journey.timetables.at(timetableIndex)?.type == "Selected Days"){
-				setSelectedDaysSelected(true);
-			}else{
-				setSelectedDaysSelected(false);
-			}
-		    timetableRunningDays = appStore.routeBus.journey.timetables.at(timetableIndex)?.runningDays.split(',').map(function(item) {
-				return parseInt(item, 10);
-			});
-		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			setSelectedIndex(new IndexPath(getIndexNumber(appStore.routeBus.returnJourney.timetables.at(timetableIndex)?.type)));
-			if(appStore.routeBus.returnJourney.timetables.at(timetableIndex)?.type == "Selected Days"){
-				setSelectedDaysSelected(true);
-			}else{
-				setSelectedDaysSelected(false);
-			}
-			timetableRunningDays = appStore.routeBus.returnJourney.timetables.at(timetableIndex)?.runningDays.split(',').map(function(item) {
-				return parseInt(item, 10);
-			});
-		}
-		if(timetableRunningDays){
-			setRunningDays(timetableRunningDays);
-		}
+		console.log("****"+appStore.routeBus.getAllRunningNos());
+		setDisplayValueEdit(appStore.routeBus.getAllRunningNos()[0]);
 		setEdit(true);
 		
 	};
-	
-	const setSelectedDaysRunningDays = (value) => {
-		setRunningDays(value);
-		appStore.routeBusTimetable.setRunningDays(value.toString());
-	}
 
 	const handleEditModeConfirm = (date) => {	
 			hideEditModeDatePicker();  
@@ -339,12 +228,23 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 
 	const onRouteEditTimetableTypeSelect = async (index) => {
-		console.log("#####");
+		console.log("##### index"+index);
 		setSelectedIndexEdit(index);
-		
-		
-
+		//console.log("##### runningNo"+appStore.routeBus.getAllRunningNos()[selectedIndexEdit]);
+		setDisplayValueEdit(appStore.routeBus.getAllRunningNos()[index-1]);
 	}
+
+	const onRegNoSelect = async (index) => {
+		setSelectedIndexRegNo(index);
+		setRegNo(appStore.routeBus.rotationBuses?.filter(rotationBus => rotationBus?.startEnd === appStore.routeBus.journey.stoppings[0]?.place)[index-1].regNo);
+	}
+
+	const onReturnJourneyRegNoSelect = async (index) => {
+		setSelectedIndexReturnJourneyRegNo(index);
+		setReturnJourneyRegNo(appStore.routeBus.rotationBuses?.filter(rotationBus => rotationBus?.startEnd === appStore.routeBus.returnJourney.stoppings[0]?.place)[index-1].regNo);
+	}
+
+	
 
 	const onEditClosePress = (): void => {	
 		setSelectedIndex(new IndexPath(0));
@@ -354,23 +254,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		setEdit(false);
 	};
 
-	
-	const onRouteTimetableTypeSelect = (index): void => {
-		setSelectedIndex(index);
-		if(routeBusTimetableTypes[index-1] == "Selected Days"){
-			console.log("&&&&"+routeBusTimetableTypes[index-1]);
-			setSelectedDaysSelected(true);
-		}else{
-			setSelectedDaysSelected(false);
-		}
-		if(routeBusTimetableTypes[index-1] == "Selected Dates"){
-			setSelectedDatesSelected(true);
-		}else{
-			setSelectedDatesSelected(false);
-		}
-		console.log("routeBusTimetableTypes[index-1]:"+routeBusTimetableTypes[index-1]);
-		appStore.routeBusTimetable.setTimetableType(routeBusTimetableTypes[index-1]);
-	};
 
 	const handleDateConfirm = (date) => {	
 		hideDatePicker();  
@@ -403,44 +286,74 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		setSelectedDate(-1);
 	}
 
+	const onBusAssignPress = async (regNo,licenseNo,index) => {
+		setAssignBusIndex(index);
+		//setRegNo(regNo);
+		//setLicenseNo(licenseNo);
+		refRBSheetActions.current.open();
+	};
+
+	
+	
+
 	
 	return (
 	
 		<ScrollView>
-			<CheckBox style={{ margin: 2}}  checked={copyFromTimetablesChecked} onChange={onCopyFromTimetablesChecked}>Copy from timetables</CheckBox>
+			
 			{add && (
 			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
 			    <View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>	
 					<AntDesign style={{top: 4}} name="close" size={18} color="#444" onPress={onAddClosePress} />
 				</View>
 				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
 					<View style={{ margin: 10}}>
-						
+						<Text style={{ padding: 5, paddingLeft: 10}}>Reg No</Text>
+						{tabSelectedIndex == 0 && (
 						<Select
-							selectedIndex={selectedIndex}
-							onSelect={(index) => onRouteTimetableTypeSelect(index)}
-							value={displayValue}>
-							{routeBusTimetableTypes.map((title, index) => (
-							<SelectItem key={index} title={title} />
+							selectedIndex={selectedIndexRegNo}
+							onSelect={(index) => onRegNoSelect(index)}
+							value={regNo}>
+							{appStore.routeBus.rotationBuses
+								.filter(rotationBus => rotationBus?.startEnd === appStore.routeBus.journey.stoppings[0]?.place)
+								.map((rotationBus, index) => (
+									<SelectItem key={rotationBus?.id || index} title={rotationBus?.regNo} />
+								))
+								}
+						</Select>
+						)}
+						{tabSelectedIndex != 0 && (
+						<Select
+							selectedIndex={selectedIndexReturnJourneyRegNo}
+							onSelect={(index) => onReturnJourneyRegNoSelect(index)}
+							value={returnJourneyRegNo}>
+							{appStore.routeBus.rotationBuses
+								.filter(rotationBus => rotationBus?.startEnd === appStore.routeBus.returnJourney.stoppings[0]?.place)
+								.map((rotationBus, index) => (
+									<SelectItem key={rotationBus?.id || index} title={rotationBus?.regNo} />
+								))
+								}
+						</Select>
+						)}
+					</View>
+
+					<View style={{ margin: 10}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Runnning No</Text>
+						<Select
+							selectedIndex={selectedIndexEdit}
+							onSelect={(index) => onRouteEditTimetableTypeSelect(index)}
+							value={displayValueEdit}>
+							{appStore.routeBus.getAllRunningNos().map((runningNo, index) => (
+							<SelectItem key={index} title={runningNo} />
 							))}
 						</Select>
 					</View>
-					{selectedDaysSelected && (
-					<DayPicker
-						weekdays={runningDays}
-						setWeekdays={setSelectedDaysRunningDays}
-						activeColor='#142169'
-						textColor='white'
-						inactiveColor='grey'
-						
-						/>
-					)}
-					
 				</View>
+
+				
 				
 				<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
-					<Button style={{ flex: 1 , margin: 2, borderRadius:50, margin: 10 }} onPress={()=>onTimetableAddPress()} >Add Timetable</Button>
+					<Button style={{ flex: 1 , margin: 2, borderRadius:50, margin: 10 }} onPress={()=>onAssignBusAddPress()} >Add AssignBus</Button>
 				</View>
 			</View>
 			
@@ -452,297 +365,139 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					<AntDesign style={{top: 4}} name="close" size={18} color="#444" onPress={onEditClosePress} />
 				</View>
 				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
 					<View style={{ margin: 10}}>
-						
+						<Text style={{ padding: 5, paddingLeft: 10}}>Reg No</Text>
+						{tabSelectedIndex == 0 && (
+						<Select
+							selectedIndex={selectedIndexRegNo}
+							onSelect={(index) => onRegNoSelect(index)}
+							value={regNo}>
+							{appStore.routeBus.rotationBuses
+								.filter(rotationBus => rotationBus?.startEnd === appStore.routeBus.journey.stoppings[0]?.place)
+								.map((rotationBus, index) => (
+									<SelectItem key={rotationBus?.id || index} title={rotationBus?.regNo} />
+								))
+								}
+						</Select>
+						)}
+						{tabSelectedIndex != 0 && (
+						<Select
+							selectedIndex={selectedIndexReturnJourneyRegNo}
+							onSelect={(index) => onReturnJourneyRegNoSelect(index)}
+							value={returnJourneyRegNo}>
+							{appStore.routeBus.rotationBuses
+								.filter(rotationBus => rotationBus?.startEnd === appStore.routeBus.returnJourney.stoppings[0]?.place)
+								.map((rotationBus, index) => (
+									<SelectItem key={rotationBus?.id || index} title={rotationBus?.regNo} />
+								))
+								}
+						</Select>
+						)}
+					</View>
+
+					<View style={{ margin: 10}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Runnning No</Text>
 						<Select
 							selectedIndex={selectedIndexEdit}
 							onSelect={(index) => onRouteEditTimetableTypeSelect(index)}
 							value={displayValueEdit}>
-							{routeBusTimetableTypes.map((title, index) => (
-							<SelectItem key={index} title={title} />
+							{appStore.routeBus.getAllRunningNos().map((runningNo, index) => (
+							<SelectItem key={index} title={runningNo} />
 							))}
 						</Select>
 					</View>
-					{selectedDaysSelected && (
-					<DayPicker
-						weekdays={runningDays}
-						setWeekdays={setSelectedDaysRunningDays}
-						activeColor='#142169'
-						textColor='white'
-						inactiveColor='grey'
-						
-						/>
-					)}
-					
 				</View>
 				
 				<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
-					<Button style={{ flex: 1 , margin: 2, borderRadius:50, margin: 10 }} onPress={()=>onTimetableEditPress()} >Edit Timetable</Button>
+					<Button style={{ flex: 1 , margin: 2, borderRadius:50, margin: 10 }} onPress={()=>onAssignBusEditPress()} >Edit AssignBus</Button>
 				</View>
 			</View>
 			
 			)}
 
-			{route.params?.journeyType == "RouteBusJourney" && (
-			<View>	
-				{appStore.routeBus.journey.schedules[route.params?.scheduleIndex]?.timetables.map((timetable,timetable_index) => (
-					
-					<Card key={timetable_index} 
-					style={[
-					timetableIndex == timetable_index? styles.item : styles.itemSelected
-					]}
-					//style={styles.itemSelected} 
-					onPress={()=>onTimetableDetailsPress(timetable,timetable_index)}>
-						<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
-						<View>
-							<Select value={timetable.type}>
-							</Select>
-						</View>
-						{timetable.runningDays && (
-							
-							<DayPicker
-								weekdays={
-									timetable.runningDays.split(',').map(function(item) {
-										return parseInt(item, 10);
-								})}
-								setWeekdays={setSelectedDaysRunningDays}
-								activeColor='#142169'
-								textColor='white'
-								inactiveColor='grey'
-								itemStyles={{width: 35, height:35, color: "red", paddingHorizontal: 0, marginHorizontal: 5 ,marginVertical : 5}}
-								dayTextStyle={{ fontSize: 10 }}
-								wrapperStyles={{ marginVertical: 10, justifyContent: 'space-left' }}
-							/>
-						)}
+			<View>
+			<TabView
+				selectedIndex={tabSelectedIndex}
+				onSelect={index => setTabSelectedIndex(index)}>
+				<Tab title={appStore.routeBus.journey.stoppings[0].place} style={{ padding: 10}}>
+					<Layout style={{ flex: 1, justifyContent: 'left', alignItems: 'left', padding: 5 }}>
+						{appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns.slice().sort((a, b) => {
+							return a.runningNo - b.runningNo;
+						})?.map((busAssign,index) => (
+							<>
+							{appStore.routeBus.rotationBuses.find(product => product.regNo === busAssign.regNo)?.startEnd == appStore.routeBus.journey.stoppings[0].place && (
+							<Card key={index} 
+							style={[
+							assignBusIndex != index? styles.item : styles.itemSelected
+							]}
+							onPress={()=>onBusAssignPress(busAssign.regNo,busAssign.runningNo,index)}>
+								
+								<Card>
+									<Text style={styles.itemHeader}>Running No</Text>
+									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+										<Text>{busAssign.runningNo}</Text>
+										
+									</View>
+								</Card>
+								<Card>
+									<Text style={styles.itemHeader}>Reg No</Text>
+									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+										<Text>{busAssign.regNo}</Text>	
+									</View>
+								</Card>
 
-						{timetable.type == "Selected Dates" && (
-						<>
-						<Text style={{ padding: 5, paddingLeft: 10}}>Dates</Text>
-						<View style={styles.inputContainer}>
-							<View style={{flexDirection: "row", flexWrap: "wrap"}}>
 								
-							{timetable.dates.map(function(date, index){
-								
-								if(index == selectedDate && timetable_index == timetableIndex){
-									return <Pressable 
-											style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#000"}}
-											onPress={({ nativeEvent }) => {
-													console.log('On Press action:', nativeEvent.event);
-													}}
-											onLongPress={({ nativeEvent }) => {
-												// setSelectedTurn(turn);
-												console.log("selectedDate:"+selectedDate);
-													console.log("index:"+index);
-													if(selectedDate == index){
-														setSelectedDate(-1);
-													}
-													
-													console.log('On Long Press action:', nativeEvent.event);
-													}}
-											delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
-											>
-												<View style={{flexDirection: "row", flexWrap: "wrap"}}>
-												<Text style={{padding: 2,paddingHorizontal: 10}}>{date}</Text>
-												<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteDate(timetable_index,index)} />
-												</View>
-										</Pressable>
-								}else{
-									return <Pressable 
-											style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
-											onPress={({ nativeEvent }) => {
-													console.log('On Press action:', nativeEvent.event);
-													//navigation && navigation.navigate("RouteBusJourneyTurnEdit",{"scheduleIndex": route.params?.scheduleIndex,  "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
-													}}
-											onLongPress={({ nativeEvent }) => {
-													setSelectedDate(index);
-													setTimetableIndex(timetable_index);
-													console.log("##"+date);
-													console.log('On Long Press action:', nativeEvent.event);
-													}}
-											delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
-											>
-												<Text style={{padding: 2, paddingHorizontal: 10}}>{date}</Text>
-										</Pressable>
-								}
-								
-							})}	
-							
-							
-							<AntDesign style={{top: 0}} name="plus" size={30} color="black" onPress={onEditModeAddDate(timetable_index)} />
-							
-						</View>
-
+							</Card>
+							)}
+							</>
 						
-					</View>
-					</>
-					)}
+						))}
+					</Layout>
+				</Tab>
+				
+				<Tab title={appStore.routeBus.returnJourney.stoppings[0].place} style={{ padding: 10}}>
+					<Layout style={{ flex: 1, justifyContent: 'left', alignItems: 'left', padding: 5 }}>
+						{appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns.slice().sort((a, b) => {
+							return a.runningNo - b.runningNo;
+						})?.map((busAssign,index) => (
+							<>
+							{appStore.routeBus.rotationBuses.find(product => product.regNo === busAssign.regNo)?.startEnd == appStore.routeBus.returnJourney.stoppings[0].place && (
+							<Card key={index} 
+							style={[
+							assignBusIndex != index? styles.item : styles.itemSelected
+							]}
+							onPress={()=>onBusAssignPress(busAssign.regNo,busAssign.runningNo,index)}>
+								
+								<Card>
+									<Text style={styles.itemHeader}>Running No</Text>
+									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+										<Text>{busAssign.runningNo}</Text>
+										
+									</View>
+								</Card>
+								<Card>
+									<Text style={styles.itemHeader}>Reg No</Text>
+									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+										<Text>{busAssign.regNo}</Text>	
+									</View>
+								</Card>
 
-					<Text style={{ padding: 5, paddingLeft: 10}}>Turns</Text>
-						<View style={styles.inputContainer}>
-							<View style={{flexDirection: "row", flexWrap: "wrap"}}>
 								
-							{timetable.turns.map(function(turn, index){
-								
-								if(index == selectedTurn && timetable_index == timetableIndex){
-									return <Pressable 
-											style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#000"}}
-											onPress={({ nativeEvent }) => {
-													console.log('On Press action:', nativeEvent.event);
-													}}
-											onLongPress={({ nativeEvent }) => {
-												// setSelectedTurn(turn);
-												console.log("selectedTurn:"+selectedTurn);
-													console.log("index:"+index);
-													if(selectedTurn == index){
-														setSelectedTurn(-1);
-													}
-													
-													console.log('On Long Press action:', nativeEvent.event);
-													}}
-											delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
-											>
-												<View style={{flexDirection: "row", flexWrap: "wrap"}}>
-												<Text style={{padding: 2,paddingHorizontal: 10}}>{turn.startTime}</Text>
-												<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteTurn(timetable_index,index)} />
-												</View>
-										</Pressable>
-								}else{
-									return <Pressable 
-											style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
-											onPress={({ nativeEvent }) => {
-													console.log('On Press action:', nativeEvent.event);
-													navigation && navigation.navigate("RouteBusJourneyTurnEdit",{"scheduleIndex": route.params?.scheduleIndex,  "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
-													}}
-											onLongPress={({ nativeEvent }) => {
-													setSelectedTurn(index);
-													setTimetableIndex(timetable_index);
-													console.log("##"+turn.startTime);
-													console.log('On Long Press action:', nativeEvent.event);
-													}}
-											delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
-											>
-												<Text style={{padding: 2, paddingHorizontal: 10}}>{turn.startTime}</Text>
-										</Pressable>
-								}
-								
-							})}	
-							
-							
-							<AntDesign style={{top: 0}} name="plus" size={30} color="black" onPress={onEditModeAddTurn(timetable_index)} />
-							
-						</View>
-
+							</Card>
+							)}
+							</>
 						
-					</View>
-					
-					</Card>
-				))}
-
-				 
+						))}
+					</Layout>
+				</Tab>
+				
+			</TabView>
+			</View>
 
 			
-			</View>
-			)}
-
-			{route.params?.journeyType == "RouteBusReturnJourney" && (
-			<View>	
-				{appStore.routeBus.returnJourney.timetables.map((timetable,timetable_index) => (
-					
-					<Card key={timetable_index} 
-					style={[
-					timetableIndex == timetable_index? styles.item : styles.itemSelected
-					]}
-					//style={styles.itemSelected} 
-					onPress={()=>onTimetableDetailsPress(timetable,timetable_index)}>
-						<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
-						<View>
-							<Select value={timetable.type}>
-							</Select>
-						</View>
-						{timetable.runningDays && (
-							
-							<DayPicker
-								weekdays={
-									timetable.runningDays.split(',').map(function(item) {
-										return parseInt(item, 10);
-								})}
-								setWeekdays={setSelectedDaysRunningDays}
-								activeColor='#142169'
-								textColor='white'
-								inactiveColor='grey'
-								itemStyles={{width: 35, height:35, color: "red", paddingHorizontal: 0, marginHorizontal: 5 ,marginVertical : 5}}
-								dayTextStyle={{ fontSize: 10 }}
-								wrapperStyles={{ marginVertical: 10, justifyContent: 'space-left' }}
-							/>
-						)}
-						<Text style={{ padding: 5, paddingLeft: 10}}>Turns</Text>
-					<View style={styles.inputContainer}>
-						<View style={{flexDirection: "row", flexWrap: "wrap"}}>
-							
-						{timetable.turns.map(function(turn, index){
-							
-							if(index == selectedTurn && timetable_index == timetableIndex){
-								return <Pressable 
-								         style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#000"}}
-										onPress={({ nativeEvent }) => {
-												console.log('On Press action:', nativeEvent.event);
-												}}
-										onLongPress={({ nativeEvent }) => {
-											   // setSelectedTurn(turn);
-											   console.log("selectedTurn:"+selectedTurn);
-												console.log("index:"+index);
-												if(selectedTurn == index){
-													setSelectedTurn(-1);
-												}
-												
-												console.log('On Long Press action:', nativeEvent.event);
-												}}
-										delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
-										>
-											<View style={{flexDirection: "row", flexWrap: "wrap"}}>
-											<Text style={{padding: 2,paddingHorizontal: 10}}>{turn.startTime}</Text>
-											<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteTurn(timetable_index,index)} />
-											</View>
-									</Pressable>
-							}else{
-								return <Pressable 
-								        style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
-										onPress={({ nativeEvent }) => {
-												console.log('On Press action:', nativeEvent.event);
-												navigation && navigation.navigate("RouteBusJourneyTurnEdit",{ "timetableIndex": timetable_index, "turnIndex": index,"journeyType": route.params?.journeyType});
-												}}
-										onLongPress={({ nativeEvent }) => {
-												setSelectedTurn(index);
-												setTimetableIndex(timetable_index);
-												console.log("##"+turn.startTime);
-												console.log('On Long Press action:', nativeEvent.event);
-												}}
-										delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
-										>
-											<Text style={{padding: 2, paddingHorizontal: 10}}>{turn.startTime}</Text>
-									</Pressable>
-							}
-							
-						})}	
-						
-						
-						<AntDesign style={{top: 0}} name="plus" size={30} color="black" onPress={onEditModeAddTurn(timetable_index)} />
-						
-						
-					</View>
-					</View>
-					
-					</Card>
-				))}
-
-				 
-
 			
-			</View>
-			)}
+			
 
-	
 			<DateTimePickerModal
 				isVisible= {isDatePickerVisible}
 				date={defaultDate}

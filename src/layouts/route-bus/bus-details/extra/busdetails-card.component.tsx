@@ -83,6 +83,7 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		  try {
 			console.log("params.id:"+route.params.id);
 			console.log(JSON.stringify(route));
+			console.log("%%%"+'/routebuses/'+route.params.id);
 			const response: AxiosResponse = await client.get('/routebuses/'+route.params.id , config);
 			console.log(response.status);
 			console.log("##### appStore.user.mobileNumber::"+appStore.user.mobileNumber);
@@ -134,16 +135,22 @@ const BusDetailsCard = React.forwardRef(({navigation},refStandard) => {
 				});
 		    }
 
-			/*
-			if(response.data.returnJourney.timetables != null){
-				response.data.returnJourney.timetables.forEach((timetable,index) => {
-					appStore.routeBus.returnJourney.addTimetable(timetable.type, timetable.runningDays);
-					timetable.turns.forEach(turn => {
-						appStore.routeBus.returnJourney.timetables[index].addTurn(turn.onboardStartTime,turn.startTime,turn.runningNo,turn.stoppings,turn.registrationNo,turn.licenseNo);
+			if(response.data.returnJourney.schedules != null){
+				response.data.returnJourney.schedules.forEach((schedule,schedule_index) => {
+					appStore.routeBus.returnJourney.addSchedule(schedule.fromDate, schedule.toDate);
+						schedule.timetables.forEach((timetable,timetable_index) => {
+							appStore.routeBus.returnJourney.schedules[schedule_index].addTimetable(timetable.type, timetable.runningDays);
+							timetable.turns.forEach(turn => {
+								appStore.routeBus.returnJourney.schedules[schedule_index].timetables[timetable_index].addTurn(turn.onboardStartTime,turn.startTime,turn.runningNo,turn.stoppings,turn.registrationNo,turn.licenseNo,turn.eitherBuses);
+								console.log("Turn"+schedule.fromDate+" "+schedule.toDate);
+							});
+							timetable?.dates?.forEach((sdate,date_index) => {
+								appStore.routeBus.returnJourney.schedules[schedule_index].timetables[timetable_index].addDate(date_index,sdate);
+								//console.log("Turn"+schedule.fromDate+" "+schedule.toDate);
+							});
 					});
 				});
 		    }
-			*/
 			
 			console.log(JSON.stringify(toJS(appStore.routeBus)));
 

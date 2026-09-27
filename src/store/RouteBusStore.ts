@@ -371,7 +371,8 @@ const Route = types.model({
 
 const RotationBus = types.model({
   regNo: types.string,
-  licenseNo: types.string
+  licenseNo: types.string,
+  startEnd: types.string
 })
 .actions((self) => ({
   
@@ -383,6 +384,9 @@ const RotationBus = types.model({
   },
   setLicenseNo(licenseNo){
     self.licenseNo = licenseNo;
+  },
+  setStartEnd(startEnd){
+    self.startEnd = startEnd;
   }
 }))
 
@@ -394,6 +398,7 @@ const BusAssign = types.model({
   
   reset(){
   },
+  
   setRegNo(regNo){
     self.regNo = regNo;
   },
@@ -407,14 +412,14 @@ const BusAssign = types.model({
 const RotationPlan = types.model({
   fromDate: types.optional(types.string, ""),
   toDate: types.optional(types.string, ""),
-  busAassigns: types.array(BusAssign)
+  busAssigns: types.array(BusAssign)
 })
 .actions((self) => ({
   
   reset(){
     self.fromDate = "";
     self.toDate = "";
-    self.busAassigns=BusAssign[0];
+    self.busAssigns=BusAssign[0];
   },
   setFromDate(fromDate){
     self.fromDate = fromDate;
@@ -422,6 +427,18 @@ const RotationPlan = types.model({
   setToDate(toDate){
     self.toDate = toDate;
   },
+  addBusAssgin(regNo, runningNo) {
+    console.log("Adding busAssign:"+runningNo);
+    self.busAssigns.push({
+        regNo,
+        runningNo
+      })
+  },
+  deleteAssignBusByIndex(index) {
+     self.busAssigns.remove(self.busAssigns[index]);
+  },
+
+  
   
 }))
 
@@ -439,10 +456,10 @@ const NewRouteVirtualBusStore = types
     runningTime: types.optional(types.string, ""),
     distance: types.optional(types.string, ""),
     journey: types.optional(Route, {
-      timetables: []
+      schedules: []
     }),
     returnJourney: types.optional(Route, {
-      timetables: []
+      schedules: []
     }),
     
   })
@@ -489,7 +506,7 @@ const NewRouteVirtualBusStore = types
     setDistance(distance) {
       self.distance = distance;
     },
-     setRunningTime(runningTime) {
+    setRunningTime(runningTime) {
       self.runningTime = runningTime;
     },
     setObjectId(objectId) {
@@ -504,6 +521,40 @@ const NewRouteVirtualBusStore = types
     setTypeOfService(typeOfService) {
       self.typeOfService = typeOfService;
     },
+    getAllRunningNos(){
+      var runningNos=[];
+      self.journey.schedules?.forEach(schedule => {
+        schedule.timetables?.forEach(timetable => {
+          timetable.turns?.forEach(turn => {
+            if(turn?.runningNo){
+              console.log(turn?.runningNo);
+              if(turn.runningNo!="SLTB")
+                runningNos.push(turn.runningNo);
+            }
+          });
+        });
+      });
+      self.returnJourney.schedules?.forEach(schedule => {
+        schedule.timetables?.forEach(timetable => {
+          timetable.turns?.forEach(turn => {
+            if(turn?.runningNo){
+              console.log(turn?.runningNo);
+              if(turn.runningNo!="SLTB")
+                runningNos.push(turn.runningNo);
+            }
+          });
+        });
+      });
+      const uniqueNumbers = [...new Set(runningNos)];
+      uniqueNumbers.sort((a, b) => a - b);
+      return uniqueNumbers;
+    },
+    getRouteBusEnds(){
+      var ends=[];
+      ends.push(self.journey.stoppings[0].place);
+      ends.push(self.returnJourney.stoppings[0].place);
+      return ends;
+    }, 
     addStoppingPlace(place,latitude,longitude){
       console.log("addStoppingPlace"+place+latitude+longitude);
       self.stoppingPlaces.push({
@@ -554,20 +605,21 @@ const NewRouteVirtualBusStore = types
     deleteReturnJourneyTimetable(index){
       self.returnJourney.timetables.remove(self.returnJourney.timetables[index]);
     },
-    addRotationBus(regNo,licenseNo){
-      self.rotationBuses.push({regNo,licenseNo})
+    addRotationBus(regNo,licenseNo,startEnd){
+      self.rotationBuses.push({regNo,licenseNo,startEnd})
     },
-    addRotationBusAtIndex(regNo,licenseNo,index){
-      self.rotationBuses.splice(index, 0, {regNo,licenseNo});
+    addRotationBusAtIndex(regNo,licenseNo,startEnd,index){
+      self.rotationBuses.splice(index, 0, {regNo,licenseNo,startEnd});
     },
     deleteRotationBusByIndex(index){
       self.rotationBuses.remove(self.rotationBuses[index]);
     },
-    updateRotationBusByIndex(regNo,licenseNo,index){
+    updateRotationBusByIndex(regNo,licenseNo,startEnd,index){
       const rotationBuses = self.rotationBuses[index];
      // console.log("####"+stopping.latitude+","+stopping.longitude);
      rotationBuses.setRegNo(regNo);
      rotationBuses.setLicenseNo(licenseNo);
+     rotationBuses.setStartEnd(startEnd);
     },
     addRotationPlan(fromDate,toDate){
       self.rotationPlans.push({

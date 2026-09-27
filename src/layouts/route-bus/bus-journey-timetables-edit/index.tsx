@@ -124,12 +124,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		} catch(err) {
 			console.log(err);
 		}
-
-		if(route.params?.journeyType=="RouteBusJourney"){
-			
-		}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-			
-		}
 		setSelectedTurn(-1);
 	}
 
@@ -270,9 +264,9 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					appStore.routeBus.journey.schedules[route.params?.scheduleIndex].addTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
 				}
 			}else if(route.params?.journeyType=="RouteBusReturnJourney"){
-				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/timetables/add` , data, config);
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/`+route.params.scheduleIndex+`/timetables/add` , data, config);
 				if(response.status == 200){
-					appStore.routeBus.addReturnJourneyTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
+					appStore.routeBus.returnJourney.schedules[route.params?.scheduleIndex].addTimetable(appStore.routeBusTimetable.type, appStore.routeBusTimetable.runningDays.toString());
 				}
 			}
 			
@@ -930,6 +924,69 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 								wrapperStyles={{ marginVertical: 10, justifyContent: 'space-left' }}
 							/>
 						)}
+
+						{timetable.type == "Selected Dates" && (
+						<>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Dates</Text>
+						<View style={styles.inputContainer}>
+							<View style={{flexDirection: "row", flexWrap: "wrap"}}>
+								
+							{timetable.dates.map(function(date, index){
+								
+								if(index == selectedDate && timetable_index == timetableIndex){
+									return <Pressable 
+											style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#000"}}
+											onPress={({ nativeEvent }) => {
+													console.log('On Press action:', nativeEvent.event);
+													}}
+											onLongPress={({ nativeEvent }) => {
+												// setSelectedTurn(turn);
+												console.log("selectedDate:"+selectedDate);
+													console.log("index:"+index);
+													if(selectedDate == index){
+														setSelectedDate(-1);
+													}
+													
+													console.log('On Long Press action:', nativeEvent.event);
+													}}
+											delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
+											>
+												<View style={{flexDirection: "row", flexWrap: "wrap"}}>
+												<Text style={{padding: 2,paddingHorizontal: 10}}>{date}</Text>
+												<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteDate(timetable_index,index)} />
+												</View>
+										</Pressable>
+								}else{
+									return <Pressable 
+											style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
+											onPress={({ nativeEvent }) => {
+													console.log('On Press action:', nativeEvent.event);
+													//navigation && navigation.navigate("RouteBusJourneyTurnEdit",{"scheduleIndex": route.params?.scheduleIndex,  "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
+													}}
+											onLongPress={({ nativeEvent }) => {
+													setSelectedDate(index);
+													setTimetableIndex(timetable_index);
+													console.log("##"+date);
+													console.log('On Long Press action:', nativeEvent.event);
+													}}
+											delayLongPress={300} //  <TouchableOpacity style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}} onPress={onAddTurn(turn.startTime)}>
+											>
+												<Text style={{padding: 2, paddingHorizontal: 10}}>{date}</Text>
+										</Pressable>
+								}
+								
+							})}	
+							
+							
+							<AntDesign style={{top: 0}} name="plus" size={30} color="black" onPress={onEditModeAddDate(timetable_index)} />
+							
+						</View>
+
+						
+					</View>
+					</>
+					)}
+
 						<Text style={{ padding: 5, paddingLeft: 10}}>Turns</Text>
 					<View style={styles.inputContainer}>
 						<View style={{flexDirection: "row", flexWrap: "wrap"}}>
@@ -956,6 +1013,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 										>
 											<View style={{flexDirection: "row", flexWrap: "wrap"}}>
 											<Text style={{padding: 2,paddingHorizontal: 10}}>{turn.startTime}</Text>
+											<AntDesign style={{top: 4}} name="edit" size={18} color="#D69200" onPress={onEditTurn(timetable_index,index)} />
 											<AntDesign style={{top: 4}} name="close" size={18} color="red" onPress={onDeleteTurn(timetable_index,index)} />
 											</View>
 									</Pressable>
@@ -964,11 +1022,14 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 								        style={{borderWidth: 1, padding: 2, margin: 2, borderColor: "#bbb"}}
 										onPress={({ nativeEvent }) => {
 												console.log('On Press action:', nativeEvent.event);
-												navigation && navigation.navigate("RouteBusJourneyTurnEdit",{ "timetableIndex": timetable_index, "turnIndex": index,"journeyType": route.params?.journeyType});
+												navigation && navigation.navigate("RouteBusTurnUpdate",{ "scheduleIndex": route.params.scheduleIndex, "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
 												}}
 										onLongPress={({ nativeEvent }) => {
 												setSelectedTurn(index);
 												setTimetableIndex(timetable_index);
+
+												//navigation && navigation.navigate("RouteBusJourneyTurnEdit",{ "timetableIndex": timetable_index, "turnIndex": index, "journeyType": route.params?.journeyType});
+												
 												console.log("##"+turn.startTime);
 												console.log('On Long Press action:', nativeEvent.event);
 												}}

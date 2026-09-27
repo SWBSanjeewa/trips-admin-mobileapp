@@ -404,7 +404,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				{appStore.routeBus.rotationPlans?.map((rotationPlan,index) => (
 					
 					<Card key={index} 
-					onPress={() => navigation.navigate("RouteBusRotationPlansRotationList", {id: appStore.routeBus.id, scheduleIndex: index})}
+					onPress={() => navigation.navigate("RouteBusRotationPlansRotationList", {id: appStore.routeBus.id, rotationPlan_index: index})}
 					onLongPress={({ nativeEvent }) => {
 						onRotationPlanLongPress(rotationPlan,index)
 					}}

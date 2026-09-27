@@ -579,15 +579,32 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				{appStore.routeBus.returnJourney.schedules?.map((schedule,index) => (
 					
 					<Card key={index} 
+					onPress={() => navigation.navigate("RouteBusJourneyTimetablesEdit", {id: appStore.routeBus.id,journeyType: route.params?.journeyType, scheduleIndex: index})}
+					onLongPress={({ nativeEvent }) => {
+						console.log('On Long Press action:', nativeEvent.event);
+						onScheduleLongPress(schedule,index)
+					}}
+					delayLongPress={300}
 					style={[
 					scheduleIndex == index? styles.item : styles.itemSelected
 					]}>
-						<Text style={{ padding: 5, paddingLeft: 10}}>Timetable Type</Text>
-						<View>
-							<Text>{schedule.fromDate} - {schedule.toDate}</Text>
+						<View style={{flexDirection: "row", flexWrap: "wrap"}}>
+							<Text style={{padding: 2,paddingHorizontal: 5}}>{schedule.fromDate}</Text>
+							<AntDesign style={{top: 4}} name="calendar" size={18} color="blue" />
+							<Text style={{padding: 2,paddingHorizontal: 5}}> - </Text>
+							<Text style={{padding: 2,paddingHorizontal: 5}}>{schedule.toDate}</Text>
+							<AntDesign style={{top: 4}} name="calendar" size={18} color="red" />
 						</View>
+						
+					
 					</Card>
+
+					
+					
+					
+					
 				))}
+				
 			</View>
 			)}
 

@@ -97,6 +97,13 @@ const BusTurnUpdateCard = React.forwardRef(({navigation},refStandard) => {
 			setRegistrationNo(appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].registrationNo);
 			setLicenseNo(appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].licenseNo);
 		}else if(route.params.journeyType == "RouteBusReturnJourney"){
+			if(appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].runningNo){
+				setRotationBusChecked(true);
+			} else if(appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].registrationNo){
+				setAssignedBusChecked(true);
+			}else if(appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].eitherBuses){
+				setEitherBusesChecked(true);
+			}
 			setRunningNo(appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].runningNo);
 			setRegistrationNo(appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].registrationNo);
 			setLicenseNo(appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].licenseNo);
@@ -226,20 +233,19 @@ const BusTurnUpdateCard = React.forwardRef(({navigation},refStandard) => {
 
 		  console.log("RouteBusJourney ## "+ `/routebuses/`+appStore.routeBus.objectId+`/XXX/timetables/`+route.params.timetableIndex+`/turns/`+route.params.turnIndex+`/onboardStartTime/`+format(date, 'HH:mm'));
 		if(route.params.journeyType == "RouteBusJourney"){
-			console.log("RouteBusJourney ## "+ `/routebuses/`+appStore.routeBus.objectId+`/journey/timetables/`+route.params.timetableIndex+`/turns/`+route.params.turnIndex+`/onboardStartTime/`+format(date, 'HH:mm'));
+			console.log("RouteBusJourney ## "+ `/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+route.params.timetableIndex+`/turns/`+route.params.turnIndex+`/onboardStartTime/`+format(date, 'HH:mm'));
 			try {
 				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/journey/schedules/`+route.params.scheduleIndex+`/timetables/`+route.params.timetableIndex+`/turns/`+route.params.turnIndex+`/onboardStartTime/`+format(date, 'HH:mm') , config);
 				appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateOnboardStartTime(format(date, 'HH:mm'));
-				console.log(response.status);
 			} catch(err) {
 				console.log(err);
 			}  
 			
 		}else if(route.params.journeyType == "RouteBusReturnJourney"){
 			try {
-				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/timetables/`+route.params.timetableIndex+`/turns/`+route.params.turnIndex+`/onboardStartTime/`+format(date, 'HH:mm') , config);
+				const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/returnJourney/schedules/`+route.params.scheduleIndex+`/timetables/`+route.params.timetableIndex+`/turns/`+route.params.turnIndex+`/onboardStartTime/`+format(date, 'HH:mm') , config);
 				appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].updateOnboardStartTime(format(date, 'HH:mm'));
-				console.log(response.status);
+			
 			} catch(err) {
 				console.log(err);
 			}  
@@ -293,10 +299,10 @@ const BusTurnUpdateCard = React.forwardRef(({navigation},refStandard) => {
 					<View style={{backgroundColor: "#F1F1F1"}}>
 						<View pointerEvents="none">
 							{route.params?.journeyType == "RouteBusJourney" && (
-							<Input placeholder="Onboard start time..." value={appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime}/>
+							<Input placeholder="Onboard start time..." value={appStore.routeBus.journey.schedules[route.params.scheduleIndex]?.timetables[route.params.timetableIndex]?.turns[route.params.turnIndex]?.startTime}/>
 							)}
 							{route.params?.journeyType == "RouteBusReturnJourney" && (
-							<Input placeholder="Onboard start time..." value={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].startTime}/>
+							<Input placeholder="Onboard start time..." value={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex]?.timetables[route.params.timetableIndex]?.turns[route.params.turnIndex]?.startTime}/>
 							)}
 						</View>
 					</View>
@@ -310,10 +316,10 @@ const BusTurnUpdateCard = React.forwardRef(({navigation},refStandard) => {
 						<Pressable onPress={() => onSetOnboardStartTimeUpdatePress()}>
 						<View pointerEvents="none">
 							{route.params?.journeyType == "RouteBusJourney" && (
-							<Input placeholder="Onboard start time..." value={appStore.routeBus.journey.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].onboardStartTime}/>
+							<Input placeholder="Onboard start time..." value={appStore.routeBus.journey.schedules[route.params.scheduleIndex]?.timetables[route.params.timetableIndex]?.turns[route.params.turnIndex]?.onboardStartTime}/>
 							)}
 							{route.params?.journeyType == "RouteBusReturnJourney" && (
-							<Input placeholder="Onboard start time..." value={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex].timetables[route.params.timetableIndex].turns[route.params.turnIndex].onboardStartTime}/>
+							<Input placeholder="Onboard start time..." value={appStore.routeBus.returnJourney.schedules[route.params.scheduleIndex]?.timetables[route.params.timetableIndex]?.turns[route.params.turnIndex]?.onboardStartTime}/>
 							)}
 						</View>
 					</Pressable>
