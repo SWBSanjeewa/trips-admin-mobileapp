@@ -6,6 +6,7 @@ export type SeatType =
   | 'blocked'
   | 'booked'
   | 'door'
+  | 'jump'
   | 'driver'
   | 'emptySpace'
   | 'women'

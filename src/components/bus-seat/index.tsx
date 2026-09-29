@@ -52,123 +52,174 @@ const SeatsLayout: React.FC<SeatsLayoutProps> = ({
   const userSelectedSeats = useRef<Array<SeatLayout>>([]);
 
   useLayoutEffect(() => {
-    let allArray: Array<Array<SeatLayout>> = [];
-    let i = 0;
-    let seatNumber = 1;
+  const generateBusLayout = (): Array<Array<SeatLayout>> => {
+    const allArray: Array<Array<SeatLayout>> = [];
 
-    while (i < row) {
-      let j = 0;
-      let seatArray: Array<SeatLayout> = [];
-      let seatLayout: SeatLayout = {
-        id: '-1',
-        type: 'blocked',
-      };
-      if (i === 0 && j === 0) {
-        // Add Bus layout has at front door
-        if (isEntryDoorAtFront) {
-          seatLayout = {
-            id: `${i},${j}`,
-            type: driverPosition === 'left' ? 'driver' : 'emptySpace',
-          };
-          seatArray.push(seatLayout);
-        }
+    for (let rowIndex = 0; rowIndex < row; rowIndex += 1) {
+      const seatArray =
+        rowIndex === 0
+          ? generateFirstRow(rowIndex)
+          : generateSeatRow(rowIndex);
 
-        /*
-         * Render empty space to show driver seat at last row and
-         */
-        while (j < layout.columnOne + layout.columnTwo) {
-          let iTotalColumn = layout.columnOne + layout.columnTwo;
-          seatLayout = {
-            id: '-1',
-            type: 'blocked',
-          };
-          if (j === iTotalColumn - 1) {
-            seatLayout = {
-              id: `${i},${j}`,
-              type: driverPosition === 'left' ? 'emptySpace' : 'driver',
-            };
-            seatArray.push(seatLayout);
-          } else {
-            seatLayout = {
-              id: `${i},${j}`,
-              type: 'emptySpace',
-            };
-            seatArray.push(seatLayout);
-          }
-          if (!isEntryDoorAtFront && j === layout.columnOne - 1) {
-            seatLayout = {
-              id: `${i},${j}`,
-              type: 'emptySpace',
-            };
-            seatArray.push(seatLayout);
-          }
-          j += 1;
-        }
-      } else {
-        //Set Index value in id to all seat type for to make them selectable.
-        let bSpaceAdded = false;
-        let revCounter = i * (layout.columnOne + layout.columnTwo);
-
-        if (row % 2 !== 0 && i === row - 1) {
-          revCounter += 1;
-        }
-
-        while (j < layout.columnOne + layout.columnTwo) {
-          let preSelectedSeatItem = selectedSeats.filter((item) => {
-            return item.seatNumber === (i % 2 === 0 ? revCounter : seatNumber);
-          });
-
-          seatLayout = {
-            id: `${i},${bSpaceAdded ? j + 1 : j}`,
-            type:
-              preSelectedSeatItem.length > 0
-                ? preSelectedSeatItem[0].seatType
-                : 'available',
-            seatNo: i % 2 === 0 ? revCounter : seatNumber,
-            isSeatSeleced: preSelectedSeatItem.length > 0,
-          };
-          seatArray.push(seatLayout);
-          /*
-           * Add space between rows of seat and add seat for last row.
-           */
-          if (j === layout.columnOne - 1) {
-            let seatNo = 0;
-            if (i === row - 1) {
-              if (row % 2 !== 0) {
-                revCounter -= 1;
-                seatNo = revCounter;
-              } else {
-                seatNo = seatNumber += 1;
-              }
-            }
-
-            seatLayout = {
-              id: `${i},${j + 1}`,
-              type:
-                i === row - 1
-                  ? preSelectedSeatItem.length > 0
-                    ? preSelectedSeatItem[0].seatType
-                    : 'available'
-                  : 'emptySpace',
-              seatNo: seatNo,
-              isSeatSeleced:
-                i === row - 1 ? preSelectedSeatItem.length > 0 : false,
-            };
-            seatArray.push(seatLayout);
-            bSpaceAdded = true;
-          }
-          j += 1;
-
-          revCounter -= 1;
-          seatNumber += 1;
-        }
-      }
       allArray.push(seatArray);
-      i += 1;
     }
-    setBookingSeat(allArray);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    return allArray;
+  };
+
+  const getSelectedSeat = (seatNumber: number) => {
+    return selectedSeats.find(
+      (item) => item.seatNumber === seatNumber
+    );
+  };
+
+  const getSeatNumber = (
+    rowIndex: number,
+    columnIndex: number,
+    currentSeatNumber: number,
+    reverseSeatNumber: number
+  ) => {
+    return rowIndex % 2 === 0
+      ? reverseSeatNumber
+      : currentSeatNumber;
+  };
+
+  const generateFirstRow = (rowIndex: number): Array<SeatLayout> => {
+    const seatArray: Array<SeatLayout> = [];
+    const totalColumns = layout.columnOne + layout.columnTwo;
+
+    let columnIndex = 0;
+
+    // Driver / front door
+    if (isEntryDoorAtFront) {
+      seatArray.push({
+        id: `${rowIndex},${columnIndex}`,
+        type: driverPosition === 'left' ? 'driver' : 'emptySpace',
+      });
+    }
+
+    while (columnIndex < totalColumns) {
+      const isLastColumn = columnIndex === totalColumns - 1;
+
+      seatArray.push({
+        id: `${rowIndex},${columnIndex}`,
+        type: isLastColumn
+          ? driverPosition === 'left'
+            ? 'emptySpace'
+            : 'driver'
+          : 'emptySpace',
+      });
+
+      // Add door/aisle space when the entry door is at the back
+      if (
+        !isEntryDoorAtFront &&
+        columnIndex === layout.columnOne - 1
+      ) {
+        seatArray.push({
+          id: `${rowIndex},${columnIndex}`,
+          type: 'emptySpace',
+        });
+      }
+
+      columnIndex += 1;
+    }
+
+    return seatArray;
+  };
+
+  const generateSeatRow = (
+    rowIndex: number
+  ): Array<SeatLayout> => {
+    const seatArray: Array<SeatLayout> = [];
+    const totalColumns = layout.columnOne + layout.columnTwo;
+
+    let currentSeatNumber = 1;
+    let reverseSeatNumber =
+      rowIndex * totalColumns;
+
+    // Preserve the original special handling
+    // for an odd number of rows.
+    if (row % 2 !== 0 && rowIndex === row - 1) {
+      reverseSeatNumber += 1;
+    }
+
+    let aisleAdded = false;
+
+    for (
+      let columnIndex = 0;
+      columnIndex < totalColumns;
+      columnIndex += 1
+    ) {
+      const seatNumber = getSeatNumber(
+        rowIndex,
+        columnIndex,
+        currentSeatNumber,
+        reverseSeatNumber
+      );
+
+      const selectedSeat = getSelectedSeat(seatNumber);
+
+      seatArray.push({
+        id: `${rowIndex},${
+          aisleAdded ? columnIndex + 1 : columnIndex
+        }`,
+        type: selectedSeat?.seatType ?? 'available',
+        seatNo: seatNumber,
+        isSeatSeleced: !!selectedSeat,
+      });
+
+      /*
+       * Add aisle after columnOne.
+       *
+       * For the last row, the original implementation
+       * creates an additional seat instead of an empty space.
+       */
+      if (columnIndex === layout.columnOne - 1) {
+        let lastRowSeatNumber = 0;
+
+        if (rowIndex === row - 1) {
+          if (row % 2 !== 0) {
+            reverseSeatNumber -= 1;
+            lastRowSeatNumber = reverseSeatNumber;
+          } else {
+            currentSeatNumber += 1;
+            lastRowSeatNumber = currentSeatNumber;
+          }
+        }
+
+        const isLastRow = rowIndex === row - 1;
+        const selectedLastRowSeat =
+          isLastRow && lastRowSeatNumber > 0
+            ? getSelectedSeat(lastRowSeatNumber)
+            : undefined;
+
+        seatArray.push({
+          id: `${rowIndex},${columnIndex + 1}`,
+          type: isLastRow
+            ? selectedLastRowSeat?.seatType ?? 'available'
+            : 'emptySpace',
+          seatNo: lastRowSeatNumber,
+          isSeatSeleced: isLastRow
+            ? !!selectedLastRowSeat
+            : false,
+        });
+
+        aisleAdded = true;
+      }
+
+      reverseSeatNumber -= 1;
+      currentSeatNumber += 1;
+    }
+
+    return seatArray;
+  };
+
+  const bookingSeat = generateBusLayout();
+
+  setBookingSeat(bookingSeat);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
   useLayoutEffect(() => {
     getBookedSeats && getBookedSeats(userSelectedSeats.current);
