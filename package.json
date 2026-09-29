@@ -102,8 +102,8 @@
     "expo-linear-gradient": "15.0.8",
     "expo-build-properties": "55.0.16",
     "@animatereactnative/accordion": "0.1.5",
-    "react-native-keyboard-controller": "1.22.4"
-   
+    "react-native-keyboard-controller": "1.22.4",
+    "@mindinventory/react-native-bus-seat-layout":"1.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

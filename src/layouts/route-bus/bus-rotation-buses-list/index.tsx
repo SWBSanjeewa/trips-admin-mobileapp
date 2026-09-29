@@ -82,8 +82,9 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			startEnd: ""
 		};
 
+		
 		if(selectedIndex==0){
-			data.startEnd = regNo,licenseNo,appStore.routeBus.journey.stoppings[0].place;
+			data.startEnd = appStore.routeBus.journey.stoppings[0].place;
 		}else{
 			data.startEnd = appStore.routeBus.returnJourney.stoppings[0].place;
 		}

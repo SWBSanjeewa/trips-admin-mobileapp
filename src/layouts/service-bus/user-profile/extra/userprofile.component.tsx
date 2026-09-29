@@ -337,6 +337,13 @@ const UserProfileComponent = ({ navigation }): React.ReactElement => {
 					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("TransportServiceList")}/>
 				</View>
 			</Card>
+
+			<Card style={{ margin: 10}} onPress={() => navigation.navigate("TransportServiceList")}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Vehicles Seats Arrangements</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("TransportServiceList")}/>
+				</View>
+			</Card>
 			
 			<Button  onPress={()=>onClearCache()} style={{ borderRadius:50, margin: 10, borderColor:"#142169", borderWidth: 2 }}>
 				Clear Cache

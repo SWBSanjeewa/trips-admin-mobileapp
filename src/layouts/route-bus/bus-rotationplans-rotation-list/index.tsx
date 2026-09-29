@@ -72,7 +72,11 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
   	const displayValue = routeBusTimetableTypes[selectedIndex.row];
 
-	const [selectedIndexEdit, setSelectedIndexEdit] = useState(new IndexPath(0));
+	const [selectedIndexRunningNo, setSelectedIndexRunningNo] = useState(new IndexPath(0));
+
+	const [selectedIndexReturnJourneyRunningNo, setSelectedIndexReturnJourneyRunningNo] = useState(new IndexPath(0));
+
+	
 
 	const [selectedIndexRegNo, setSelectedIndexRegNo] = useState(new IndexPath(0));
 
@@ -82,7 +86,11 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	
   //	const displayValueEdit = routeBusTimetableTypes[selectedIndexEdit.row];
    
-	const [displayValueEdit, setDisplayValueEdit] = useState("");
+	const [runningNo, setRunningNo] = useState("");
+
+	const [returnJourneyRunningNo, setReturnJourneyRunningNo] = useState("");
+
+	
 
 	const [regNo, setRegNo] = useState("");
 
@@ -118,7 +126,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	useEffect(() => {
 
 		var allRunningNos = appStore.routeBus.getAllRunningNos();
-		setDisplayValueEdit(allRunningNos[0]);
+		setRunningNo(allRunningNos[0]);
+		setReturnJourneyRunningNo(allRunningNos[0]);
 		const stoppings = appStore.routeBus.journey.stoppings;
 		if (stoppings && stoppings.length > 0) {
 			const targetPlace = stoppings[0].place;
@@ -163,10 +172,10 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const onAssignBusAddPressBck = async() => {
 		if(tabSelectedIndex){
-			appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(returnJourneyRegNo, displayValueEdit);
+			appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(returnJourneyRegNo, runningNo);
 			setSelectedIndexReturnJourneyRegNo(0);
 		}else{
-			appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(regNo, displayValueEdit);
+			appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(regNo, runningNo);
 			setSelectedIndexReturnJourneyRegNo(0);
 			
 		}
@@ -185,7 +194,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 		const data = {
 			regNo: "",
-			runningNo: displayValueEdit
+			runningNo: runningNo
 		};
 
 		if(tabSelectedIndex==1){
@@ -199,10 +208,10 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationPlans/`+route.params.rotationPlan_index+`/busAssigns/add`,data , config);
 			if(response.status == 200){
 				if(tabSelectedIndex==1){
-					appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(returnJourneyRegNo, displayValueEdit);
+					appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(returnJourneyRegNo, runningNo);
 					setSelectedIndexReturnJourneyRegNo(0);
 				}else{
-					appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(regNo, displayValueEdit);
+					appStore.routeBus.rotationPlans[route.params.rotationPlan_index].addBusAssgin(regNo, runningNo);
 					setSelectedIndexReturnJourneyRegNo(0);
 					
 				}
@@ -218,7 +227,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	
 	const onAssignBusEditPressbck = (): void => {	
 		console.log("assignBusIndex::"+assignBusIndex);
-		appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns[assignBusIndex].setRunningNo(displayValueEdit);
+		appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns[assignBusIndex].setRunningNo(runningNo);
 		setAssignBusIndex(-1);
 		setEdit(false);
 	}
@@ -234,7 +243,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 		const data = {
 			regNo: "",
-			runningNo: displayValueEdit
+			runningNo: runningNo
 		};
 
 		if(tabSelectedIndex==1){
@@ -252,7 +261,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				}else{
 					appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns[assignBusIndex].setRegNo(regNo);	
 				}
-				appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns[assignBusIndex].setRunningNo(displayValueEdit);
+				appStore.routeBus.rotationPlans[route.params.rotationPlan_index].busAssigns[assignBusIndex].setRunningNo(runningNo);
 				setAssignBusIndex(-1);
 				setEdit(false);
 			}
@@ -309,7 +318,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	const onEditPress = async() => {
 		
 		console.log("****"+appStore.routeBus.getAllRunningNos());
-		setDisplayValueEdit(appStore.routeBus.getAllRunningNos()[0]);
+		setRunningNo(appStore.routeBus.getAllRunningNos()[0]);
 		setEdit(true);
 		
 	};
@@ -331,12 +340,20 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	
 
 
-	const onRouteEditTimetableTypeSelect = async (index) => {
+	const onRunningNoSelect = async (index) => {
 		console.log("##### index"+index);
-		setSelectedIndexEdit(index);
+		setSelectedIndexRunningNo(index);
 		//console.log("##### runningNo"+appStore.routeBus.getAllRunningNos()[selectedIndexEdit]);
-		setDisplayValueEdit(appStore.routeBus.getAllRunningNos()[index-1]);
+		setRunningNo(appStore.routeBus.getAllRunningNos()[index-1]);
 	}
+
+	const onReturnJourneyRunningNoSelect = async (index) => {
+		setSelectedIndexReturnJourneyRunningNo(index);
+		setReturnJourneyRunningNo(appStore.routeBus.getAllRunningNos()[index-1]);
+	}
+
+
+	
 
 	const onRegNoSelect = async (index) => {
 		setSelectedIndexRegNo(index);
@@ -390,10 +407,18 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		setSelectedDate(-1);
 	}
 
-	const onBusAssignPress = async (regNo,licenseNo,index) => {
+	const onBusAssignPress = async (index,regNo, runningNo) => {
+		console.log("index:"+index+" regNo:"+regNo+" runningNo:"+runningNo);
+		if(tabSelectedIndex == 0){
+			console.log("tabSelectedIndex:"+tabSelectedIndex+" regNo:"+regNo+" runningNo:"+runningNo);
+			setRegNo(regNo);
+			setRunningNo(runningNo);
+		}else{
+			console.log("tabSelectedIndex:"+tabSelectedIndex+" returnJourneyRegNo:"+regNo+" returnJourneyRunningNo:"+runningNo);
+			setReturnJourneyRegNo(regNo);
+			setReturnJourneyRunningNo(runningNo);
+		}
 		setAssignBusIndex(index);
-		//setRegNo(regNo);
-		//setLicenseNo(licenseNo);
 		refRBSheetActions.current.open();
 	};
 
@@ -442,15 +467,35 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					</View>
 
 					<View style={{ margin: 10}}>
-						<Text style={{ padding: 5, paddingLeft: 10}}>Runnning No</Text>
+						{tabSelectedIndex == 0 && (
+						 <View>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Runnning No 1</Text>
+						
 						<Select
-							selectedIndex={selectedIndexEdit}
-							onSelect={(index) => onRouteEditTimetableTypeSelect(index)}
-							value={displayValueEdit}>
+							selectedIndex={selectedIndexRunningNo}
+							onSelect={(index) => onRunningNoSelect(index)}
+							value={runningNo}>
 							{appStore.routeBus.getAllRunningNos().map((runningNo, index) => (
 							<SelectItem key={index} title={runningNo} />
 							))}
 						</Select>
+						</View>
+						)}
+						{tabSelectedIndex != 0 && (
+						 <View>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Runnning No 2</Text>
+						
+							<Select
+							selectedIndex={selectedIndexReturnJourneyRunningNo}
+							onSelect={(index) => onReturnJourneyRunningNoSelect(index)}
+							value={returnJourneyRunningNo}>
+							{appStore.routeBus.getAllRunningNos().map((runningNo, index) => (
+							<SelectItem key={index} title={runningNo} />
+							))}
+						</Select>
+						</View>
+						)}
+						
 					</View>
 				</View>
 
@@ -500,15 +545,35 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					</View>
 
 					<View style={{ margin: 10}}>
-						<Text style={{ padding: 5, paddingLeft: 10}}>Runnning No</Text>
+						{tabSelectedIndex == 0 && (
+						 <View>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Runnning No 1</Text>
+						
 						<Select
-							selectedIndex={selectedIndexEdit}
-							onSelect={(index) => onRouteEditTimetableTypeSelect(index)}
-							value={displayValueEdit}>
+							selectedIndex={selectedIndexRunningNo}
+							onSelect={(index) => onRunningNoSelect(index)}
+							value={runningNo}>
 							{appStore.routeBus.getAllRunningNos().map((runningNo, index) => (
 							<SelectItem key={index} title={runningNo} />
 							))}
 						</Select>
+						</View>
+						)}
+						{tabSelectedIndex != 0 && (
+						 <View>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Runnning No 2</Text>
+						
+							<Select
+							selectedIndex={selectedIndexReturnJourneyRunningNo}
+							onSelect={(index) => onReturnJourneyRunningNoSelect(index)}
+							value={returnJourneyRunningNo}>
+							{appStore.routeBus.getAllRunningNos().map((runningNo, index) => (
+							<SelectItem key={index} title={runningNo} />
+							))}
+						</Select>
+						</View>
+						)}
+						
 					</View>
 				</View>
 				
@@ -532,9 +597,9 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							{appStore.routeBus.rotationBuses.find(product => product.regNo === busAssign.regNo)?.startEnd == appStore.routeBus.journey.stoppings[0].place && (
 							<Card key={index} 
 							style={[
-							assignBusIndex != index? styles.item : styles.itemSelected
+							assignBusIndex == index? styles.item : styles.itemSelected
 							]}
-							onPress={()=>onBusAssignPress(busAssign.regNo,busAssign.runningNo,index)}>
+							onPress={()=>onBusAssignPress(index,busAssign.regNo, busAssign.runningNo)}>
 								
 								<Card>
 									<Text style={styles.itemHeader}>Running No</Text>
@@ -568,9 +633,9 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							{appStore.routeBus.rotationBuses.find(product => product.regNo === busAssign.regNo)?.startEnd == appStore.routeBus.returnJourney.stoppings[0].place && (
 							<Card key={index} 
 							style={[
-							assignBusIndex != index? styles.item : styles.itemSelected
+							assignBusIndex == index? styles.item : styles.itemSelected
 							]}
-							onPress={()=>onBusAssignPress(busAssign.regNo,busAssign.runningNo,index)}>
+							onPress={()=>onBusAssignPress(index,busAssign.regNo, busAssign.runningNo)}>
 								
 								<Card>
 									<Text style={styles.itemHeader}>Running No</Text>

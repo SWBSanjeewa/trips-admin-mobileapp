@@ -527,7 +527,6 @@ const NewRouteVirtualBusStore = types
         schedule.timetables?.forEach(timetable => {
           timetable.turns?.forEach(turn => {
             if(turn?.runningNo){
-              console.log(turn?.runningNo);
               if(turn.runningNo!="SLTB")
                 runningNos.push(turn.runningNo);
             }
@@ -538,7 +537,6 @@ const NewRouteVirtualBusStore = types
         schedule.timetables?.forEach(timetable => {
           timetable.turns?.forEach(turn => {
             if(turn?.runningNo){
-              console.log(turn?.runningNo);
               if(turn.runningNo!="SLTB")
                 runningNos.push(turn.runningNo);
             }
