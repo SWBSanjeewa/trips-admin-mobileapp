@@ -29,6 +29,7 @@ export interface SeatsLayoutProps {
   maxSeatToSelect?: number;
   numberTextStyle?: TextStyle;
   row: number;
+  noOfFoldableSeats: number;
   seatImage?: AvaiableSeat;
   selectedSeats?: Array<SelectedSeats>;
 }
@@ -43,6 +44,7 @@ const SeatsLayout: React.FC<SeatsLayoutProps> = ({
   maxSeatToSelect = 7,
   numberTextStyle,
   row = 10,
+  noOfFoldableSeats = 0,
   seatImage = undefined,
   selectedSeats = [],
 }) => {
@@ -51,200 +53,217 @@ const SeatsLayout: React.FC<SeatsLayoutProps> = ({
   const isEntryDoorAtFront = true;
   const userSelectedSeats = useRef<Array<SeatLayout>>([]);
 
-  useLayoutEffect(() => {
-  const getSelectedSeat = (seatNumber: number) => {
-    return selectedSeats.find(
-      (item) => item.seatNumber === seatNumber
-    );
-  };
+
+
+
+useLayoutEffect(() => {
+  let allArray: Array<Array<SeatLayout>> = [];
+  let i = 0;
+
+  // Passenger seat numbering starts from 1.
+  let seatNumber = 1;
 
   /**
-   * Generates the first row of the bus.
-   *
-   * The first row contains the driver and/or empty spaces
-   * depending on the door and driver position configuration.
+   * Controls whether the front row should contain
+   * one passenger seat at the position furthest
+   * from the driver.
    */
-  const generateFirstRow = (
-    rowIndex: number
-  ): Array<SeatLayout> => {
-    const seatArray: Array<SeatLayout> = [];
-    const totalColumns =
-      layout.columnOne + layout.columnTwo;
+  const hasFrontRowPassengerSeat = true;
 
-    let columnIndex = 0;
+  while (i < row) {
+    let j = 0;
 
-    // Add driver/front-door position
-    if (isEntryDoorAtFront) {
-      seatArray.push({
-        id: `${rowIndex},${columnIndex}`,
-        type:
-          driverPosition === 'left'
-            ? 'driver'
-            : 'emptySpace',
-      });
-    }
+    let seatArray: Array<SeatLayout> = [];
 
-    while (columnIndex < totalColumns) {
-      const isLastColumn =
-        columnIndex === totalColumns - 1;
+    let seatLayout: SeatLayout = {
+      id: '-1',
+      type: 'blocked',
+    };
 
-      seatArray.push({
-        id: `${rowIndex},${columnIndex}`,
-        type: isLastColumn
-          ? driverPosition === 'left'
-            ? 'emptySpace'
-            : 'driver'
-          : 'emptySpace',
-      });
+    /*
+     * FRONT ROW
+     */
+    if (i === 0 && j === 0) {
+      const totalColumns =
+        layout.columnOne + layout.columnTwo;
 
-      /**
-       * When the entry door is not at the front,
-       * add an additional empty space after columnOne.
-       */
-      if (
-        !isEntryDoorAtFront &&
-        columnIndex === layout.columnOne - 1
-      ) {
-        seatArray.push({
-          id: `${rowIndex},${columnIndex + 1}`,
-          type: 'emptySpace',
-        });
-      }
-
-      columnIndex += 1;
-    }
-
-    return seatArray;
-  };
-
-  /**
-   * Generates a normal seat row.
-   *
-   * Seat numbers are now completely unidirectional:
-   *
-   * Row 1 -> 1, 2, 3, 4
-   * Row 2 -> 5, 6, 7, 8
-   * Row 3 -> 9, 10, 11, 12
-   *
-   * There is no reverse numbering based on odd/even rows.
-   */
-  const generateSeatRow = (
-    rowIndex: number,
-    seatNumber: number
-  ): {
-    seatArray: Array<SeatLayout>;
-    nextSeatNumber: number;
-  } => {
-    const seatArray: Array<SeatLayout> = [];
-
-    const totalColumns =
-      layout.columnOne + layout.columnTwo;
-
-    let columnIndex = 0;
-    let currentSeatNumber = seatNumber;
-    let aisleAdded = false;
-
-    while (columnIndex < totalColumns) {
-      const selectedSeat = getSelectedSeat(
-        currentSeatNumber
-      );
-
-      seatArray.push({
-        id: `${rowIndex},${
-          aisleAdded ? columnIndex + 1 : columnIndex
-        }`,
-        type:
-          selectedSeat?.seatType ?? 'available',
-        seatNo: currentSeatNumber,
-        isSeatSeleced: !!selectedSeat,
-      });
-
-      /**
-       * Add aisle / additional seat after columnOne.
+      /*
+       * Driver is at the front.
        *
-       * On the last row, the original code treats this
-       * position as an additional seat rather than an aisle.
+       * The passenger seat, when enabled, is placed
+       * at the position furthest from the driver.
        */
-      if (columnIndex === layout.columnOne - 1) {
-        const isLastRow = rowIndex === row - 1;
+      while (j < totalColumns) {
+        const isFirstColumn = j === 0;
+        const isLastColumn =
+          j === totalColumns - 1;
 
-        if (isLastRow) {
-          currentSeatNumber += 1;
+        let type: SeatLayout['type'] = 'emptySpace';
 
-          const selectedLastRowSeat =
-            getSelectedSeat(currentSeatNumber);
+        /*
+         * Driver position is on the left.
+         *
+         * Driver -> left
+         * Passenger -> furthest right
+         */
+        if (driverPosition === 'left') {
+          if (isFirstColumn) {
+            type = 'driver';
+          } else if (
+            hasFrontRowPassengerSeat &&
+            isLastColumn
+          ) {
+            type = 'available';
+          }
+        }
 
-          seatArray.push({
-            id: `${rowIndex},${columnIndex + 1}`,
+        /*
+         * Driver position is on the right.
+         *
+         * Passenger -> furthest left
+         * Driver -> right
+         */
+        if (driverPosition === 'right') {
+          if (isLastColumn) {
+            type = 'driver';
+          } else if (
+            hasFrontRowPassengerSeat &&
+            isFirstColumn
+          ) {
+            type = 'available';
+          }
+        }
+
+        /*
+         * If the front door is not at the front,
+         * preserve the empty space after columnOne.
+         */
+        seatLayout = {
+          id: `${i},${j}`,
+          type,
+        };
+
+        /*
+         * Assign seat number to the optional
+         * front-row passenger seat.
+         */
+        if (type === 'available') {
+          const selectedSeat = selectedSeats.find(
+            (item) =>
+              item.seatNumber === seatNumber
+          );
+
+          seatLayout = {
+            id: `${i},${j}`,
             type:
-              selectedLastRowSeat?.seatType ??
-              'available',
-            seatNo: currentSeatNumber,
-            isSeatSeleced:
-              !!selectedLastRowSeat,
-          });
-        } else {
+              selectedSeat?.seatType ?? 'available',
+            seatNo: seatNumber,
+            isSeatSeleced: !!selectedSeat,
+          };
+
+          seatNumber += 1;
+        }
+
+        seatArray.push(seatLayout);
+
+        if (
+          !isEntryDoorAtFront &&
+          j === layout.columnOne - 1
+        ) {
           seatArray.push({
-            id: `${rowIndex},${columnIndex + 1}`,
+            id: `${i},${j + 1}`,
             type: 'emptySpace',
           });
         }
 
-        aisleAdded = true;
+        j += 1;
       }
+    } else {
+      /*
+       * PASSENGER ROWS
+       */
+      let bSpaceAdded = false;
 
-      currentSeatNumber += 1;
-      columnIndex += 1;
-    }
-
-    return {
-      seatArray,
-      nextSeatNumber: currentSeatNumber,
-    };
-  };
-
-  /**
-   * Generates the complete bus layout.
-   */
-  const generateBusLayout = (): Array<
-    Array<SeatLayout>
-  > => {
-    const allArray: Array<Array<SeatLayout>> = [];
-
-    let nextSeatNumber = 1;
-
-    for (
-      let rowIndex = 0;
-      rowIndex < row;
-      rowIndex += 1
-    ) {
-      // First row is the driver/front area
-      if (rowIndex === 0) {
-        allArray.push(
-          generateFirstRow(rowIndex)
+      while (
+        j < layout.columnOne + layout.columnTwo
+      ) {
+        const selectedSeat = selectedSeats.find(
+          (item) =>
+            item.seatNumber === seatNumber
         );
-        continue;
+
+        seatLayout = {
+          id: `${i},${
+            bSpaceAdded ? j + 1 : j
+          }`,
+          type:
+            selectedSeat?.seatType ?? 'available',
+          seatNo: seatNumber,
+          isSeatSeleced: !!selectedSeat,
+        };
+
+        seatArray.push(seatLayout);
+
+        /*
+         * Add aisle between the two seat sections.
+         *
+         * On the last row, the aisle position is
+         * still treated as an additional passenger seat.
+         */
+        if (j === layout.columnOne - 1) {
+          var iterations = 0;
+          if((noOfFoldableSeats>0)&&(noOfFoldableSeats<row-1)){
+            iterations = row - (noOfFoldableSeats+1);
+          }else{
+            iterations = row - 1;
+          }
+          if (i >= iterations) {
+          //if (i === row - 1) {
+            seatNumber += 1;
+
+            const lastRowSelectedSeat =
+              selectedSeats.find(
+                (item) =>
+                  item.seatNumber === seatNumber
+              );
+
+            seatLayout = {
+              id: `${i},${j + 1}`,
+              type:
+                lastRowSelectedSeat?.seatType ??
+                'available',
+              seatNo: seatNumber,
+              isSeatSeleced:
+                !!lastRowSelectedSeat,
+            };
+          } else {
+            seatLayout = {
+              id: `${i},${j + 1}`,
+              type: 'emptySpace',
+              seatNo: 0,
+              isSeatSeleced: false,
+            };
+          }
+
+          seatArray.push(seatLayout);
+
+          bSpaceAdded = true;
+        }
+
+        j += 1;
+        seatNumber += 1;
       }
-
-      const result = generateSeatRow(
-        rowIndex,
-        nextSeatNumber
-      );
-
-      allArray.push(result.seatArray);
-
-      nextSeatNumber = result.nextSeatNumber;
     }
 
-    return allArray;
-  };
+    allArray.push(seatArray);
+    i += 1;
+  }
 
-  const bookingSeat = generateBusLayout();
-
-  setBookingSeat(bookingSeat);
+  setBookingSeat(allArray);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
+
 
 
   useLayoutEffect(() => {

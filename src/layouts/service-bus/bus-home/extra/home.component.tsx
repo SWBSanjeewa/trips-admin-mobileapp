@@ -14,7 +14,7 @@ import { toJS } from "mobx";
 import { observer} from "mobx-react";
 import { useStore } from "mobx-store-provider";
 import { ITEM_WIDTH } from "../../location-add";
-import SeatsLayout from "../../../../components/bus-seat"
+
 
 
 
@@ -93,28 +93,7 @@ const HomeComponent = ({ navigation }): React.ReactElement => {
 
 	return (
 		<SafeAreaProvider>
-			<SeatsLayout
-				row={14}
-				layout={{ columnOne: 4, columnTwo: 0}}
-				selectedSeats={[
-				{ seatNumber: 1, seatType: 'booked' }, // Booked seat
-				{ seatNumber: 2, seatType: 'blocked' }, // Blocked Seat data
-				{ seatNumber: 5, seatType: 'door' }, // Show Door
-				{ seatNumber: 6, seatType: 'emptySpace' }, // Empty space
-				{ seatNumber: 11, seatType: 'women' },
-				{ seatNumber: 12, seatType: 'women' }, // Women seat
-				{ seatNumber: 16, seatType: 'booked' },
-				{ seatNumber: 17, seatType: 'door' }, // Show Door
-				{ seatNumber: 18, seatType: 'emptySpace' }, // Empty space
-				{ seatNumber: 29, seatType: 'door' }, // Show Door
-				{ seatNumber: 30, seatType: 'emptySpace' },
-			  ]}
-				numberTextStyle={{ fontSize: 12 }}
-			   
-				getBookedSeats={(seats) => {
-					console.log('getBookedSeats :: ', seats);
-				}}
-			/>
+			
 			
 			<View style={styles.parentContainer} > 
 			

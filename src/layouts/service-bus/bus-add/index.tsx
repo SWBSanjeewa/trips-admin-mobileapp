@@ -27,6 +27,8 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
+import SeatsLayout from "../../../components/bus-seat"
+
 const BusAdd = ({ navigation }): React.ReactElement => {
 
 	const refAutoComplete = useRef(null);
@@ -571,6 +573,22 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 			<View style={{flexDirection: "row", justifyContent: "space-between"}}>
 				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onCreatePress()}>Create</Button>
 			</View>
+
+			<SeatsLayout
+							row={8}
+							noOfFoldableSeats={6}
+							layout={{ columnOne: 1, columnTwo: 2}}
+							selectedSeats={[
+							{ seatNumber: 2, seatType: 'blocked' }, // Booked seat
+							{ seatNumber: 6, seatType: 'door' }, // Show Door
+							{ seatNumber: 7, seatType: 'emptySpace' }, // Show Door
+						  ]}
+							numberTextStyle={{ fontSize: 12 }}
+						   
+							getBookedSeats={(seats) => {
+								console.log('getBookedSeats :: ', seats);
+							}}
+						/>
 			
 		</ScrollView>
 		
