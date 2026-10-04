@@ -6,6 +6,7 @@ import NewRouteVirtualBusStore, {Timetable,Schedule} from "./RouteBusStore";
 
 import TourStore from "./TourStore";
 import StoppingStore from "./Stopping";
+import VehcleSeatLayout from "./VehcleSeatLayout";
 
 
 
@@ -1155,6 +1156,9 @@ const AppStore = types.model("App", {
     title: ""
   }),
   routeBus: types.optional(NewRouteVirtualBusStore, {
+    title: ""
+  }),
+  vehcleSeatLayout: types.optional(VehcleSeatLayout, {
     title: ""
   }),
   tour: types.optional(TourStore, {

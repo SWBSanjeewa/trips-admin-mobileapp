@@ -112,6 +112,11 @@ export const noOfMinutes = Array.from({ length: 60 }, (_, i) => ({
 	value: `${i + 1} Mins`
 }));
 
+export const noOfFoldableSeats = Array.from({ length: 10 }, (_, i) => ({
+	key: (i).toString(),
+	value: `${i + 1} Mins`
+}));
+
 
 
 export const getRouteColor = (routeType) => {

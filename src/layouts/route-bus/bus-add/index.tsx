@@ -27,7 +27,7 @@ import { SafeAreaLayout, SafeAreaLayoutProps } from "./../../../components/safe-
 //import { KeyboardController, AndroidSoftInputModes } from 'react-native-keyboard-controller';
 import { KeyboardAwareScrollView, KeyboardToolbar } from 'react-native-keyboard-controller';
 
-const BusAdd = ({ navigation }): React.ReactElement => {
+const VehicleSeatLayout = ({ navigation }): React.ReactElement => {
 
 	const refAutoComplete = useRef(null);
 
@@ -592,4 +592,4 @@ const styles = StyleSheet.create({
 	
 });
 
-export default observer(BusAdd);
+export default observer(VehicleSeatLayout);

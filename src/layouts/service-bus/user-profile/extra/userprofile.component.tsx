@@ -338,10 +338,10 @@ const UserProfileComponent = ({ navigation }): React.ReactElement => {
 				</View>
 			</Card>
 
-			<Card style={{ margin: 10}} onPress={() => navigation.navigate("TransportServiceList")}>
+			<Card style={{ margin: 10}} onPress={() => navigation.navigate("VehicleSeatLayoutsList")}>
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Vehicles Seats Arrangements</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("TransportServiceList")}/>
+					<Text>Vehicle Seat Layouts</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("VehicleSeatLayoutsList")}/>
 				</View>
 			</Card>
 			

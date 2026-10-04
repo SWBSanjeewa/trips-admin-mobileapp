@@ -27,7 +27,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import SeatsLayout from "../../../components/bus-seat"
+import SeatsLayout from "../../../components/bus-seat";
 
 const BusAdd = ({ navigation }): React.ReactElement => {
 
@@ -574,15 +574,15 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onCreatePress()}>Create</Button>
 			</View>
 
+
+
 			<SeatsLayout
-							row={8}
-							noOfFoldableSeats={6}
-							layout={{ columnOne: 1, columnTwo: 2}}
-							selectedSeats={[
-							{ seatNumber: 2, seatType: 'blocked' }, // Booked seat
-							{ seatNumber: 6, seatType: 'door' }, // Show Door
-							{ seatNumber: 7, seatType: 'emptySpace' }, // Show Door
-						  ]}
+							row={20}
+							
+							//noOfFoldableSeats={6}
+							noOfFoldableSeats={0}
+							layout={{ columnOne: 2, columnTwo: 2}}
+							
 							numberTextStyle={{ fontSize: 12 }}
 						   
 							getBookedSeats={(seats) => {

@@ -25,6 +25,7 @@ export interface SeatsLayoutProps {
   driverPosition?: DriverPosition;
   getBookedSeats?: (seats: Array<SeatLayout>) => void;
   isSleeperLayout?: boolean;
+  hasFrontRowPassengerSeat?: boolean;
   layout: Layout;
   maxSeatToSelect?: number;
   numberTextStyle?: TextStyle;
@@ -40,6 +41,7 @@ const SeatsLayout: React.FC<SeatsLayoutProps> = ({
   driverPosition = 'right',
   getBookedSeats,
   isSleeperLayout = false,
+  hasFrontRowPassengerSeat = false,
   layout = { columnOne: 2, columnTwo: 2 },
   maxSeatToSelect = 7,
   numberTextStyle,
@@ -63,13 +65,7 @@ useLayoutEffect(() => {
   // Passenger seat numbering starts from 1.
   let seatNumber = 1;
 
-  /**
-   * Controls whether the front row should contain
-   * one passenger seat at the position furthest
-   * from the driver.
-   */
-  const hasFrontRowPassengerSeat = true;
-
+  
   while (i < row) {
     let j = 0;
 
