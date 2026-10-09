@@ -7,6 +7,7 @@ import NewRouteVirtualBusStore, {Timetable,Schedule} from "./RouteBusStore";
 import TourStore from "./TourStore";
 import StoppingStore from "./Stopping";
 import VehcleSeatLayout from "./VehcleSeatLayout";
+import vehicleSeatLayoutList from "../layouts/service-bus/vehicle-seat-layout-list";
 
 
 
@@ -1140,6 +1141,19 @@ const RouteBuses = types.model({
 }))
 
 
+const VehcleSeatLayouts = types.model({
+  vehcleSeatLayouts: types.array(VehcleSeatLayout),
+})
+.actions((self) => ({
+  addVehcleSeatLayout(vehcleSeatLayout){
+    self.vehcleSeatLayouts.push(vehcleSeatLayout);
+  },
+  reset(){
+    self.vehcleSeatLayouts = VehcleSeatLayout[0];
+  }
+}))
+
+
 
 const defaultBus = NewBusStore.create({
   title: "Title"
@@ -1187,6 +1201,8 @@ const AppStore = types.model("App", {
   tours: types.optional(Tours, {
   }),
   routeBuses: types.optional(RouteBuses, {
+  }),
+  vehicleSeatLayouts: types.optional(VehcleSeatLayouts, {
   }),
   //routeBusTimetable: types.optional(Timetable,{
   //})

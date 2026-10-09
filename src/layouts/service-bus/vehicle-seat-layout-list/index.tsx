@@ -1,7 +1,8 @@
 import { Button, Card, Text,CheckBox,Select,SelectItem,IndexPath ,Layout, TabView, Tab} from "@ui-kitten/components";
 import React,{useRef,useState,useEffect} from "react";
-import { StyleSheet, View, TouchableOpacity, TextInput,ScrollView,Pressable} from "react-native";
+import { StyleSheet, View, TouchableOpacity, TextInput,ScrollView,ActivityIndicator} from "react-native";
 import AppStore from "../../../store/AppStore";
+import { useFocusEffect } from '@react-navigation/native';
 import { observer, inject} from "mobx-react";
 import { useStore } from "mobx-store-provider";
 import { toJS } from "mobx";
@@ -24,6 +25,9 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const appStore = useStore(AppStore);
 	const route = useRoute();
+
+	const [vehicleSeatLayouts, setVehicleSeatLayouts] = useState([]);
+	const [loading, setLoading] = useState(true);
 
 	const [edit, setEdit] = useState(false);
 
@@ -105,7 +109,11 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 	const [displayValue, setDisplayValue] = useState(null);
 
-	const [allowedBusIndex, setAllowedBusIndex] = React.useState<number>(-1);
+	const [selectedVehicleSeatLayoutId, setSelectedVehicleSeatLayoutId] = React.useState(null);
+
+	const [selectedVehicleSeatLayoutIndex, setSlectedVehicleSeatLayoutIndex] = useState(-1);
+
+	
 	
 	const refRBSheetActions = useRef();
 	
@@ -145,33 +153,15 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			} as RawAxiosRequestHeaders,
 		};
 
-		const data = {
-			regNo: regNo,
-			licenseNo: licenseNo,
-			startEnd: ""
-		};
-
-		
-		if(selectedIndex==0){
-			data.startEnd = appStore.routeBus.journey.stoppings[0].place;
-		}else{
-			data.startEnd = appStore.routeBus.returnJourney.stoppings[0].place;
-		}
-
 		try {
-			
-			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationBuses/add/`,data , config);
+			console.log("##### "+JSON.stringify(toJS(appStore.vehcleSeatLayout)));	
+			console.log("/vehcleSeatLayouts/create");
+			const response: AxiosResponse = await client.post(`/vehicleSeatLayouts/create`,appStore.vehcleSeatLayout , config);
 			if(response.status == 200){
-				if(selectedIndex==0){
-					appStore.routeBus.addRotationBus(regNo,licenseNo,appStore.routeBus.journey.stoppings[0].place);
-				}else{
-					appStore.routeBus.addRotationBus(regNo,licenseNo,appStore.routeBus.returnJourney.stoppings[0].place);
-				}
-		
-				//setRegNo("");
-				setLicenseNo("");
-				addCallback(false);
+				setLoading(true);
+				loadVehicleSeatLayouts();
 			}
+			addCallback(false);
 			
 			
 		} catch(err) {
@@ -179,9 +169,34 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		}
 	}
 
-	const onRotationBusEditPress = async() => {
-		console.log("#### onRotationBusEditPress ####");
-	}
+	const loadVehicleSeatLayouts = async() => {
+		console.log("Load transport services...");
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+			};
+			try {	
+				const response: AxiosResponse = await client.get(`/vehicleSeatLayouts/getAll` , config);
+				setVehicleSeatLayouts(response.data);  
+			} catch(err) {
+				console.log(err);
+				
+			}  
+			setLoading(false);
+		
+	};
+
+	useFocusEffect(
+		React.useCallback(() => {
+			loadVehicleSeatLayouts()
+			return () => {
+			// Do something when the screen is unfocused
+			// Useful for cleanup functions
+			};
+		}, [])
+	);
 
 	
 
@@ -197,32 +212,25 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		setLicenseNo("");
 	};
 
-	const onCreatePressBck = async() => {
-		const config: AxiosRequestConfig = {
-			headers: {
-			  'Accept': 'application/json',
-			  'token': appStore.user.accessToken
-			} as RawAxiosRequestHeaders,
-		  };
-		  try {
-			  if(isValidValues()){
-				console.log("##### "+JSON.stringify(toJS(appStore.transportService)));	
-				const response: AxiosResponse = await client.post(`/transportServices/create`, appStore.transportService , config);
-				console.log(response.status);
-				console.log(response.data.json); 
-				appStore.transportService.reset();
-				navigation && navigation.navigate("TransportServiceList");
-			  }
-		  } catch(err) {
-			console.log(err);
-		  }  
-	}
-
 	
-	const onRotationBusPress = async (regNo,licenseNo,index) => {
-		setAllowedBusIndex(index);
-		//setRegNo(regNo);
-		setLicenseNo(licenseNo);
+	
+	const onVehicleSeatLayoutPress = async (vehicleSeatLayout,index) => {
+		setSlectedVehicleSeatLayoutIndex(index);
+		setSelectedVehicleSeatLayoutId(vehicleSeatLayout.id);
+		appStore.vehcleSeatLayout.populate(vehicleSeatLayout);
+
+		var indexPaths=[];
+		appStore.vehcleSeatLayout.doorSeatNumbers.forEach(element => {
+			indexPaths.push(new IndexPath(element));
+		});
+		setSelectedDoorSeatsIndex(indexPaths);
+
+		var emptySpaceIndexPaths=[];
+		appStore.vehcleSeatLayout.emptySeatNumbers.forEach(element => {
+			emptySpaceIndexPaths.push(new IndexPath(element));
+		});
+		setSelectedEmptySeatsIndex(emptySpaceIndexPaths);
+
 		refRBSheetActions.current.open();
 	};
 
@@ -235,18 +243,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		refRBSheetDeleteConfirm.current.open()
 	};
 
-	const onUpdatePressBck = (): void => {
-		if(selectedIndex){
-			appStore.routeBus.updateRotationBusByIndex(regNo, licenseNo,appStore.routeBus.returnJourney.stoppings[0].place, allowedBusIndex);
-		}else{
-			appStore.routeBus.updateRotationBusByIndex(regNo, licenseNo,appStore.routeBus.journey.stoppings[0].place, allowedBusIndex);
-		}
-		setEdit(false);
-		//setRegNo("");
-		setLicenseNo("");
-		
-	};
-
+	
 
 	const onUpdatePress = async() => {
 		
@@ -259,36 +256,21 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			} as RawAxiosRequestHeaders,
 		};
 
-		const data = {
-			//regNo: regNo,
-			licenseNo: licenseNo,
-			startEnd: ""
-		};
-
-		if(selectedIndex==0){
-			data.startEnd = regNo,licenseNo,appStore.routeBus.journey.stoppings[0].place;
-		}else{
-			data.startEnd = appStore.routeBus.returnJourney.stoppings[0].place;
-		}
 
 		try {
 			
-			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationBuses/`+allowedBusIndex+`/edit`,data , config);
+			const response: AxiosResponse = await client.put(`/vehicleSeatLayouts/`+selectedVehicleSeatLayoutId+`/edit`, appStore.vehcleSeatLayout, config);
 			if(response.status == 200){
-				if(selectedIndex){
-					appStore.routeBus.updateRotationBusByIndex(regNo, licenseNo,appStore.routeBus.returnJourney.stoppings[0].place, allowedBusIndex);
-				}else{
-					appStore.routeBus.updateRotationBusByIndex(regNo, licenseNo,appStore.routeBus.journey.stoppings[0].place, allowedBusIndex);
-				}
+				setLoading(true);
+				loadVehicleSeatLayouts();
 				setEdit(false);
-				//setRegNo("");
-				setLicenseNo("");
 			}
 			
 			
 		} catch(err) {
 			console.log(err);
 		}
+
 	}
 
 
@@ -298,8 +280,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	};
 
 	
-
-
 	const onDeleteConfirmPress = async() => {
 		
 		
@@ -312,18 +292,17 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 		try {
 			
-			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/rotationBuses/`+allowedBusIndex+`/delete` , config);
+			const response: AxiosResponse = await client.delete(`/vehicleSeatLayouts/`+selectedVehicleSeatLayoutId , config);
 			if(response.status == 200){
-				appStore.routeBus.deleteRotationBusByIndex(allowedBusIndex);
-				//setRegNo("");
-				setLicenseNo("");
-				refRBSheetDeleteConfirm.current.close();
+				setLoading(true);
+				loadVehicleSeatLayouts();
 			}
 			
 			
 		} catch(err) {
 			console.log(err);
 		}
+		refRBSheetDeleteConfirm.current.close();
 	}
 
 	const onNoOfRowsSelect = (index): void => {
@@ -359,12 +338,38 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	  emptySeatNumbers: types.array(types.number)
 	*/
 
-	useEffect(() => {
+	const getSeatAllocations = (): [] => {
+		var selectedSeats=[];
+		appStore.vehcleSeatLayout.doorSeatNumbers.forEach(seat => {
+			console.log("door seat:"+seat);
+			selectedSeats.push({seatNumber: seat, seatType: 'door'});
+		});
+		appStore.vehcleSeatLayout.emptySeatNumbers.forEach(seat => {
+			console.log("empty seat:"+seat);
+			selectedSeats.push({seatNumber: seat, seatType: 'emptySpace'});
+		});
+
+		return selectedSeats;
 		
-		
-	}, [appStore.vehcleSeatLayout]);
+	};
+
+	const onDoorSeatsSelect = (index: IndexPath) => {
+		setSelectedDoorSeatsIndex(index as IndexPath[]);
+		appStore.vehcleSeatLayout.setDoorSeatNumbers(index);
+	};
+
+	const onEmptySpaceSelect = (index: IndexPath) => {
+		setSelectedEmptySeatsIndex(index as IndexPath[]);
+		appStore.vehcleSeatLayout.setEmptySeatNumbers(index);
+	};
+
+	
 
 	// }, [appStore.routeBus?.rotationPlans[route.params.rotationPlan_index]?.busAssigns?.length]); 
+
+	if (loading) {
+		return <ActivityIndicator/>;
+	}
 	
 	return (
 		
@@ -386,7 +391,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 						<Text style={styles.label}>Title</Text>
 					</View>
 					<View style={titleCustomStyle}>
-						<TextInput key="title" placeholder="NB-2222" onChangeText={setTitle} value={title} />
+						<TextInput key="title" placeholder="Rosa/Fuso Bus with 29 seats" onChangeText={appStore.vehcleSeatLayout.setTitle} value={appStore.vehcleSeatLayout.title} />
 					</View>
 				</View>
 
@@ -446,8 +451,167 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					</View>
 				</View>
 
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>No of Foldable Seats</Text>
+						<View style={{ margin: 10}}>
+						<Select
+							placeholder="Default"
+							value={String(appStore.vehcleSeatLayout.noOfFoldableSeats)}
+							selectedIndex={noOfFoldableSeatsSelectedIndex}
+							onSelect={(index: IndexPath) => onNoOfFoldableSeatsSelect(index)}
+							>
+							{foldableSeats.map(renderOptionFoldableSeats)}
+							</Select>
+					</View>
+					</View>
+				</View>
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Door Seats Numbers</Text>
+						<View style={{ margin: 10}}>
+						<Select
+							multiSelect={true}
+							placeholder='Select options...'
+							value={doorSeatsDisplayValue}
+							selectedIndex={selectedDoorSeatsIndex}
+							// Typings allow IndexPath | IndexPath[] here
+							// onSelect={(index) => setSelectedDoorSeatsIndex(index as IndexPath[])}
+							onSelect={(index) => onDoorSeatsSelect(index)}
+						>
+							{doorSeats.map((title, index) => (
+							<SelectItem key={index} title={title} />
+							))}
+						</Select>
+						
+					</View>
+					</View>
+				</View>
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Empty Seats Numbers</Text>
+						<View style={{ margin: 10}}>
+						<Select
+							multiSelect={true}
+							placeholder='Select options...'
+							value={emptySeatsDisplayValue}
+							selectedIndex={selectedEmptySeatsIndex}
+							onSelect={(index) => onEmptySpaceSelect(index)}
+							// Typings allow IndexPath | IndexPath[] here
+							//onSelect={(index) => setSelectedEmptySeatsIndex(index as IndexPath[])}
+						>
+							{emptySeats.map((title, index) => (
+							<SelectItem key={index} title={title} />
+							))}
+						</Select>
+						
+					</View>
+					</View>
+				</View>
 				
-								)}
+					
+			</View>
+		
+
+			<View style={{flexDirection: "row", justifyContent: "space-between"}}>
+				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onCreatePress()}>Create</Button>
+			</View>
+
+			 <SeatsLayout
+							key={`${appStore.vehcleSeatLayout.noOfRows}-${appStore.vehcleSeatLayout.noOfColumnsLeft}-${appStore.vehcleSeatLayout.noOfColumnsRight}-${appStore.vehcleSeatLayout.noOfFoldableSeats}-${appStore.vehcleSeatLayout.doorSeatNumbers}-${appStore.vehcleSeatLayout.emptySeatNumbers}-${appStore.vehcleSeatLayout.hasFrontRowPassengerSeat}`}
+							row={appStore.vehcleSeatLayout.noOfRows}
+							hasFrontRowPassengerSeat={appStore.vehcleSeatLayout.hasFrontRowPassengerSeat}
+							noOfFoldableSeats={appStore.vehcleSeatLayout.noOfFoldableSeats}
+							layout={{ columnOne: appStore.vehcleSeatLayout.noOfColumnsLeft, columnTwo: appStore.vehcleSeatLayout.noOfColumnsRight}}
+							selectedSeats={getSeatAllocations()}
+							numberTextStyle={{ fontSize: 12 }}
+							
+							getBookedSeats={(seats) => {
+							  console.log('getBookedSeats :: ', seats);
+							}}/>
+
+			</View>
+
+			)}
+
+			
+
+			{edit && (
+			<View>
+				<View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>	
+					<AntDesign style={{top: 4}} name="close" size={18} color="#444" onPress={onEditClosePress} />
+				</View>
+			
+			<View>
+				
+				
+				<View style={{ margin: 10}}>
+					<View style={styles.labelContainer}>
+						<Text style={styles.label}>Title</Text>
+					</View>
+					<View style={titleCustomStyle}>
+						<TextInput key="title" placeholder="Rosa/Fuso Bus with 29 seats" onChangeText={appStore.vehcleSeatLayout.setTitle} value={appStore.vehcleSeatLayout.title} />
+					</View>
+				</View>
+
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>No Of Row</Text>
+						<View style={{ margin: 10}}>
+						<Select
+							placeholder='Default'
+							value={appStore.vehcleSeatLayout.noOfRows}
+							selectedIndex={noOfRowSelectedIndex}
+							onSelect={(index: IndexPath) => onNoOfRowsSelect(index)}>
+							{rows.map(renderOptionRows)}
+						</Select>
+					</View>
+					</View>
+				</View>
+
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>No of Columns Left</Text>
+						<View style={{ margin: 10}}>
+						<Select
+							placeholder='Default'
+							value={appStore.vehcleSeatLayout.noOfColumnsLeft}
+							selectedIndex={noOfRowSelectedIndex}
+							onSelect={(index: IndexPath) => onNoOfColumnsLeftSelect(index)}>
+							{columns.map(renderOptionNoOfColumns)}
+						</Select>
+					</View>
+					</View>
+				</View>
+
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>No of Columns Right</Text>
+						<View style={{ margin: 10}}>
+						<Select
+							placeholder='Default'
+							value={appStore.vehcleSeatLayout.noOfColumnsRight}
+							selectedIndex={noOfColumnsRightSelectedIndex}
+							onSelect={(index: IndexPath) => onNoOfColumnsRightSelect(index)}>
+							{columns.map(renderOptionNoOfColumns)}
+						</Select>
+					</View>
+					</View>
+				</View>
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 0, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<View style={{ margin: 10}}>
+						<CheckBox style={{ margin: 2}}  checked={appStore.vehcleSeatLayout.hasFrontRowPassengerSeat} onChange={appStore.vehcleSeatLayout.setHasFrontRowPassengerSeat} >Passenger seat next to driver available</CheckBox>
+					</View>
+					</View>
+				</View>
 
 
 				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
@@ -476,7 +640,8 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							value={doorSeatsDisplayValue}
 							selectedIndex={selectedDoorSeatsIndex}
 							// Typings allow IndexPath | IndexPath[] here
-							onSelect={(index) => setSelectedDoorSeatsIndex(index as IndexPath[])}
+							// onSelect={(index) => setSelectedDoorSeatsIndex(index as IndexPath[])}
+							onSelect={(index) => onDoorSeatsSelect(index)}
 						>
 							{doorSeats.map((title, index) => (
 							<SelectItem key={index} title={title} />
@@ -496,8 +661,9 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							placeholder='Select options...'
 							value={emptySeatsDisplayValue}
 							selectedIndex={selectedEmptySeatsIndex}
+							onSelect={(index) => onEmptySpaceSelect(index)}
 							// Typings allow IndexPath | IndexPath[] here
-							onSelect={(index) => setSelectedEmptySeatsIndex(index as IndexPath[])}
+							//onSelect={(index) => setSelectedEmptySeatsIndex(index as IndexPath[])}
 						>
 							{emptySeats.map((title, index) => (
 							<SelectItem key={index} title={title} />
@@ -513,20 +679,16 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		
 
 			<View style={{flexDirection: "row", justifyContent: "space-between"}}>
-				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onCreatePress()}>Create</Button>
-			</View>
+					<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onUpdatePress()}>Edit</Button>
+				</View>
 
 			 <SeatsLayout
-							key={`${appStore.vehcleSeatLayout.noOfRows}-${appStore.vehcleSeatLayout.noOfColumnsLeft}-${appStore.vehcleSeatLayout.noOfColumnsRight}-${appStore.vehcleSeatLayout.noOfFoldableSeats}--${appStore.vehcleSeatLayout.doorSeatNumbers}-${appStore.vehcleSeatLayout.hasFrontRowPassengerSeat}`}
+							key={`${appStore.vehcleSeatLayout.noOfRows}-${appStore.vehcleSeatLayout.noOfColumnsLeft}-${appStore.vehcleSeatLayout.noOfColumnsRight}-${appStore.vehcleSeatLayout.noOfFoldableSeats}-${appStore.vehcleSeatLayout.doorSeatNumbers}-${appStore.vehcleSeatLayout.emptySeatNumbers}-${appStore.vehcleSeatLayout.hasFrontRowPassengerSeat}`}
 							row={appStore.vehcleSeatLayout.noOfRows}
 							hasFrontRowPassengerSeat={appStore.vehcleSeatLayout.hasFrontRowPassengerSeat}
 							noOfFoldableSeats={appStore.vehcleSeatLayout.noOfFoldableSeats}
 							layout={{ columnOne: appStore.vehcleSeatLayout.noOfColumnsLeft, columnTwo: appStore.vehcleSeatLayout.noOfColumnsRight}}
-							selectedSeats={[
-							{ seatNumber: 2, seatType: 'blocked' }, // Booked seat
-							{ seatNumber: 6, seatType: 'door' }, // Show Door
-							{ seatNumber: 7, seatType: 'emptySpace' }, // Show Door
-							]}
+							selectedSeats={getSeatAllocations()}
 							numberTextStyle={{ fontSize: 12 }}
 							
 							getBookedSeats={(seats) => {
@@ -537,127 +699,25 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 			)}
 
-			{edit && (
-			<View>
-				 <View style={{  padding: 1, margin: 5 ,flexDirection: "row", justifyContent: "flex-end"}}>	
-					<AntDesign style={{top: 4}} name="close" size={18} color="#444" onPress={onEditClosePress} />
-				</View>
 			
-			<View>
-				
-				<View style={{ margin: 10}}>
-					<View style={styles.labelContainer}>
-						<Text style={styles.label}>RegNo</Text>
-					</View>
-					<View style={regNoCustomStyle}>
-						<TextInput key="regno" placeholder="NB-2222" onChangeText={setRegNo} value={regNo} />
-					</View>
-				</View>
-				<View style={{ margin: 10}}>
-					<View style={styles.labelContainer}>
-						<Text style={styles.label}>License No</Text>
-					</View>
-					<View style={licenseNoCustomStyle}>
-						<TextInput placeholder="12323" onChangeText={setLicenseNo} value={licenseNo} />
-					</View>
-				</View>
-				
-			</View>
-		
-
-			<View style={{flexDirection: "row", justifyContent: "space-between"}}>
-				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onUpdatePress()}>Edit</Button>
-			</View>
-
-			</View>
-
-			)}
-
-			
-			<TabView
-				selectedIndex={selectedIndex}
-				onSelect={index => setSelectedIndex(index)}>
-				<Tab title={appStore.routeBus.journey?.stoppings[0]?.place} style={{ padding: 10}}>
-					<Layout style={{ flex: 1, justifyContent: 'left', alignItems: 'left', padding: 5 }}>
-						{appStore.routeBus.rotationBuses?.map((allowedBus,index) => (
-							<>
-							{allowedBus.startEnd == appStore.routeBus.journey.stoppings[0]?.place && (
-							<Card key={index} 
-							style={[
-							allowedBusIndex != index? styles.item : styles.itemSelected
-							]}
-							onPress={()=>onRotationBusPress(allowedBus.regNo,allowedBus.licenseNo,index)}>
-								
-								<Card>
-									<Text style={styles.itemHeader}>Reg No</Text>
-									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-										<Text>{allowedBus.regNo}</Text>	
-									</View>
-								</Card>
-
-								
-								
-								<Card>
-									<Text style={styles.itemHeader}>License No</Text>
-									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-										<Text>{allowedBus.licenseNo}</Text>
-										
-									</View>
-								</Card>
-								
-							</Card>
-							)}
-							</>
-						
-						))}
-					</Layout>
-				</Tab>
-				<Tab title={appStore.routeBus?.returnJourney?.stoppings[0]?.place}>
-					<Layout style={{ flex: 1, justifyContent: 'left', alignItems: 'left', padding: 5 }}>
-						{appStore.routeBus.rotationBuses?.map((allowedBus,index) => (
-							<>
-							{allowedBus.startEnd == appStore.routeBus.returnJourney.stoppings[0]?.place && (
-							<Card key={index} 
-							style={[
-							allowedBusIndex != index? styles.item : styles.itemSelected
-							]}
-							onPress={()=>onRotationBusPress(allowedBus.regNo,allowedBus.licenseNo,index)}>
-								
-								<Card>
-									<Text style={styles.itemHeader}>Reg No</Text>
-									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-										<Text>{allowedBus.regNo}</Text>	
-									</View>
-								</Card>
-
-								
-								
-								<Card>
-									<Text style={styles.itemHeader}>License No</Text>
-									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-										<Text>{allowedBus.licenseNo}</Text>
-										
-									</View>
-								</Card>
-								
-							</Card>
-							)}
-							</>
-						
-						))}
-					</Layout>
-				</Tab>
-			</TabView>
-
-			
-
 			<View>	
-				
-				
+						{vehicleSeatLayouts?.map((vehcleSeatLayout,index) => (
+							
+							<Card key={index} 
+							style={[
+							selectedVehicleSeatLayoutIndex != index? styles.item : styles.itemSelected
+							]}
+							onPress={()=>onVehicleSeatLayoutPress(vehcleSeatLayout,index)}>
+									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+										<Text>{vehcleSeatLayout.title}</Text>	
+									</View>
+								
+								
+							</Card>
+							
+						
+						))}
 
-				 
-
-			
 			</View>
 
 			<RBSheet ref={refRBSheetActions} draggable dragOnContent height={200}>

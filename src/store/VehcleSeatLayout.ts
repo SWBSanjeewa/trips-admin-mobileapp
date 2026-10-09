@@ -18,10 +18,22 @@ const VehcileSeatLayout = types.model({
   reset(){
     self.id="";
     self.title="";
-    self.noOfRows=20;
+    self.noOfRows=10;
     self.noOfColumnsLeft=2;
     self.noOfColumnsRight=2;
     self.hasFrontRowPassengerSeat=false;
+  },
+  populate(vehcleSeatLayout){
+    console.log("doorSeatNumbers>>"+vehcleSeatLayout?.doorSeatNumbers);
+    self.id=vehcleSeatLayout?.id;
+    self.title=vehcleSeatLayout?.title;
+    self.noOfRows=Number(vehcleSeatLayout?.noOfRows);
+    self.noOfColumnsLeft=Number(vehcleSeatLayout?.noOfColumnsLeft);
+    self.noOfColumnsRight=Number(vehcleSeatLayout?.noOfColumnsRight);
+    self.hasFrontRowPassengerSeat=Boolean(vehcleSeatLayout?.hasFrontRowPassengerSeat);
+    self.noOfFoldableSeats=Number(vehcleSeatLayout?.noOfFoldableSeats);
+    self.doorSeatNumbers=vehcleSeatLayout?.doorSeatNumbers.map(Number);;
+    self.emptySeatNumbers=vehcleSeatLayout?.emptySeatNumbers.map(Number);;
   },
   setTitle(title) {
       self.title = title;
@@ -42,11 +54,17 @@ const VehcileSeatLayout = types.model({
     self.noOfFoldableSeats = noOfFoldableSeats;
   },
   setDoorSeatNumbers(doorSeatNumbers) {
-    self.doorSeatNumbers = doorSeatNumbers;
+    self.doorSeatNumbers = [];
+    doorSeatNumbers.forEach(element => {
+      self.doorSeatNumbers.push(element?.row+1);
+    }); 
   },
   setEmptySeatNumbers(emptySeatNumbers) {
-    self.emptySeatNumbers = emptySeatNumbers;
-  },
+    self.emptySeatNumbers = [];
+    emptySeatNumbers.forEach(element => {
+      self.emptySeatNumbers.push(element?.row+1);
+    }); 
+  }
 })
 );
 
