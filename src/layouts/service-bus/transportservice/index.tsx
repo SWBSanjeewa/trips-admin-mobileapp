@@ -276,6 +276,13 @@ const TransportService = ({ navigation }): React.ReactElement => {
 					<Text style={styles.errorLabel}>{vehiclesErrorMessage}</Text>	
 				)}
 			</Card>
+
+			<Card style={{ margin: 10}} onPress={() => navigation.navigate("TransportServiceVehicleSeatLayoutsList")}>
+				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+					<Text>Vehicle Seat Layouts</Text>
+					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={() => navigation.navigate("ransportServiceVehicleSeatLayoutsList")}/>
+				</View>
+			</Card>
 			
 			<Card style={{ margin: 10, borderRadius:10}} onPress={onOwnersPress}>	
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>

@@ -1,6 +1,6 @@
 import { Button, Card, Text,CheckBox,Select,SelectItem,IndexPath ,Layout, TabView, Tab} from "@ui-kitten/components";
 import React,{useRef,useState,useEffect} from "react";
-import { StyleSheet, View, TouchableOpacity, TextInput,ScrollView,ActivityIndicator} from "react-native";
+import { StyleSheet, View, TouchableOpacity, TextInput,ActivityIndicator,Dimensions} from "react-native";
 import AppStore from "../../../store/AppStore";
 import { useFocusEffect } from '@react-navigation/native';
 import { observer, inject} from "mobx-react";
@@ -19,6 +19,10 @@ import { format } from 'date-fns'
 import { autorun } from 'mobx';
 
 import SeatsLayout from "../../../components/bus-seat";
+import BottomSheet, { BottomSheetScrollView, BottomSheetVirtualizedList } from '@gorhom/bottom-sheet';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { GestureHandlerRootView,ScrollView } from 'react-native-gesture-handler';
+import { VehicleLayoutSuggestions}  from "./extra/vehicle-layout-auto-suggestions";
 
 
 export default observer(React.forwardRef(({ navigation,addCallback, add },ref) => {
@@ -90,7 +94,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
     .join(', ');
 
 
-
+	const { width, height } = Dimensions.get("window");
 
 	const [title, setTitle] = React.useState<string>("");
 	const [titleFocus, setTitleFocus] = React.useState<boolean>(false);
@@ -119,7 +123,10 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	
 	const refRBSheetDeleteConfirm = useRef();
 
-	const refRBSheetEdit = useRef();
+	const bottomSheetViewSeatLayoutRef = useRef();
+	
+
+	const [enableStoppingBottom, setEnableStoppingBottom] = React.useState(false);
 
 
 
@@ -178,7 +185,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			} as RawAxiosRequestHeaders,
 			};
 			try {	
-				const response: AxiosResponse = await client.get(`/vehicleSeatLayouts/getAll` , config);
+				const response: AxiosResponse = await client.get(`/vehicleSeatLayouts/getNonTransportServiceAll` , config);
 				setVehicleSeatLayouts(response.data);  
 			} catch(err) {
 				console.log(err);
@@ -198,7 +205,10 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		}, [])
 	);
 
-	
+	const handleUpdate = (newValue) => {
+
+    	//setTransportServices(newValue);
+  	};
 
 	const onAddClosePress = (): void => {		
 		addCallback(false);
@@ -212,7 +222,26 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 		setLicenseNo("");
 	};
 
-	
+	const onVehicleSeatLayoutViewPress = async (vehicleSeatLayout,index) => {
+		console.log("### view press ####");
+		setSlectedVehicleSeatLayoutIndex(index);
+		setSelectedVehicleSeatLayoutId(vehicleSeatLayout.id);
+		appStore.vehcleSeatLayout.populate(vehicleSeatLayout);
+		var indexPaths=[];
+		appStore.vehcleSeatLayout.doorSeatNumbers.forEach(element => {
+			indexPaths.push(new IndexPath(element));
+		});
+		setSelectedDoorSeatsIndex(indexPaths);
+
+		var emptySpaceIndexPaths=[];
+		appStore.vehcleSeatLayout.emptySeatNumbers.forEach(element => {
+			emptySpaceIndexPaths.push(new IndexPath(element));
+		});
+		setSelectedEmptySeatsIndex(emptySpaceIndexPaths);
+
+		setEnableStoppingBottom(true);
+		bottomSheetViewSeatLayoutRef.current?.expand();
+	}
 	
 	const onVehicleSeatLayoutPress = async (vehicleSeatLayout,index) => {
 		setSlectedVehicleSeatLayoutIndex(index);
@@ -373,6 +402,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 	
 	return (
 		
+		<GestureHandlerRootView style={styles.container}>
 		<ScrollView>
 
 			
@@ -384,6 +414,17 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				</View>
 			
 			<View>
+
+			    
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Copy from</Text>
+						<View style={{ margin: 10}}>
+						<VehicleLayoutSuggestions updateParentSelectedDoorSeatsIndexState={setSelectedDoorSeatsIndex} updateParentSelectedEmptySeatsIndexState={setSelectedEmptySeatsIndex}/>
+					</View>
+					</View>
+				</View>
 				
 				
 				<View style={{ margin: 10}}>
@@ -394,7 +435,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 						<TextInput key="title" placeholder="Rosa/Fuso Bus with 29 seats" onChangeText={appStore.vehcleSeatLayout.setTitle} value={appStore.vehcleSeatLayout.title} />
 					</View>
 				</View>
-
 
 				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
 					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
@@ -410,7 +450,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					</View>
 					</View>
 				</View>
-
 
 				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
 					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
@@ -450,7 +489,6 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					</View>
 					</View>
 				</View>
-
 
 				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
 					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
@@ -527,8 +565,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 							noOfFoldableSeats={appStore.vehcleSeatLayout.noOfFoldableSeats}
 							layout={{ columnOne: appStore.vehcleSeatLayout.noOfColumnsLeft, columnTwo: appStore.vehcleSeatLayout.noOfColumnsRight}}
 							selectedSeats={getSeatAllocations()}
-							numberTextStyle={{ fontSize: 12 }}
-							
+							numberTextStyle={{ fontSize: 12 }}	
 							getBookedSeats={(seats) => {
 							  console.log('getBookedSeats :: ', seats);
 							}}/>
@@ -700,20 +737,22 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 			)}
 
 			
-			<View>	
+			<View> 	
 						{vehicleSeatLayouts?.map((vehcleSeatLayout,index) => (
 							
+							
 							<Card key={index} 
-							style={[
-							selectedVehicleSeatLayoutIndex != index? styles.item : styles.itemSelected
-							]}
-							onPress={()=>onVehicleSeatLayoutPress(vehcleSeatLayout,index)}>
+								onPress={()=>onVehicleSeatLayoutViewPress(vehcleSeatLayout,index)}
+								onLongPress={()=>onVehicleSeatLayoutPress(vehcleSeatLayout,index)}
+								delayLongPress={300}
+								style={[
+								selectedVehicleSeatLayoutIndex != index? styles.item : styles.itemSelected
+								]}>
 									<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
 										<Text>{vehcleSeatLayout.title}</Text>	
-									</View>
-								
-								
+									</View>	
 							</Card>
+						
 							
 						
 						))}
@@ -752,10 +791,38 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 					
 
 			</RBSheet>
+			</ScrollView>
 
+			{enableStoppingBottom && (
+			
+			<BottomSheet
+					ref={bottomSheetViewSeatLayoutRef}
+					enablePanDownToClose={true}
+					//index={-1}
+					maxDynamicContentSize={height*0.8}
+					handleIndicatorStyle={{ backgroundColor: "#142169"}}>
+					<BottomSheetScrollView
+					  contentContainerStyle={styles.contentContainerStyle}
+					  enableFooterMarginAdjustment={true}>
+					 	<SeatsLayout
+							key={`${appStore.vehcleSeatLayout.noOfRows}-${appStore.vehcleSeatLayout.noOfColumnsLeft}-${appStore.vehcleSeatLayout.noOfColumnsRight}-${appStore.vehcleSeatLayout.noOfFoldableSeats}-${appStore.vehcleSeatLayout.doorSeatNumbers}-${appStore.vehcleSeatLayout.emptySeatNumbers}-${appStore.vehcleSeatLayout.hasFrontRowPassengerSeat}`}
+							row={appStore.vehcleSeatLayout.noOfRows}
+							hasFrontRowPassengerSeat={appStore.vehcleSeatLayout.hasFrontRowPassengerSeat}
+							noOfFoldableSeats={appStore.vehcleSeatLayout.noOfFoldableSeats}
+							layout={{ columnOne: appStore.vehcleSeatLayout.noOfColumnsLeft, columnTwo: appStore.vehcleSeatLayout.noOfColumnsRight}}
+							selectedSeats={getSeatAllocations()}
+							numberTextStyle={{ fontSize: 12 }}
+							
+							getBookedSeats={(seats) => {
+							  console.log('getBookedSeats :: ', seats);
+							}}/>
+					</BottomSheetScrollView>
+				  </BottomSheet>
+				
+			)}
 			
 			
-		</ScrollView>
+		</GestureHandlerRootView>
 		
 		
 		
@@ -781,6 +848,12 @@ const styles = StyleSheet.create({
 	},
 		listLabel: {
 		fontSize: 16,
+	},
+	contentContainerStyle: {
+		paddingTop: 12,
+		paddingHorizontal: 24,
+		zIndex: 100,
+		overflow: 'hidden',
 	},
 	errorLabel: {
 		color: "#8B0000", 

@@ -15,6 +15,7 @@ import SeatContainer from './component/SeatContainer';
 import { useLayoutEffect } from 'react';
 import { useRef } from 'react';
 
+
 /*
 This are props that require to pass in order to get seat layout
 */

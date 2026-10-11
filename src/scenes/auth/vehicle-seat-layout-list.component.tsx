@@ -21,7 +21,7 @@ export const VehicleSeatLayoutsListScreen = ({ navigation }): React.ReactElement
 
 	const [add, setAdd] = React.useState<boolean>(false);
 
-	const ref = useRef<typeof RBSheet>();
+	//const ref = useRef<typeof RBSheet>();
 
 	const renderBackAction = (): React.ReactElement => (
 		<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackPress} />
@@ -29,7 +29,8 @@ export const VehicleSeatLayoutsListScreen = ({ navigation }): React.ReactElement
 
 	const setAddCallback = (localAdd): void => {
 		setAdd(localAdd);
-		appStore.routeBusTimetable.reset();
+		appStore.vehcleSeatLayout.reset();
+		//appStore.vehcleSeatLayout.setNoOfRows(10);
 	}
 
 
@@ -54,8 +55,9 @@ export const VehicleSeatLayoutsListScreen = ({ navigation }): React.ReactElement
 
 	const onBusAddPress = () => {
 		setAdd(!add);
-		appStore.routeBusTimetable.reset();
-		ref.current?.open();
+		appStore.vehcleSeatLayout.reset();
+		//console.log("%%% noOfRows::"+appStore.vehcleSeatLayout.noOfRows);
+		//ref.current?.open();
 	};
 
 	return (
@@ -64,7 +66,7 @@ export const VehicleSeatLayoutsListScreen = ({ navigation }): React.ReactElement
 				<RNText {...props} style={{fontWeight: "500", fontSize: 18}}>
 					Vehicle Seat layouts List
 				</RNText>)} accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
-				<ContentView navigation={navigation} addCallback={setAddCallback} add={add} ref={ref}/>
+				<ContentView navigation={navigation} addCallback={setAddCallback} add={add}/>
 			
 		</SafeAreaLayout>	
 	);

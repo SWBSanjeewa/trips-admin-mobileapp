@@ -98,7 +98,7 @@ import { TransportServiceVehicleListScreen } from "../scenes/auth/transportservi
 import { TransportServiceVehicleSelectScreen } from "../scenes/round-tour/transportservice-vehicle-select.component";
 
 import { VehicleSeatLayoutsListScreen } from "../scenes/auth/vehicle-seat-layout-list.component";
-
+import { TransportServiceVehicleSeatLayoutsListScreen } from "../scenes/auth/transport-service-vehicle-seat-layout-list.component";
 const Stack = createNativeStackNavigator();
 
 export const AppNavigator = (): React.ReactElement => {
@@ -207,6 +207,8 @@ export const AppNavigator = (): React.ReactElement => {
 				<Stack.Screen name="TransportServiceVehicleSelect" component={TransportServiceVehicleSelectScreen} />
 
 				<Stack.Screen name="VehicleSeatLayoutsList" component={VehicleSeatLayoutsListScreen} />
+
+				<Stack.Screen name="TransportServiceVehicleSeatLayoutsList" component={TransportServiceVehicleSeatLayoutsListScreen} />
 				
 			</Stack.Navigator>
 		</NavigationContainer>

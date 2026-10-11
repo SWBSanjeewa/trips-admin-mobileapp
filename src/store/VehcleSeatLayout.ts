@@ -5,14 +5,16 @@ import { cast } from "mobx-state-tree"
 
 const VehcileSeatLayout = types.model({
   id: types.optional(types.string, ""), 
+  tranportServiceId: types.optional(types.string, ""), 
   title: types.optional(types.string, ""),  
-  noOfRows: types.optional(types.number, 20),   // BOOKING, CONFIRMING, TRAVELLING, CANCELLED
+  noOfRows: types.optional(types.number, 10),   // BOOKING, CONFIRMING, TRAVELLING, CANCELLED
   noOfColumnsLeft: types.optional(types.number, 2),
   noOfColumnsRight: types.optional(types.number, 2),
   hasFrontRowPassengerSeat: types.optional(types.boolean, false),
   noOfFoldableSeats: types.optional(types.number, 0),
   doorSeatNumbers: types.array(types.number),
-  emptySeatNumbers: types.array(types.number)
+  emptySeatNumbers: types.array(types.number),
+
 })
 .actions((self) => ({
   reset(){
@@ -21,19 +23,22 @@ const VehcileSeatLayout = types.model({
     self.noOfRows=10;
     self.noOfColumnsLeft=2;
     self.noOfColumnsRight=2;
+    self.noOfFoldableSeats=0;
     self.hasFrontRowPassengerSeat=false;
   },
   populate(vehcleSeatLayout){
-    console.log("doorSeatNumbers>>"+vehcleSeatLayout?.doorSeatNumbers);
     self.id=vehcleSeatLayout?.id;
     self.title=vehcleSeatLayout?.title;
     self.noOfRows=Number(vehcleSeatLayout?.noOfRows);
     self.noOfColumnsLeft=Number(vehcleSeatLayout?.noOfColumnsLeft);
     self.noOfColumnsRight=Number(vehcleSeatLayout?.noOfColumnsRight);
-    self.hasFrontRowPassengerSeat=Boolean(vehcleSeatLayout?.hasFrontRowPassengerSeat);
+    self.hasFrontRowPassengerSeat=(vehcleSeatLayout?.hasFrontRowPassengerSeat?.toLowerCase() === "true");
     self.noOfFoldableSeats=Number(vehcleSeatLayout?.noOfFoldableSeats);
     self.doorSeatNumbers=vehcleSeatLayout?.doorSeatNumbers.map(Number);;
     self.emptySeatNumbers=vehcleSeatLayout?.emptySeatNumbers.map(Number);;
+  },
+  setTransportServiceId(transportServiceId) {
+      self.transportServiceId = transportServiceId;
   },
   setTitle(title) {
       self.title = title;
