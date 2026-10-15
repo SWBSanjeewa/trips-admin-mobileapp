@@ -295,24 +295,6 @@ const VehicleAdd = ({ navigation }): React.ReactElement => {
 				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onCreatePress()}>Add</Button>
 			</View>
 
-			/*
-						<SeatsLayout
-										row={8}
-										hasFrontRowPassengerSeat={true}
-										noOfFoldableSeats={6}
-										layout={{ columnOne: 1, columnTwo: 2}}
-										selectedSeats={[
-										{ seatNumber: 2, seatType: 'blocked' }, // Booked seat
-										{ seatNumber: 6, seatType: 'door' }, // Show Door
-										{ seatNumber: 7, seatType: 'emptySpace' }, // Show Door
-									  ]}
-										numberTextStyle={{ fontSize: 12 }}
-									   
-										getBookedSeats={(seats) => {
-											console.log('getBookedSeats :: ', seats);
-										}}
-									/>
-									*/
 			
 		</ScrollView>
 		

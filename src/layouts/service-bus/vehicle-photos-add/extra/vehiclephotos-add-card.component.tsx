@@ -27,7 +27,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 const bus: Bus = Bus.bus1();
 
-const VehiclePhotosAddCard = ({ navigation , errorMessageHandler, update}): CardElement => {
+const VehiclePhotosAddCard = ({ navigation , errorMessageHandler, update, vehicleIndex,loadVehicles}): CardElement => {
 
 	const appStore = useStore(AppStore);
 	const BASE_URL = 'https://routes.lk:7007';
@@ -59,18 +59,19 @@ const VehiclePhotosAddCard = ({ navigation , errorMessageHandler, update}): Card
 
 	useEffect(() => {
 		
-		/*
-		if(appStore.transportService.findVehicle(vehicleId)?.photos?.length > 0){
-			setImageUrl(appStore.bus.photos[0]);
+		
+		if(appStore.vehicle.photos?.length > 0){
+			console.log("appStore.bus.photos[0]::"+appStore.vehicle.photos[0]);
+			setImageUrl(appStore.vehicle.photos[0]);
 			setPhotoDeleteEnable(true);
 		}
-		if(appStore.transportService.findVehicle(vehicleId)?.photos?.length > 1){
+		if(appStore.vehicle.photos?.length > 1){
 			setPhotoNextEnable(true);
 		}
 		setPhotoIndex(0);
-		*/
+		
 
-	}, []);
+	},[]);
 
 	
 	
@@ -194,19 +195,18 @@ const VehiclePhotosAddCard = ({ navigation , errorMessageHandler, update}): Card
 		  };
 		  try {
 			
-			const response: AxiosResponse = await client.post(`/transportServices/vehicles/photos`, {id: vehicleId, transportServiceId: appStore.transportService.id , name: name, image: data} , config);
+			const response: AxiosResponse = await client.post(`/transportServices/`+appStore.transportService.id+`/vehicles/`+vehicleIndex+`/photos`, {id: appStore.vehicle.id, transportServiceId: appStore.transportService.id , name: name, image: data} , config);
 			console.log(response.status);
-			if(response.status){
-				if(vehicleId == ""){
-					setVehicleId(response.data.id);
-				}
-				appStore.vehicle.setId(response.data.id);
+			if(response.status == 200){
 				appStore.vehicle.addPhoto(BASE_URL+'/transport-services/'+appStore.transportService.id+'/vehicles/'+response.data.id+'/'+name);
 				setImageUrl(BASE_URL+'/transport-services/'+appStore.transportService.id+'/vehicles/'+response.data.id+'/'+name);
 				console.log(BASE_URL+'/transport-services/'+appStore.transportService.id+'/vehicles/'+response.data.id+'/'+name);
-				
 			}
 			
+			//appStore.vehicle.reset();
+			appStore.vehicles.reset();
+			loadVehicles();
+			console.log("After photo upload");
 			console.log(appStore.vehicle);
 		  } catch(err) {
 			console.log(err);
@@ -239,11 +239,19 @@ const VehiclePhotosAddCard = ({ navigation , errorMessageHandler, update}): Card
 			} as RawAxiosRequestHeaders,
 		  };
 		try {	
-			//await client.post(`/transportServices/vehicles/photos`, {id: vehicleId, transportServiceId: appStore.transportService.id , name: name, image: data} , config);
-			//router.delete('/:transportServiceId/vehicles/:id/photos/:name', function(req, res) {
-			console.log(('/transportServices/'+appStore.transportService.id+'/vehicles/'+appStore.vehicle.id+'/photos/'+imageUrl.substring(imageUrl.lastIndexOf('/')+1)));
-			const response: AxiosResponse = await client.delete('/transportServices/'+appStore.transportService.id+'/vehicles/'+appStore.vehicle.id+'/photos/'+imageUrl.substring(imageUrl.lastIndexOf('/')+1));
+			
+        var data={
+			vehicleId: appStore.vehicle.id,
+			photoName: imageUrl.substring(imageUrl.lastIndexOf('/')+1)
+		}
+		//	/:transportServiceId/vehicles/:vehicleIndex/photos/:photoIndex'
+
+			console.log(('/transportServices/'+appStore.transportService.id+'/vehicles/'+vehicleIndex+'/photos/'+imageUrl.substring(imageUrl.lastIndexOf('/')+1)));
+			const response: AxiosResponse = await client.put('/transportServices/'+appStore.transportService.id+'/vehicles/'+vehicleIndex+'/photos/'+photoIndex, data, config);
 			console.log("### "+response.data);
+			appStore.vehicle.reset();
+			appStore.vehicles.reset();
+			loadVehicles();
 		} catch(err) {
 			console.log(err);
 		}  	
@@ -299,7 +307,7 @@ const VehiclePhotosAddCard = ({ navigation , errorMessageHandler, update}): Card
 			console.log("photoIndex::"+photoIndex);
 			console.log("appStore.vehicle.photos.length::"+appStore.vehicle.photos.length);
 			if(photoIndex < appStore.vehicle.photos.length-1){
-				console.log("appStore.bus.getPhoto(photoIndex+1)::"+appStore.vehicle.getPhoto(photoIndex+1));
+				//console.log("appStore.bus.getPhoto(photoIndex+1)::"+appStore.vehicle.getPhoto(photoIndex+1));
 				setImageUrl(appStore.vehicle.getPhoto(photoIndex+1));	
 				setPhotoIndex(photoIndex);
 				console.log("####");
@@ -320,15 +328,37 @@ const VehiclePhotosAddCard = ({ navigation , errorMessageHandler, update}): Card
 	};
 
 	const onImagePressed = (): void => {
-		console.log("photos length:"+appStore.vehicle.photos.length);
-		console.log(imageUrl);
-		console.log("photoIndex:"+photoIndex);
 		if(appStore.vehicle.photos.length > photoIndex+1 ){
 			setPhotoIndex(photoIndex+1);
+			console.log("setting imageurl to::"+appStore.vehicle.getPhoto(photoIndex+1));
 			setImageUrl(appStore.vehicle.getPhoto(photoIndex+1));
 		}else{
 			setPhotoIndex(0);
+			console.log("setting imageurl to::"+appStore.vehicle.getPhoto(0));
 			setImageUrl(appStore.vehicle.getPhoto(0));
+		}
+	};
+
+	const onImagePressedBck = (): void => {
+		if(appStore.vehicle.photos.length > photoIndex+1 ){
+			setPhotoIndex(photoIndex+1);
+			
+			if(!appStore.vehicle.getPhoto(photoIndex+1).startsWith(BASE_URL)){
+				console.log("setting imageurl to::"+BASE_URL+appStore.vehicle.getPhoto(photoIndex+1));
+				setImageUrl(BASE_URL+appStore.vehicle.getPhoto(photoIndex+1));
+			}else{
+				console.log("setting imageurl to::"+appStore.vehicle.getPhoto(photoIndex+1));
+				setImageUrl(appStore.vehicle.getPhoto(photoIndex+1));
+			}
+		}else{
+			setPhotoIndex(0);
+			if(!appStore.vehicle.getPhoto(0).startsWith(BASE_URL)){
+				console.log("setting imageurl to::"+BASE_URL+appStore.vehicle.getPhoto(0));
+				setImageUrl(BASE_URL+appStore.vehicle.getPhoto(0));
+			}else{
+				console.log("setting imageurl to::"+appStore.vehicle.getPhoto(0));
+				setImageUrl(appStore.vehicle.getPhoto(0));
+			}
 		}
 	};
 

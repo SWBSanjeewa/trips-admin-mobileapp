@@ -10,6 +10,7 @@ import AppStore from "../../store/AppStore";
 import { useStore } from "mobx-store-provider";
 import { ArrowIosBackIcon } from "../../components/icons";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import RBSheet from 'react-native-raw-bottom-sheet';
 
 export const TransportServiceVehicleListScreen = ({ navigation }): React.ReactElement => {
 	
@@ -19,9 +20,14 @@ export const TransportServiceVehicleListScreen = ({ navigation }): React.ReactEl
 
 	const refScrollView = useRef<typeof ScrollView>();
 
+	const ref = useRef<typeof RBSheet>();
+
 	const appStore = useStore(AppStore);
 	
 	const [search, setSearch] = React.useState<boolean>(false);
+
+	const [add, setAdd] = React.useState<boolean>(false);
+	
 
 	const renderAddAction = (): React.ReactElement => (
 		<>
@@ -34,16 +40,28 @@ export const TransportServiceVehicleListScreen = ({ navigation }): React.ReactEl
 		setSearch(localSearch);
 	}
 
-	const onVehicleAddPress = (): void => {
-		navigation && navigation.navigate("VehicleAdd");
+	const setAddCallback = (localAdd): void => {
+		setAdd(localAdd);
+		appStore.vehicle.reset();
+	}
+
+	const onVehicleAddPress = () => {
+		setAdd(!add);
+		appStore.vehicle.reset();
+		
+		//ref.current?.open();
 	};
 
-	const onAddDriverPress = () => {
+	
+
+	const onBackrPress = () => {
+			appStore.vehicle.reset();
+			appStore.vehicles.reset();
 			navigation.goBack();
 		};
 	
 		const renderBackAction = (): React.ReactElement => (
-			<TopNavigationAction icon={ArrowIosBackIcon} onPress={onAddDriverPress} />
+			<TopNavigationAction icon={ArrowIosBackIcon} onPress={onBackrPress} />
 		);
 
 	const onBusSearchPress = (): void => {
@@ -63,7 +81,7 @@ export const TransportServiceVehicleListScreen = ({ navigation }): React.ReactEl
 				<Text style={{fontWeight: '500', fontSize: 18}}>
 					Vehicles
 				</Text>)}  accessoryLeft={renderBackAction} accessoryRight={renderAddAction}/>
-			<ContentView navigation={navigation} searchCallback={setSearchCallback} search={search} ref={{refFrom: refFrom,refTo: refTo, refScrollView: refScrollView}}/>
+			<ContentView navigation={navigation} searchCallback={setSearchCallback} search={search} addCallback={setAddCallback} add={add} ref={ref}/>
 		</SafeAreaLayout>
 		</SafeAreaLayout>
 	);

@@ -24,6 +24,10 @@ const TransportService = ({ navigation }): React.ReactElement => {
 
 	const appStore = useStore(AppStore);
 
+	const [photos, setPhotos] = useState<string[]>([]);
+
+	const BASE_URL = 'https://routes.lk:7007';
+
 	const route = useRoute();
 
 	const [loading, setLoading] = useState(true);
@@ -37,6 +41,8 @@ const TransportService = ({ navigation }): React.ReactElement => {
 	const refRBSheetOfficeNumberEdit = useRef();
 
 	const [nameErrorMessage, setNameErrorMessage] = React.useState<string>("");
+
+	const [initialised, setInitialised] = React.useState<boolean>(false);
 
 	const [ownersErrorMessage, setOwnersErrorMessage] = React.useState<string>("");
 
@@ -177,21 +183,11 @@ const TransportService = ({ navigation }): React.ReactElement => {
 		navigation.navigate("TransportServiceVehicles");
 	};
 
-	useEffect(() => {
+	useEffect(() => {	
+			console.log("### vehicle photos size ### "+appStore.vehicle.photos);
+	},[]);
+
 	
-		const fetch = async ()=>{
-			await loadTransportService();
-			setLoading(false);
-		}
-
-		fetch();	
-
-
-	}, []);
-
-	if (loading) {
-		return <ActivityIndicator />;
-	}
 	
 	return (
 		
@@ -208,7 +204,7 @@ const TransportService = ({ navigation }): React.ReactElement => {
 			
 			<Galeria urls={appStore.vehicle.photos}>
 					<Galeria.Image>
-						<Image contentFit="cover" source={appStore.vehicle.photos[0]} style={styles.itemHeader} />
+						<Image contentFit="cover" source={appStore.vehicle.photos[0]}   style={styles.itemHeader} />
 					</Galeria.Image>	
 			</Galeria>
 

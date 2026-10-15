@@ -137,19 +137,18 @@ const RouteBus = types.model({
 const Vehicle = types.model({
   vehicleType: types.optional(types.string, "Van"),
   id: types.optional(types.string, ""),
+  vehicleSeatLayoutId: types.optional(types.string, ""),
   title: types.optional(types.string, ""),
   regNumber: types.optional(types.string, ""),
-  noOfSeats: types.optional(types.string, ""),
   photos: types.array(types.string),
   routeBus: types.optional(RouteBus,{}) 
 })
 .actions((self) => ({
-  addVehicle(id, title, regNumber, vehicleType, noOfSeats){
+  addVehicle(id, title, regNumber, vehicleType){
       self.id=id;
       self.title=title;
       self.regNumber=regNumber;
       self.vehicleType=vehicleType;
-      self.noOfSeats=noOfSeats;  
   },
   addRouteBus(id, title, routeNo, transportAuthority, typeOfService){
       self.routeBus.id=id;
@@ -164,14 +163,14 @@ const Vehicle = types.model({
   setId(id){
     self.id= id;
   },
+  setVehicleSeatLayoutId(vehicleSeatLayoutId){
+    self.vehicleSeatLayoutId= vehicleSeatLayoutId;
+  },
   setRegNumber(regNumber){
     self.regNumber=regNumber;
   },
   setVehicleType(vehicleType) {
     self.vehicleType = vehicleType;
-  },
-  setNoOfSeats(noOfSeats){
-    self.noOfSeats=noOfSeats;
   },
   reset(){
     self.title="";
@@ -1058,6 +1057,19 @@ const Busses = types.model({
 }))
 
 
+const Vehicles = types.model({
+  vehicles: types.array(Vehicle),
+})
+.actions((self) => ({
+  addVehicle(vehicle){
+      self.vehicles.push(vehicle)
+  },
+  reset(){
+    self.vehicles = Vehicle[0];
+  }
+}))
+
+
 
 
 const Tours = types.model({
@@ -1196,6 +1208,8 @@ const AppStore = types.model("App", {
   journeyPassengers: types.array(Passenger),
   
   busses: types.optional(Busses, {
+  }),
+  vehicles: types.optional(Vehicles, {
   }),
 
   tours: types.optional(Tours, {
