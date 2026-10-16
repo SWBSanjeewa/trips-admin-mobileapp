@@ -195,16 +195,17 @@ const VehiclePhotosAddCard = ({ navigation , errorMessageHandler, update, vehicl
 		  };
 		  try {
 			
-			const response: AxiosResponse = await client.post(`/transportServices/`+appStore.transportService.id+`/vehicles/`+vehicleIndex+`/photos`, {id: appStore.vehicle.id, transportServiceId: appStore.transportService.id , name: name, image: data} , config);
+			const response: AxiosResponse = await client.post(`/transportServices/`+appStore.transportService.id+`/vehicles/`+vehicleIndex+`/photos/`+(photoIndex+1), {id: appStore.vehicle.id, transportServiceId: appStore.transportService.id , name: name, image: data} , config);
 			console.log(response.status);
 			if(response.status == 200){
-				appStore.vehicle.addPhoto(BASE_URL+'/transport-services/'+appStore.transportService.id+'/vehicles/'+response.data.id+'/'+name);
+				//appStore.vehicle.addPhoto(BASE_URL+'/transport-services/'+appStore.transportService.id+'/vehicles/'+response.data.id+'/'+name);
+				appStore.vehicle.addPhotoAfterIndex(BASE_URL+'/transport-services/'+appStore.transportService.id+'/vehicles/'+response.data.id+'/'+name,photoIndex);
 				setImageUrl(BASE_URL+'/transport-services/'+appStore.transportService.id+'/vehicles/'+response.data.id+'/'+name);
 				console.log(BASE_URL+'/transport-services/'+appStore.transportService.id+'/vehicles/'+response.data.id+'/'+name);
 			}
 			
-			//appStore.vehicle.reset();
-			appStore.vehicles.reset();
+			
+			//appStore.vehicles.reset();
 			loadVehicles();
 			console.log("After photo upload");
 			console.log(appStore.vehicle);
@@ -249,8 +250,9 @@ const VehiclePhotosAddCard = ({ navigation , errorMessageHandler, update, vehicl
 			console.log(('/transportServices/'+appStore.transportService.id+'/vehicles/'+vehicleIndex+'/photos/'+imageUrl.substring(imageUrl.lastIndexOf('/')+1)));
 			const response: AxiosResponse = await client.put('/transportServices/'+appStore.transportService.id+'/vehicles/'+vehicleIndex+'/photos/'+photoIndex, data, config);
 			console.log("### "+response.data);
-			appStore.vehicle.reset();
-			appStore.vehicles.reset();
+			appStore.vehicle.photos.remove(vehicleIndex);
+			//appStore.vehicle.reset();
+			//appStore.vehicles.reset();
 			loadVehicles();
 		} catch(err) {
 			console.log(err);

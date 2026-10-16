@@ -116,7 +116,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 				setLoading(false);
 				//console.log(response.status);
 				//console.log("vehicles:::::"+response.data.vehicles);  
-				//setVehicles(response.data.vehicles);  
+				setVehicles(response.data.vehicles);  
 				response.data.vehicles.forEach(vehicle => {
 					appStore.vehicles.addVehicle(vehicle)
 				});
@@ -462,7 +462,7 @@ export default observer(React.forwardRef(({ navigation,addCallback, add },ref) =
 
 			{!add && !edit && (
 			<View> 	
-						{appStore.vehicles.vehicles?.map((vehicle,index) => (
+						{vehicles?.map((vehicle,index) => (
 							
 							
 							<Card key={vehicle.id} style={styles.item} onPress={() => onItemPress(vehicle)} onLongPress={()=>onVehicleLongPress(vehicle,index)}>

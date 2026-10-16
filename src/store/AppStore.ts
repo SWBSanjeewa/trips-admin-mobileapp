@@ -180,6 +180,10 @@ const Vehicle = types.model({
   addPhoto(photo){
       self.photos.push(photo);
   },
+  addPhotoAfterIndex(photo,index){
+      console.log(photo);
+       self.photos.splice(index+1, 0, photo);
+  },
   getPhoto(index){
     return self.photos[index];
   },
