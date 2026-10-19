@@ -21,7 +21,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { RoutesValidationService } from "../../../services/routes-validation.service";
 
 import ImageLoad from "../image-load/index";
-import { selectContactPhone } from 'react-native-select-contact';
+import * as Contacts from 'expo-contacts';
 
 const TransportserviceOwnerList = ({ navigation }): React.ReactElement => {
 
@@ -65,27 +65,41 @@ const TransportserviceOwnerList = ({ navigation }): React.ReactElement => {
 		return inputValid;
 	}
 
+	async function openContactPicker() {
+		const { status } = await Contacts.requestPermissionsAsync();
 
+		if (status === 'granted') {
+			const contact = await Contacts.presentContactPickerAsync();
+			if (contact) {
+				
+				var phNo = contact.phoneNumbers[0]?.number?.replace(/[^+\d]+/g, "").replace(/^0+/, '');
+				if(!phNo.startsWith("+")){
+					phNo = appStore.bus.countryCode+""+phNo;
+				}
+				console.log('Selected contact:', contact);
+				let fullName = contact.name;
 
-	function getPhoneNumber() {
-		if (Platform.OS === 'android') {
-			console.log("On android");
-			PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
-			  title: 'Contacts',
-			  message: 'Routes Pulse app would like to access your contacts.',
-			  buttonPositive: 'Accept',
-			}).then(value => {
-			console.log("Granted!!!");
-			  if (value === 'granted') {
-				getPhoneNumberInternal();
+				// 2. Fallback approach if 'name' is missing
+				if (!fullName) {
+					const first = contact.firstName || '';
+					const middle = contact.middleName ? ` ${contact.middleName}` : '';
+					const last = contact.lastName || '';
+					
+					fullName = `${first}${middle} ${last}`.trim().replace(/\s+/g, ' ');
+				}
+				appStore.transportService.addOwner(fullName,phNo);
+			} else {
+				console.log('Selection canceled.');
 			}
-			});
-		} else {
-			
-			getPhoneNumberInternal();
 		}
 	}
 
+
+	function getPhoneNumber() {
+		 openContactPicker();
+	}
+
+	/*
 	function getPhoneNumberInternal() {
 		console.log("Get phone number");
 		return selectContactPhone()
@@ -104,10 +118,9 @@ const TransportserviceOwnerList = ({ navigation }): React.ReactElement => {
 				return selectedPhone.number;
 			});  
 	}
+			*/
 
 	const onAddContactListShowPress = () => {
-		//refRBSheetAdd.current.close();
-		//navigation.navigate("ContactList", { "action": "add-owner"});
 		getPhoneNumber();
 	};
 

@@ -283,7 +283,7 @@ export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	return (
 		<SafeAreaLayout style={{ flex: 1}} insets="bottom">
 		<ScrollView style={{ flex: 1}}>
-		<Card
+		<View
 					style={styles.item}
 					//header={() => renderItemHeader(info)}
 					//footer={() => renderItemFooter(info)}
@@ -318,7 +318,7 @@ export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
 						<Button size="small">{appStore.tour.schedules[0]?.tourStartDate}</Button>
 					</View>
 					
-				</Card>
+				</View>
 		
 		
 		

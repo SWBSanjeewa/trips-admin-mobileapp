@@ -12,8 +12,8 @@ import RNFS, { readDirAssets } from 'react-native-fs';
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
-import {launchImageLibrary} from 'react-native-image-picker';
-import {launchCamera} from 'react-native-image-picker';
+//import {launchImageLibrary} from 'react-native-image-picker';
+//import {launchCamera} from 'react-native-image-picker';
 //import * as ImagePicker from 'react-native-image-picker';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -112,6 +112,7 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 
 	};
 
+	/*
 	const takePhoto = useCallback(() => {
 		launchCamera({ mediaType: "photo", cameraType: "front" }, onPickImage);
 	  }, []);
@@ -131,6 +132,7 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 			alert('You did not select any image.');
 		}
 	  }
+		
 	
 	  const onUploadPress = useCallback(() => {
 		  
@@ -147,7 +149,7 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 		
 
 	  }, [pickPhotoFromLibrary, takePhoto]);
-
+*/
 	  /*
 	  const onUploadPressBck = useCallback(() => {
 		  if(appStore.bus.photos.length < 2){

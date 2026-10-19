@@ -7,7 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import AppStore from "../../../../store/AppStore";
 
-import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+//import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 
 import RNFS, { readDirAssets } from 'react-native-fs';
 
@@ -98,6 +98,7 @@ const UserProfileComponent = ({ navigation }): React.ReactElement => {
 		await CacheManager.clearCache();
 	};
 
+	/*
 	const pickPhotoFromLibrary = async () => {
 		console.log("### mobileNumber:"+appStore.user.mobileNumber);
 		launchImageLibrary({ mediaType: "photo" }, onPickImage);
@@ -107,6 +108,8 @@ const UserProfileComponent = ({ navigation }): React.ReactElement => {
 		launchCamera({ mediaType: "photo", cameraType: "front" }, onPickImage);
 		
 	}, []);
+
+	*/
 	
 
 	
@@ -175,7 +178,7 @@ const UserProfileComponent = ({ navigation }): React.ReactElement => {
 
 
 	
-
+	/*
 	const onUploadPress = useCallback(() => {
 		refPhotoUploadMethod.current.open();
 	}, [pickPhotoFromLibrary, takePhoto]);
@@ -191,6 +194,7 @@ const UserProfileComponent = ({ navigation }): React.ReactElement => {
 			]
 		);
 	}, [pickPhotoFromLibrary, takePhoto]);
+	*/
 
 	const onPickImage = async (response) => {
 	
@@ -272,14 +276,14 @@ const UserProfileComponent = ({ navigation }): React.ReactElement => {
 							<TouchableOpacity
 								key="photo-camera"
 								style={styles.listButton}
-								onPress={() => takePhoto()}>
+								>
 								<MDIcon name="photo-camera" style={styles.listIcon} />
 								<Text style={styles.listLabel}>Take photo</Text>
 							</TouchableOpacity>
 							<TouchableOpacity
 								key="upload"
 								style={styles.listButton}
-								onPress={() => pickPhotoFromLibrary()}>
+								>
 								<AntDesign name="upload" style={styles.listIcon} size={24} color="black" />
 								<Text style={styles.listLabel}>Upload photo</Text>
 							</TouchableOpacity>

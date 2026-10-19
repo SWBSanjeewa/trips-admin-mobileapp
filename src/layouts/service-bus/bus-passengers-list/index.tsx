@@ -20,7 +20,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 import { RoutesValidationService } from "../../../services/routes-validation.service";
 import ImageLoad from "../image-load/index";
-import { selectContactPhone } from 'react-native-select-contact';
+//Dont update  "* as Contacts" to "Contacts"
 import * as Contacts from 'expo-contacts';
 
 const BusPassengersList = ({ navigation }): React.ReactElement => {
@@ -104,25 +104,7 @@ const BusPassengersList = ({ navigation }): React.ReactElement => {
 		}
 		}
 
-
-	function getPhoneNumberInternal() {
-		console.log("Get phone number");
-		return selectContactPhone()
-			.then(selection => {
-				if (!selection) {
-					return null;
-				}
-				
-				let { contact, selectedPhone } = selection;
-				console.log(`Selected ${selectedPhone.type} phone number ${selectedPhone.number} from ${contact.name}`);
-				var phNo = selectedPhone.number.replace(/[^+\d]+/g, "").replace(/^0+/, '');
-				if(!phNo.startsWith("+")){
-					phNo = appStore.bus.countryCode+""+phNo;
-				}
-				appStore.bus.addPassenger(contact.name,phNo);
-				return selectedPhone.number;
-			});  
-	}
+		
 
 	const onAddContactListShowPress = () => {
 		//refRBSheetAdd.current.close();

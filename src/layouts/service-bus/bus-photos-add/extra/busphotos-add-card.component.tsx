@@ -12,9 +12,9 @@ import RNFS, { readDirAssets } from 'react-native-fs';
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
-import {launchImageLibrary} from 'react-native-image-picker';
-import {launchCamera} from 'react-native-image-picker';
-import * as ImagePicker from 'react-native-image-picker';
+//import {launchImageLibrary} from 'react-native-image-picker';
+//import {launchCamera} from 'react-native-image-picker';
+//import * as ImagePicker from 'react-native-image-picker';
 
 
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -78,6 +78,7 @@ const BusPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardElem
 
 	};
 
+	/*
 	const takePhoto = useCallback(() => {
 		launchCamera({ mediaType: "photo", cameraType: "front" }, onPickImage);
 	  }, []);
@@ -85,6 +86,7 @@ const BusPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardElem
 	  const pickPhotoFromLibrary = async () => {
 		launchImageLibrary({ mediaType: "photo" }, onPickImage);
 	  }
+		
 	
 	  const onUploadPress = useCallback(() => {
 		  if(appStore.bus.photos.length < 2){
@@ -103,6 +105,7 @@ const BusPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardElem
 		
 
 	  }, [pickPhotoFromLibrary, takePhoto]);
+	  */
 
 	  const resize = async (imageUri)  => {
 		console.log("Resizing...");

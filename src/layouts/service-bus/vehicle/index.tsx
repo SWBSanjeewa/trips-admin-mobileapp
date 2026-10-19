@@ -193,8 +193,8 @@ const TransportService = ({ navigation }): React.ReactElement => {
 		
 		<ScrollView>
 			
-			<View>
-				<Card key={appStore.vehicle.id} style={styles.item}>	
+			
+				<View key={appStore.vehicle.id} style={styles.item}>	
 			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "space-between"}}>
 							{appStore.vehicle.regNumber && (
 				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2}} >{appStore.vehicle.regNumber}</Button>
@@ -204,7 +204,7 @@ const TransportService = ({ navigation }): React.ReactElement => {
 			
 			<Galeria urls={appStore.vehicle.photos}>
 					<Galeria.Image>
-						<Image contentFit="cover" source={appStore.vehicle.photos[0]}   style={styles.itemHeader} />
+						<Image contentFit="cover" source={appStore.vehicle.photos[0]}   style={styles.itemHeader} pointerEvents="none" />
 					</Galeria.Image>	
 			</Galeria>
 
@@ -212,11 +212,10 @@ const TransportService = ({ navigation }): React.ReactElement => {
 				<Text category="h5">{appStore.vehicle.title}</Text>
 			</View>
 			
-		</Card>
+		</View>
 
 				
 				
-			</View>
 			
 			<Card style={{ margin: 10, borderRadius:10}} onPress={onBusesPress}>	
 				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
@@ -251,7 +250,8 @@ const TransportService = ({ navigation }): React.ReactElement => {
 					</View>
 				</View>
 			</RBSheet>
-			
+
+				
 		</ScrollView>
 		
 		

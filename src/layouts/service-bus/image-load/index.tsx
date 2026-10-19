@@ -66,7 +66,7 @@ getSrcUri(uri) {
        
        
 
-          {!this.state.isLoaded && this.state.isError && (
+          {!this.state.isLoaded || this.state.isError && (
           <View>
             <View style={[styles.cardImg, styles.cardAvatar, { backgroundColor: this.getRandomColor()}]}>
                   <Text style={styles.cardAvatarText}>

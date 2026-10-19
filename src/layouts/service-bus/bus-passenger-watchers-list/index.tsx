@@ -20,8 +20,8 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 import { RoutesValidationService } from "../../../services/routes-validation.service";
 import ImageLoad from "../image-load/index";
-import { selectContactPhone } from 'react-native-select-contact';
 import { showMessage, hideMessage } from "react-native-flash-message";
+import * as Contacts from 'expo-contacts';
 
 const BusPassengersWatchersList = ({ navigation }): React.ReactElement => {
 
@@ -59,30 +59,41 @@ const BusPassengersWatchersList = ({ navigation }): React.ReactElement => {
 		resetValues();
 	}
 
+	async function openContactPicker() {
+		const { status } = await Contacts.requestPermissionsAsync();
 
-	function getPhoneNumber() {
-		console.log("Get phone number");
-		return selectContactPhone()
-			.then(selection => {
-				if (!selection) {
-					return null;
-				}
+		if (status === 'granted') {
+			const contact = await Contacts.presentContactPickerAsync();
+			if (contact) {
 				
-				let { contact, selectedPhone } = selection;
-				console.log(`Selected ${selectedPhone.type} phone number ${selectedPhone.number} from ${contact.name}`);
-				var phNo = selectedPhone.number.replace(/[^+\d]+/g, "").replace(/^0+/, '');
+				var phNo = contact.phoneNumbers[0]?.number?.replace(/[^+\d]+/g, "").replace(/^0+/, '');
 				if(!phNo.startsWith("+")){
 					phNo = appStore.bus.countryCode+""+phNo;
 				}
-				addWatcher(contact.name,phNo);
-				
-				
-			});  
+				console.log('Selected contact:', contact);
+				let fullName = contact.name;
+
+				// 2. Fallback approach if 'name' is missing
+				if (!fullName) {
+					const first = contact.firstName || '';
+					const middle = contact.middleName ? ` ${contact.middleName}` : '';
+					const last = contact.lastName || '';
+					
+					fullName = `${first}${middle} ${last}`.trim().replace(/\s+/g, ' ');
+				}
+				addWatcher(fullName,phNo);
+			} else {
+				console.log('Selection canceled.');
+			}
+		}
+		}
+
+
+	async function getPhoneNumber() {
+	  openContactPicker();
 	}
 
 	const onAddContactListShowPress = () => {
-		//refRBSheetAdd.current.close();
-		//navigation.navigate("ContactList", { "action": "add-passenger"});
 		getPhoneNumber();
 	};
 

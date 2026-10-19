@@ -22,7 +22,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import ImageLoad from "../../service-bus/image-load/index";
 import { Datepicker, RangeDatepicker } from '@ui-kitten/components';
 
-import { selectContactPhone } from 'react-native-select-contact';
 import { format ,add} from 'date-fns'
 
 const TourSchedulesList = ({ navigation }): React.ReactElement => {

@@ -25,9 +25,7 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 
-import Ionicons from '@expo/vector-icons/Ionicons';
 
-import SeatsLayout from "../../../components/bus-seat";
 
 const BusAdd = ({ navigation }): React.ReactElement => {
 
@@ -573,22 +571,6 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 			<View style={{flexDirection: "row", justifyContent: "space-between"}}>
 				<Button size="giant" style={{ flex: 3 , margin: 5, borderRadius:50, margin: 10}} onPress={()=>onCreatePress()}>Create</Button>
 			</View>
-
-
-
-			<SeatsLayout
-							row={20}
-							
-							//noOfFoldableSeats={6}
-							noOfFoldableSeats={0}
-							layout={{ columnOne: 2, columnTwo: 2}}
-							
-							numberTextStyle={{ fontSize: 12 }}
-						   
-							getBookedSeats={(seats) => {
-								console.log('getBookedSeats :: ', seats);
-							}}
-						/>
 			
 		</ScrollView>
 		

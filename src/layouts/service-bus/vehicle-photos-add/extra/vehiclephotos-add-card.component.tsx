@@ -12,10 +12,6 @@ import RNFS, { readDirAssets } from 'react-native-fs';
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
-import {launchImageLibrary} from 'react-native-image-picker';
-import {launchCamera} from 'react-native-image-picker';
-//import * as ImagePicker from 'react-native-image-picker';
-
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 
@@ -113,9 +109,31 @@ const VehiclePhotosAddCard = ({ navigation , errorMessageHandler, update, vehicl
 
 	};
 
-	const takePhoto = useCallback(() => {
-		launchCamera({ mediaType: "photo", cameraType: "front" }, onPickImage);
-	  }, []);
+	const takePhoto= async () => {
+    // Camera access always requires the user's permission.
+    // Taking a photo also requires a device with a camera. The iOS Simulator
+    // does not have one, so use a physical device to test this button.
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert('Permission required', 'Permission to access the camera is required.');
+      return;
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      onPickImage(result);
+    }
+  };
+
+	
 	
 	  const pickPhotoFromLibrary = async () => {
 		//launchImageLibrary({ mediaType: "photo" }, onPickImage);

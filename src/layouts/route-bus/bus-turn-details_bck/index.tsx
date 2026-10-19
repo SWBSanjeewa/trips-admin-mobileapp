@@ -20,8 +20,6 @@ import { PlusOutlineIcon } from "../../../components/icons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { format } from 'date-fns';
 
-import { MenuView } from '@react-native-menu/menu';
-
 
 
 //const RouteBusJourneyDetails = ({ navigation }): React.ReactElement => {
