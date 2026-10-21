@@ -194,7 +194,7 @@ const TransportService = ({ navigation }): React.ReactElement => {
 		<ScrollView>
 			
 			
-				<View key={appStore.vehicle.id} style={styles.item}>	
+				<View key={appStore.vehicle.id} style={{paddingHorizontal: 10, paddingVertical: 10}}> 
 			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "space-between"}}>
 							{appStore.vehicle.regNumber && (
 				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2}} >{appStore.vehicle.regNumber}</Button>
@@ -202,11 +202,13 @@ const TransportService = ({ navigation }): React.ReactElement => {
 				<Button  size="small"  style={{ borderColor:"#142169", borderWidth: 2}} >{appStore.vehicle.noOfSeats} Seats</Button>
 			</View>
 			
+			<View style={{paddingHorizontal: 10, paddingVertical: 10}}> 
 			<Galeria urls={appStore.vehicle.photos}>
 					<Galeria.Image>
-						<Image contentFit="cover" source={appStore.vehicle.photos[0]}   style={styles.itemHeader} pointerEvents="none" />
+						<Image contentFit="cover" source={appStore.vehicle.photos[0]}   style={styles.itemHeader}/>
 					</Galeria.Image>	
 			</Galeria>
+			</View>
 
 			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "space-between"}}>
 				<Text category="h5">{appStore.vehicle.title}</Text>

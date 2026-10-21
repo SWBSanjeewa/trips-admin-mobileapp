@@ -1,4 +1,4 @@
-import { TopNavigationAction,Input, Button, Card, Avatar, Text ,Divider, IconElement} from "@ui-kitten/components";
+import { Layout, TabBar, Tab, Button, Card, Avatar, Text ,Divider, IconElement} from "@ui-kitten/components";
 import React,{useState,useEffect,useRef,forwardRef,useImperativeHandle} from "react";
 import { View, ScrollView, TouchableOpacity, Text as RNText, StyleSheet, ActivityIndicator, Alert,ListRenderItemInfo} from "react-native";
 import { useRoute } from "@react-navigation/native";
@@ -57,6 +57,8 @@ import { useFocusEffect } from '@react-navigation/native';
 //const BusDetailsCard = forwardRef(({ navigation }, bottomSheetRef) => {
 //	React.forwardRef(({ name }, ref) => {
 export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
+
+	const [selectedIndex, setSelectedIndex] = useState(0);
 
 	const [journeyWeekdays, setJourneyWeekdays] = React.useState([2,3,4,5,6])
 
@@ -283,42 +285,26 @@ export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	return (
 		<SafeAreaLayout style={{ flex: 1}} insets="bottom">
 		<ScrollView style={{ flex: 1}}>
-		<View
-					style={styles.item}
-					//header={() => renderItemHeader(info)}
-					//footer={() => renderItemFooter(info)}
-					// onPress={() => onItemPress(info)}
-				>
-					<View>
-						<View style={{  flexDirection: "row", justifyContent: "flex-end" }}>
-							<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2}}>{appStore.tour.noOfDays} Days</Button>
-						</View>
-						<Galeria urls={appStore.tour.photos}>
-							<Galeria.Image>
-								<Image source={appStore.tour.photos[0]} contentFit="cover" style={styles.itemHeader}  />
-							</Galeria.Image>	
-						</Galeria>	
-					</View>
-					<Text category="h5">{appStore.tour.title}</Text>
-					<View style={{flexDirection: "row"}}>
-						<Text>
-						{appStore.tour.stoppingsPlaces.map(function(stopping, index){	
-							if(index==0 ){
-								return <Text style={{ color: "grey"}}>{stopping.place}</Text>	
-							}else{
-								return <Text style={{ color: "grey"}}>- {stopping.place}</Text>	
-							}							
-						})}	
-						</Text>
-					</View>
-					<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "space-between"}}>
-						{appStore.tour.vehicleType && (
-						<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2}} >{appStore.tour.vehicleType}</Button>
-						)}	
-						<Button size="small">{appStore.tour.schedules[0]?.tourStartDate}</Button>
-					</View>
+		<View style={styles.item}>
 					
-				</View>
+			 <Layout style={{ flex: 1 }}>
+				<ScrollView horizontal showsHorizontalScrollIndicator={false}>
+				<TabBar selectedIndex={selectedIndex} onSelect={setSelectedIndex} style={styles.tabView}>
+					<Tab title="Day 1" style={{ width: 100}}>
+						<Layout style={styles.tabContainer}>
+							<Text category='h5'>Users Content Goes Here</Text>
+						</Layout>
+					</Tab>
+					<Tab title="Day 2" style={{ width: 100}} />
+					<Tab title="Day 3" style={{ width: 100}} />
+					<Tab title="Day 4" style={{ width: 100}} />
+					<Tab title="Day 5" style={{ width: 100}} />
+					<Tab title="Day 6" style={{ width: 100}} />
+					
+				</TabBar>
+				</ScrollView>
+				</Layout>			
+		</View>
 		
 		
 		
@@ -372,6 +358,14 @@ export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
 
 const styles = StyleSheet.create({
 	
+	tabView: {
+		flex: 1,
+	},
+	tabContainer: {
+		height: 64,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
 	listContent: {
 		paddingHorizontal: 32,
 		paddingVertical: 8,

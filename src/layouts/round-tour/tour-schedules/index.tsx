@@ -208,6 +208,7 @@ const TourSchedulesList = ({ navigation }): React.ReactElement => {
 				<DateTimePickerModal
 							isVisible= {isDatePickerVisible}
 							date={startDate}
+							pickerComponentStyleIOS={{ height: 300 }}
 							mode="date"
 							display="inline"
 							onConfirm={handleConfirm}
