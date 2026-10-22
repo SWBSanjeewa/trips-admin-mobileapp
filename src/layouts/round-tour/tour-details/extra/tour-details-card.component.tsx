@@ -228,7 +228,7 @@ export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
 	
 	const onEditPress = () => {
 		refStandard.current.close();
-		navigation.navigate("BusEdit");
+		navigation.navigate("TourEdit");
 	};
 
 	const onDeletePress = () => {
@@ -275,6 +275,21 @@ export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		fetch();	
 	}, []);
 
+	const renderTabContent = () => {
+    const currentDay = "11";
+
+    // Safety fallback just in case selectedIndex goes out of bounds
+    if (!currentDay) return null; 
+
+    return (
+      <Layout style={{ flex: 1, padding: 20, alignItems: 'flex-start' }}>
+        <Button size='small' status='primary'>
+          Start {selectedIndex}
+        </Button>
+      </Layout>
+    );
+  };
+
 	
 	
 
@@ -287,23 +302,30 @@ export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
 		<ScrollView style={{ flex: 1}}>
 		<View style={styles.item}>
 					
-			 <Layout style={{ flex: 1 }}>
-				<ScrollView horizontal showsHorizontalScrollIndicator={false}>
-				<TabBar selectedIndex={selectedIndex} onSelect={setSelectedIndex} style={styles.tabView}>
-					<Tab title="Day 1" style={{ width: 100}}>
-						<Layout style={styles.tabContainer}>
-							<Text category='h5'>Users Content Goes Here</Text>
-						</Layout>
-					</Tab>
-					<Tab title="Day 2" style={{ width: 100}} />
-					<Tab title="Day 3" style={{ width: 100}} />
-					<Tab title="Day 4" style={{ width: 100}} />
-					<Tab title="Day 5" style={{ width: 100}} />
-					<Tab title="Day 6" style={{ width: 100}} />
-					
-				</TabBar>
-				</ScrollView>
-				</Layout>			
+			  <Layout style={{ flex: 1 }}>
+      {/* THE NAVIGATION: Scrollable TabBar */}
+      <View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <TabBar 
+            selectedIndex={selectedIndex} 
+            onSelect={index => setSelectedIndex(index)} 
+            style={styles.tabView}
+          >
+            <Tab title="Day 1" style={{ width: 100 }} />
+            <Tab title="Day 2" style={{ width: 100 }} />
+            <Tab title="Day 3" style={{ width: 100 }} />
+            <Tab title="Day 4" style={{ width: 100 }} />
+            <Tab title="Day 5" style={{ width: 100 }} />
+            <Tab title="Day 6" style={{ width: 100 }} />
+          </TabBar>
+        </ScrollView>
+      </View>
+
+      {/* THE CONTENT: Dynamically renders based on selectedIndex */}
+      <Layout style={{ flex: 1, padding: 16 }}>
+        {renderTabContent()}
+      </Layout>
+    </Layout>
 		</View>
 		
 		
@@ -359,12 +381,12 @@ export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
 const styles = StyleSheet.create({
 	
 	tabView: {
-		flex: 1,
+		flex: 1
 	},
 	tabContainer: {
-		height: 64,
+		flex: 1,
 		alignItems: 'center',
-		justifyContent: 'center',
+		justifyContent: 'center'
 	},
 	listContent: {
 		paddingHorizontal: 32,

@@ -90,6 +90,7 @@ import { TourStoppingEditScreen } from "../scenes/round-tour/tour-stopping-edit.
 import { TourSchedulesScreen } from "../scenes/round-tour/tour-schedules.component";
 import { TourScheduleScreen } from "../scenes/round-tour/tour-schedule.component";
 import { TourDetailsScreen } from "../scenes/round-tour/tour-details.component";
+import { TourEditScreen } from "../scenes/round-tour/tour-edit.component";
 
 import { VehicleAddScreen } from "../scenes/auth/vehicle-add.component";
 import { VehicleScreen } from "../scenes/auth/vehicle.component";
@@ -199,6 +200,9 @@ export const AppNavigator = (): React.ReactElement => {
 				<Stack.Screen name="TourSchedules" component={TourSchedulesScreen} />
 				<Stack.Screen name="TourSchedule" component={TourScheduleScreen} />
 				<Stack.Screen name="TourDetails" component={TourDetailsScreen} />
+				<Stack.Screen name="TourEdit" component={TourEditScreen} />
+
+				
 
 				<Stack.Screen name="VehicleAdd" component={VehicleAddScreen} />
 				<Stack.Screen name="Vehicle" component={VehicleScreen} />
