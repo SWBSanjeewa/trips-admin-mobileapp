@@ -122,6 +122,7 @@ export const TransportServicesSuggestions = memo((props: Omit<IAutocompleteDropd
         props.vehicleSeatLayoutDropdownControllerRef.current.setItem({});
         appStore.tour.setVehicleSeatLayoutId("");
       }
+      appStore.vehicleSeatLayouts.reset();
 
       /*
       const config: AxiosRequestConfig = {

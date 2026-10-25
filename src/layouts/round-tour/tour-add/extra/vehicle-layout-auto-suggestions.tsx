@@ -67,7 +67,10 @@ export const VehicleLayoutSuggestions = memo((props: Omit<IAutocompleteDropdownP
       console.log(response.status);
       console.log(response.data);
       if(response.data !=null && response.data.length > 0 ) {
-        setVehicleLayoutSuggestionsList(response.data);
+        //setVehicleLayoutSuggestionsList(response.data);
+        response.data.forEach(element => {
+          appStore.vehicleSeatLayouts.addVehcleSeatLayout(element);
+        });
        // console.log("Name::"+response.data[0].name);
         //console.log("Id::"+response.data[0]._id);
        // appStore.tour.setTransportServiceId(response.data[0]._id);
@@ -86,6 +89,7 @@ export const VehicleLayoutSuggestions = memo((props: Omit<IAutocompleteDropdownP
   useEffect(() => {
         const fetch = async ()=>{
           
+          appStore.vehicleSeatLayouts.reset();
           await loadSeatLayouts();
           setLoading(false);
         }
@@ -97,15 +101,17 @@ export const VehicleLayoutSuggestions = memo((props: Omit<IAutocompleteDropdownP
 
   const getVehicleLayoutSuggestions = useCallback(async q => {
     const filterToken = q.toLowerCase()
-   
+    appStore.vehicleSeatLayouts.reset();
     if (typeof q !== 'string' || q.length == 0) {
-      setVehicleLayoutSuggestionsList(null);
+      //setVehicleLayoutSuggestionsList(null);
+      appStore.vehicleSeatLayouts.reset();
       loadSeatLayouts()
       return
     }
 
     if (typeof q !== 'string' || q.length < 3) {
-      setVehicleLayoutSuggestionsList(null)
+      
+      //setVehicleLayoutSuggestionsList(null)
       return
     }
     setLoading(true)
@@ -125,7 +131,10 @@ export const VehicleLayoutSuggestions = memo((props: Omit<IAutocompleteDropdownP
       
         console.log("## suggestions:"+items);  
         console.log(items);  
-        setVehicleLayoutSuggestionsList(items)
+        //setVehicleLayoutSuggestionsList(items)
+        items.forEach(element => {
+          appStore.vehicleSeatLayouts.addVehcleSeatLayout(element);
+        });
         setLoading(false) 
       } catch(err) {
         console.log(err);
@@ -141,7 +150,7 @@ export const VehicleLayoutSuggestions = memo((props: Omit<IAutocompleteDropdownP
         controller={(instance) => {
           props.vehicleSeatLayoutDropdownControllerRef.current = instance;
         }}
-        dataSet={vehicleLayoutSuggestionsList}
+        dataSet={appStore.vehicleSeatLayouts.vehcleSeatLayouts}
         closeOnBlur={false}
         useFilter={false}
         initialValue='1'
