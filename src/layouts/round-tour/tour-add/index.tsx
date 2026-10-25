@@ -30,6 +30,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 //import { Stopping } from "../bus-list/assets/data";
 
 import { Datepicker, RangeDatepicker } from '@ui-kitten/components';
+import { TransportServicesSuggestions}  from "./extra/transportservices-auto-suggestions";
+import { VehicleLayoutSuggestions}  from "./extra/vehicle-layout-auto-suggestions";
 
 
 const BusAdd = ({ navigation }): React.ReactElement => {
@@ -77,12 +79,6 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 	const [descriptionErrorMessage, setDescriptionErrorMessage] = React.useState<string>("");
 
 
-	const [journeyStoppingsErrorMessage, setJourneyStoppingsErrorMessage] = React.useState<string>("");
-
-	const [returnJourneyStoppingsErrorMessage, setReturnJourneyStoppingsErrorMessage] = React.useState<string>("");
-
-
-
 	const [selectedIndex, setSelectedIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
 	const vehcileType = vehcileTypes[selectedIndex.row];
 
@@ -100,6 +96,9 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 	const [selectedDaysIndex, setSelectedDaysIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
 	const selectedDays = days[selectedDaysIndex.row];
+
+
+	const vehicleSeatLayoutDropdownControllerRef = useRef(null);
 
 
 	const onPhotosPress = (): void => {
@@ -149,16 +148,7 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 			
 		};
 
-	useEffect(() => {
-			const fetch = async ()=>{
-				await loadTransportServices();
-				setLoading(false);
-			}
 	
-			fetch();	
-	
-		}, []);
-
 
 	const onVehicleTypeSelect = (index): void => {
 		console.log("Slected index:"+index);
@@ -287,16 +277,7 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 		appStore.bus.setDescription(value);
 	};
 
-	const onNavigateToJourney = (): void => {
-		setJourneyStoppingsErrorMessage("");
-		navigation.navigate("TourStoppingsScreen")
-	};
-
-
-	const onSchedulesPress = (): void => {
-		navigation.navigate("TourSchedules")
-	};
-
+	
 	const onDriverPress = (): void => {
 		//navigation.navigate("TourSchedules")
 	};
@@ -318,11 +299,30 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 		appStore.tour.deleteStoppingPlace(stopping);
 	};
 
+	const onTransportServiceSelect = (index): void => {
+		setSelectedIndexTransportServices(index);
+		appStore.tour.setTransportServiceId(transportServices[index-1]._id);
+		appStore.tour.setTransportServiceName(transportServices[index-1].name);
+		appStore.tour.setTransportServiceThemeColor(transportServices[index-1].themeColor);
+	};
+
+	
 	
 	
 	return (
 		
 		<ScrollView keyboardShouldPersistTaps='handled'>
+
+			<Text>transportServiceId: {appStore.tour.transportServiceId}</Text>
+
+			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+					<Text style={{ padding: 5, paddingLeft: 10}}>Transport Service</Text>
+					<View style={{ margin: 10}}>
+					<TransportServicesSuggestions vehicleSeatLayoutDropdownControllerRef={vehicleSeatLayoutDropdownControllerRef}/>
+				</View>
+				</View>
+			</View>
 
 			<View style={{ margin: 10}}>
 					<View style={styles.labelContainer}>
@@ -472,19 +472,14 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
 				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text style={{ padding: 5, paddingLeft: 10}}>Vehicle Model</Text>
+					<Text style={{ padding: 5, paddingLeft: 10}}>Seat Layout</Text>
 					<View style={{ margin: 10}}>
-					<Select
-						placeholder='Default'
-						value={vehcileType.name}
-						selectedIndex={selectedIndex}
-						onSelect={(index: IndexPath) => onVehicleTypeSelect(index)}>
-						{vehcileTypes.map(renderOption)}
-					</Select>
+					<VehicleLayoutSuggestions vehicleSeatLayoutDropdownControllerRef={vehicleSeatLayoutDropdownControllerRef}/>
 				</View>
 				</View>
 			</View>
 
+			
 			<Card style={{ margin: 10, borderRadius:10}} onPress={onPhotosPress}>	
 							<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
 								<Text>Photos</Text>
@@ -495,44 +490,14 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 							)}
 			</Card>
 
-			<View style={{ margin: 10}}>
-					<View style={styles.labelContainer}>
-						<Text style={styles.label}>No of seats</Text>
-					</View>
-					<View style={noOfSeatsCustomStyle}>
-						<TextInput style={styles.captionText} keyboardType='numeric' placeholder="30" onChangeText={appStore.tour.setNoOfSeats} value={appStore.tour.noOfSeats} onFocus={() => setNoOfSeatsFocus(true)} onBlur={() => setNoOfSeatsFocus(false)} />
-					</View>
-				</View>
 			
-			<View>
 			
-				
-				
-				
-				
+			<View>	
 				
 			</View>
 
 			
-			<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToJourney}>	
-				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Stopping Locations</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToJourney}/>
-				</View>
-				{journeyStoppingsErrorMessage!="" && (
-						<Text style={styles.errorLabel}>{journeyStoppingsErrorMessage}</Text>	
-				)}
-			</Card>
-
-			<Card style={{ margin: 10, borderRadius:10}} onPress={onSchedulesPress}>	
-				<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-					<Text>Schedules</Text>
-					<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onSchedulesPress}/>
-				</View>
-				{journeyStoppingsErrorMessage!="" && (
-						<Text style={styles.errorLabel}>{journeyStoppingsErrorMessage}</Text>	
-				)}
-			</Card>
+			
 
 			
 

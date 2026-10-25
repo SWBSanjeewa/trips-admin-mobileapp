@@ -202,6 +202,7 @@ const SignInComponent = ({ navigation }): React.ReactElement => {
 			} , config);
 			
 			  //appStore.bus.setOwner(mobileNumber);
+			  console.log(response.data);
 			  console.log("response.data.success:::"+response.data.success);
 			  if(response.data.success == "true"){
 				appStore.user.setMobileNumber(response.data.mobileNumber);
@@ -209,7 +210,8 @@ const SignInComponent = ({ navigation }): React.ReactElement => {
 				appStore.user.setName(response.data.name);
 				appStore.user.setRole(response.data.role);
 				appStore.user.setCountryCode(response.data.countryCode);
-				console.log("response.data.countryCode:"+response.data.countryCode)
+				appStore.user.setDefaultTransportServiceId(response.data.defaultTransportServiceId);
+				console.log("response.data.defaultTransportServiceId:"+response.data.defaultTransportServiceId)
 			  	navigation && navigation.navigate("BusHome", {reload: true});
 			  }{
 				setLoading(false);

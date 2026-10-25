@@ -2,6 +2,7 @@ import { remove } from "mobx";
 import { types } from "mobx-state-tree";
 import Stopping from "./Stopping";
 import Schedule from "./Schedule";
+import vehicleSeatLayoutList from "../layouts/service-bus/vehicle-seat-layout-list";
 
 /*
 id: String,
@@ -76,7 +77,11 @@ const TourStore = types
     confirmationStartsBefore: types.optional(types.string, "7 Days"),
     confirmationFinishBefore: types.optional(types.string, "2 Days"),
     vehicleId: types.optional(types.string, ""),  
-    driverMobileNumber: types.optional(types.string, "") 
+    driverMobileNumber: types.optional(types.string, ""),
+    transportServiceId: types.optional(types.string, ""),
+    transportServiceName: types.optional(types.string, ""),
+    transportServiceThemeColor: types.optional(types.string, "#142169"),
+    vehicleSeatLayoutId: types.optional(types.string, ""),
   })
   .actions((self) => ({
     reset() {
@@ -84,8 +89,13 @@ const TourStore = types
       self.id = "";
       self.objectId = "";
       self.title = "";
+      self.stoppingsPlaces=String[0];
       self.stoppings= String[0];
       self.schedules= Schedule[0];
+      self.transportServiceId = "";
+      self.transportServiceName = "";
+      self.transportServiceThemeColor = "#142169";
+      self.vehicleSeatLayoutId = "";
     },
     populate(tour) {
       self.id = tour.id;
@@ -93,6 +103,10 @@ const TourStore = types
       self.title = tour.title;
       self.photos = tour.photos;
       self.stoppingsPlaces = tour.stoppingsPlaces;
+      self.transportServiceId = tour.transportServiceId;
+      self.transportServiceName = tour.transportServiceName;
+      self.transportServiceThemeColor = tour.transportServiceThemeColor;
+      self.vehicleSeatLayoutId = tour.vehicleSeatLayoutId;
     },
     setId(id) {
       self.id = id;
@@ -111,6 +125,18 @@ const TourStore = types
     },
     setTitle(title) {
       self.title = title;
+    },
+    setTransportServiceId(transportServiceId) {
+      self.transportServiceId = transportServiceId;
+    },
+    setTransportServiceName(transportServiceName) {
+      self.transportServiceName = transportServiceName;
+    },
+    setTransportServiceThemeColor(transportServiceThemeColor) {
+      self.transportServiceThemeColor = transportServiceThemeColor;
+    },
+    setVehicleSeatLayoutId(vehicleSeatLayoutId) {
+      self.vehicleSeatLayoutId = vehicleSeatLayoutId;
     },
     addPhoto(photo){
       self.photos.push(photo);

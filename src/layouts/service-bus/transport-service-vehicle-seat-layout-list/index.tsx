@@ -860,7 +860,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		paddingVertical: 10,
 	},
-		listLabel: {
+	listLabel: {
 		fontSize: 16,
 	},
 	contentContainerStyle: {

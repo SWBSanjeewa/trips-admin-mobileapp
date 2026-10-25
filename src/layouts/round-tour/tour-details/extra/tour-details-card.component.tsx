@@ -134,61 +134,23 @@ export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
 
 			console.log("Populate finished!!");
 			console.log(JSON.stringify(toJS(appStore.tour)));
-			//console.log("#### Passengers count :"+response.data.passengers.length);
+			
+			/*
 			if(response.data.photos != null){
 				response.data.photos.forEach(element => {
-					appStore.bus.addStopping( element.place,Number(element.latitude),Number(element.longitude),element.time)
+					appStore.tour.addStopping( element.place,Number(element.latitude),Number(element.longitude),element.time)
 				});
 		    }
 
 			if(response.data.stoppings != null){
 				response.data.stoppings.forEach(element => {
-					appStore.bus.addStopping( element.place,Number(element.latitude),Number(element.longitude),element.time)
+					appStore.tour.addStopping( element.place,Number(element.latitude),Number(element.longitude),element.time)
 				});
 		    }
-			if(response.data.journey != null){
-				appStore.bus.setJourneyRunningDays(response.data.journey.runningDays);
-				response.data.journey.stoppings.forEach(element => {
-					console.log("Adding place:"+element.place); 
-					appStore.bus.addJourneyStopping( element.place,
-					Number(element.latitude),
-					Number(element.longitude),
-					element.time,
-					)
-					});
-		    }
-			if(response.data.returnJourney != null){
-				appStore.bus.setReturnJourneyRunningDays(response.data.returnJourney.runningDays);
-				response.data.returnJourney.stoppings.forEach(element => {
-					appStore.bus.addReturnJourneyStopping( element.place,
-					Number(element.latitude),
-					Number(element.longitude),
-					element.time,
-					)
-					});
-		    }
-			if(response.data.passengers != null){
-				response.data.passengers.forEach(element => {
-					appStore.bus.addPassenger( element.name,
-					element.mobileNumber,
-					element.journeyStart,
-					Number(element.journeyStartLatitude),
-					Number(element.journeyStartLongitude),
-					element.journeyEnd,
-					Number(element.journeyEndLatitude),
-					Number(element.journeyEndLongitude),
-					element.returnJourneyStart,
-					Number(element.returnJourneyStartLatitude),
-					Number(element.returnJourneyStartLongitude),
-					element.returnJourneyEnd,
-					Number(element.returnJourneyEndLatitude),
-					Number(element.returnJourneyEndLongitude),
-					element.journeyWeekdays,
-					element.returnJourneyWeekdays,
-					element.watchers
-					)
-					});
-		    }
+				*/
+			
+			
+			
 
 	
 		  } catch(err) {

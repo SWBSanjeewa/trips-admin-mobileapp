@@ -40,6 +40,7 @@ export const TourDetailsScreen = ({ navigation }): React.ReactElement => {
 		var localreload = false;
 		var localreload = route.params?.reload;
 		console.log("localreload::"+localreload);
+		appStore.tour.reset();
 		navigation && navigation.navigate("TourList", {reload: localreload});
 	};
 

@@ -47,8 +47,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from "expo-linear-gradient";
 import { TimerPickerModal } from "react-native-timer-picker";
 
+import TourPhotosAddCard from "../../round-tour/../tour-photos-add/extra/tourphotos-add-card.component";
+
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+
+import { VehicleLayoutSuggestions}  from "./vehicle-layout-auto-suggestions";
 
 // forwardRef(function MyInput(props, ref) {
 // const MyInput = forwardRef(function MyInput(props, ref) {
@@ -85,6 +89,8 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 
 	const [selectedStopping, setSelectedStopping] = React.useState<string>("");
 
+	const [vehicleIndex, setVehicleIndex] = React.useState<string>("");
+
 	const [journeyEndLocation, setJourneyEndLocation] = useState('');
 	const [journeyEndTime, setJourneyEndTime] = useState('');
 
@@ -101,6 +107,8 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 	const [imageIndex, setImageIndex] = useState(0);
 
 	const [reload, setReload] = useState(true);
+
+	const [journeyStoppingsErrorMessage, setJourneyStoppingsErrorMessage] = React.useState<string>("");
 
 	
 
@@ -132,6 +140,16 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 	const refRBSheetTitleEdit = useRef();
 	const [title, setTitle] = useState("");
 
+	const [selectedIndex, setSelectedIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
+	const days = Array.from({ length: 10 }, (_, i) => ({
+		key: (i + 1).toString(),
+		value: `${i + 1}`
+	}));
+
+	const [selectedDaysIndex, setSelectedDaysIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
+	const selectedDays = days[selectedDaysIndex.row];
+
+	const [photosErrorMessage, setPhotosErrorMessage] = React.useState<string>("");
 
 
 	const MenuIcon = (props): IconElement => (
@@ -473,8 +491,40 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 		
 	};
 
+	const onNavigateToJourney = (): void => {
+		//setJourneyStoppingsErrorMessage("");
+		navigation.navigate("TourStoppingsScreen")
+	};
+
+
+	const onSchedulesPress = (): void => {
+		navigation.navigate("TourSchedules")
+	};
+
+
 	
-	
+	const onNoOfDaysSelect = (index): void => {
+		console.log("Slected index:"+index);
+		setSelectedDaysIndex(index);
+		
+		appStore.tour.setNoOfDays(days[index-1].value);
+	};
+
+	const renderOptionDays = (day): React.ReactElement => (
+		<SelectItem key={day.key} title={evaProps => <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+			<Text style={{ paddingHorizontal: 5}}>{day.value}</Text>
+		</View>} />
+	);
+
+	const onPhotosPress = (): void => {
+		console.log("photos presses");
+		setPhotosErrorMessage("");
+	};
+
+	function errorMessageHandler(value) {
+		setPhotosErrorMessage(value);
+	}
+
 
 	
 	
@@ -501,33 +551,26 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
 						<Text style={{ padding: 5, paddingLeft: 10}}>No Of Days</Text>
 						<View style={{ margin: 10}}>
-							<Select
-								placeholder='Default'
-								value={transportAuthorityType.name}
-								selectedIndex={selectedIndexTransportAuthorityType}
-								onSelect={(index: IndexPath) => onTransportAuthorityTypeSelect(index)}>
-								{transportAuthorityTypes.map(renderOptionBusTypes)}
-							</Select>
-						</View>
+						<Select
+							placeholder='Default'
+							value={appStore.tour.noOfDays}
+							selectedIndex={selectedIndex}
+							onSelect={(index: IndexPath) => onNoOfDaysSelect(index)}>
+							{days.map(renderOptionDays)}
+						</Select>
+					</View>
 					</View>
 				</View>
 
 				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
 					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-						<Text style={{ padding: 5, paddingLeft: 10}}>Vehicle Seat layouts</Text>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Seat Layout</Text>
 						<View style={{ margin: 10}}>
-							<Select
-								placeholder='Default'
-								value={routeType.name}
-								selectedIndex={selectedIndexBusType}
-								onSelect={(index: IndexPath) => onBusTypeSelect(index)}>
-								{routeBusTypes.map(renderOptionBusTypes)}
-							</Select>
-						</View>
+						<VehicleLayoutSuggestions vehicleIndex={vehicleIndex}/>
+					</View>
 					</View>
 				</View>
 
-				
 				<View style={{ margin: 10}}>
 					<View style={styles.labelContainer}>
 						<Text style={styles.label}>Stopping Locations</Text>
@@ -686,6 +729,36 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 					</View>	
 					
 				</View>
+
+				<Card style={{ margin: 10, borderRadius:10}} onPress={onPhotosPress}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text>Photos</Text>
+						<TourPhotosAddCard navigation={navigation} errorMessageHandler={errorMessageHandler} update={false}/>
+					</View>
+					{photosErrorMessage!="" && (
+							<Text style={styles.errorLabel}>{photosErrorMessage}</Text>	
+					)}
+				</Card>
+
+				<Card style={{ margin: 10, borderRadius:10}} onPress={onNavigateToJourney}>	
+								<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+									<Text>Stopping Locations</Text>
+									<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onNavigateToJourney}/>
+								</View>
+								{journeyStoppingsErrorMessage!="" && (
+										<Text style={styles.errorLabel}>{journeyStoppingsErrorMessage}</Text>	
+								)}
+							</Card>
+				
+							<Card style={{ margin: 10, borderRadius:10}} onPress={onSchedulesPress}>	
+								<View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+									<Text>Schedules</Text>
+									<MDIcon name="arrow-forward" style={styles.itemContentIcon} onPress={onSchedulesPress}/>
+								</View>
+								{journeyStoppingsErrorMessage!="" && (
+										<Text style={styles.errorLabel}>{journeyStoppingsErrorMessage}</Text>	
+								)}
+							</Card>
 
 		</View>		
 		

@@ -461,7 +461,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 			}else{
 				setLoading(false);
 			}
-			console.log("tours:::"+appStore.busses.busses.length);
+			//console.log("tours:::"+appStore.busses.busses.length);
 			
 		  return () => {
 			
@@ -479,6 +479,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 		<SafeAreaLayout style={styles.parentContainer}>
 		
 		<ScrollView ref={refScrollView } keyboardShouldPersistTaps="always"> 
+		<Text>transportServiceId: {appStore.tour.transportServiceId}</Text>
 			
 			{search && (
 				//!appStore.searchContext.close && (

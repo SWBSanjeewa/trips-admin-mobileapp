@@ -20,7 +20,7 @@ const User = types.model({
   accessToken: types.optional(types.string, ""),
   countryCode: types.optional(types.string, ""),
   role: types.optional(types.string, ""),
-  defaultTransportService: types.optional(types.string, ""),
+  defaultTransportServiceId: types.optional(types.string, ""),
 })
 .actions((self) => ({
   setMobileNumber(mobileNumber){
@@ -38,8 +38,8 @@ const User = types.model({
   setCountryCode(countryCode){
     self.countryCode=countryCode;
   }, 
-  setDefaultTransportService(defaultTransportService){
-    self.defaultTransportService=defaultTransportService;
+  setDefaultTransportServiceId(defaultTransportServiceId){
+    self.defaultTransportServiceId=defaultTransportServiceId;
   }, 
   reset(){
     self.name="";
