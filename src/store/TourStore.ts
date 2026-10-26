@@ -78,9 +78,6 @@ const TourStore = types
     confirmationFinishBefore: types.optional(types.string, "2 Days"),
     vehicleId: types.optional(types.string, ""),  
     driverMobileNumber: types.optional(types.string, ""),
-    transportServiceId: types.optional(types.string, ""),
-    transportServiceName: types.optional(types.string, ""),
-    transportServiceThemeColor: types.optional(types.string, "#142169"),
     vehicleSeatLayoutId: types.optional(types.string, ""),
   })
   .actions((self) => ({
@@ -92,9 +89,6 @@ const TourStore = types
       self.stoppingsPlaces=String[0];
       self.stoppings= String[0];
       self.schedules= Schedule[0];
-      self.transportServiceId = "";
-      self.transportServiceName = "";
-      self.transportServiceThemeColor = "#142169";
       self.vehicleSeatLayoutId = "";
     },
     populate(tour) {
@@ -103,9 +97,6 @@ const TourStore = types
       self.title = tour.title;
       self.photos = tour.photos;
       self.stoppingsPlaces = tour.stoppingsPlaces;
-      self.transportServiceId = tour.transportServiceId;
-      self.transportServiceName = tour.transportServiceName;
-      self.transportServiceThemeColor = tour.transportServiceThemeColor;
       self.vehicleSeatLayoutId = tour.vehicleSeatLayoutId;
     },
     setId(id) {
@@ -125,15 +116,6 @@ const TourStore = types
     },
     setTitle(title) {
       self.title = title;
-    },
-    setTransportServiceId(transportServiceId) {
-      self.transportServiceId = transportServiceId;
-    },
-    setTransportServiceName(transportServiceName) {
-      self.transportServiceName = transportServiceName;
-    },
-    setTransportServiceThemeColor(transportServiceThemeColor) {
-      self.transportServiceThemeColor = transportServiceThemeColor;
     },
     setVehicleSeatLayoutId(vehicleSeatLayoutId) {
       self.vehicleSeatLayoutId = vehicleSeatLayoutId;

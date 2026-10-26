@@ -577,7 +577,7 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 					</View>
 					<View style={styles.descriptionInputContainer}>
 					<View style={{flexDirection: "row", flexWrap: "wrap"}}>
-					{appStore.routeBus.stoppingPlaces.map(function(stopping, index){
+					{appStore.tour.stoppingsPlaces.map(function(stopping, index){
 						if(stopping == selectedStopping){
 							return <TouchableOpacity key={index} style={{flexDirection: "row" ,borderWidth: 1, padding: 2, margin: 2, borderColor: "#222"}} onPress={onAddStopping(stopping)}>
 										<Text style={{padding: 2}}>{stopping.place}</Text>

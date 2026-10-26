@@ -47,6 +47,7 @@ export const TourListScreen = ({ navigation }): React.ReactElement => {
 	};
 
 	const onBackPress = () => {
+		appStore.tours.reset();
 		navigation.navigate("BusHome");
 	};
 	

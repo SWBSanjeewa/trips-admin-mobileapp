@@ -312,17 +312,7 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 	return (
 		
 		<ScrollView keyboardShouldPersistTaps='handled'>
-
-			<Text>transportServiceId: {appStore.tour.transportServiceId}</Text>
-
-			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
-				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text style={{ padding: 5, paddingLeft: 10}}>Transport Service</Text>
-					<View style={{ margin: 10}}>
-					<TransportServicesSuggestions vehicleSeatLayoutDropdownControllerRef={vehicleSeatLayoutDropdownControllerRef}/>
-				</View>
-				</View>
-			</View>
+			
 
 			<View style={{ margin: 10}}>
 					<View style={styles.labelContainer}>

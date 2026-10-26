@@ -12,10 +12,6 @@ import RNFS, { readDirAssets } from 'react-native-fs';
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
-//import {launchImageLibrary} from 'react-native-image-picker';
-//import {launchCamera} from 'react-native-image-picker';
-//import * as ImagePicker from 'react-native-image-picker';
-
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 
@@ -27,7 +23,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 const bus: Bus = Bus.bus1();
 
-const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardElement => {
+const TourPhotosAddCard = ({ navigation , errorMessageHandler, update, vehicleIndex,loadVehicles}): CardElement => {
 
 	const appStore = useStore(AppStore);
 	const BASE_URL = 'https://routes.lk:7007';
@@ -54,23 +50,24 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 
 	const [errorMessage, setErrorMessage] = React.useState<string>("");
 
-	const [tourId, setTourId] = React.useState<string>("");
+	const [vehicleId, setVehicleId] = React.useState<string>("");
 
 
 	useEffect(() => {
 		
-		/*
-		if(appStore.transportService.findVehicle(vehicleId)?.photos?.length > 0){
-			setImageUrl(appStore.bus.photos[0]);
+		
+		if(appStore.tour.photos?.length > 0){
+			console.log("appStore.tour.photos[0]::"+appStore.tour.photos[0]);
+			setImageUrl(appStore.tour.photos[0]);
 			setPhotoDeleteEnable(true);
 		}
-		if(appStore.transportService.findVehicle(vehicleId)?.photos?.length > 1){
+		if(appStore.tour.photos?.length > 1){
 			setPhotoNextEnable(true);
 		}
 		setPhotoIndex(0);
-		*/
+		
 
-	}, []);
+	},[]);
 
 	
 	
@@ -112,10 +109,31 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 
 	};
 
-	/*
-	const takePhoto = useCallback(() => {
-		launchCamera({ mediaType: "photo", cameraType: "front" }, onPickImage);
-	  }, []);
+	const takePhoto= async () => {
+    // Camera access always requires the user's permission.
+    // Taking a photo also requires a device with a camera. The iOS Simulator
+    // does not have one, so use a physical device to test this button.
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert('Permission required', 'Permission to access the camera is required.');
+      return;
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      onPickImage(result);
+    }
+  };
+
+	
 	
 	  const pickPhotoFromLibrary = async () => {
 		//launchImageLibrary({ mediaType: "photo" }, onPickImage);
@@ -132,7 +150,6 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 			alert('You did not select any image.');
 		}
 	  }
-		
 	
 	  const onUploadPress = useCallback(() => {
 		  
@@ -149,7 +166,7 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 		
 
 	  }, [pickPhotoFromLibrary, takePhoto]);
-*/
+
 	  /*
 	  const onUploadPressBck = useCallback(() => {
 		  if(appStore.bus.photos.length < 2){
@@ -195,21 +212,18 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 			} as RawAxiosRequestHeaders,
 		  };
 		  try {
-			console.log("***"+appStore.transportService.id);
-			const response: AxiosResponse = await client.post(`/transportServices/tours/photos`, {id: tourId, transportServiceId: appStore.tour.transportServiceId , name: name, image: data} , config);
+			
+			const response: AxiosResponse = await client.post(`/tours/`+tourId+`/photos/`+(photoIndex+1), { name: name, image: data} , config);
 			console.log(response.status);
-			if(response.status){
-				if(tourId == ""){
-					setTourId(response.data.id);
-				}
-				appStore.tour.setId(response.data.id);
-				appStore.tour.addPhoto(BASE_URL+'/transport-services/'+appStore.tour.transportServiceId+'/tours/'+response.data.id+'/'+name);
-				setImageUrl(BASE_URL+'/transport-services/'+appStore.tour.transportServiceId+'/tours/'+response.data.id+'/'+name);
-				console.log(BASE_URL+'/transport-services/'+appStore.tour.transportServiceId+'/tours/'+response.data.id+'/'+name);
-				
+			if(response.status == 200){
+				//appStore.vehicle.addPhoto(BASE_URL+'/transport-services/'+appStore.transportService.id+'/vehicles/'+response.data.id+'/'+name);
+				appStore.tour.addPhotoAfterIndex(BASE_URL+'/tours/'+tourId+'/'+name,photoIndex);
+				setImageUrl(BASE_URL+'/tours/'+tourId+'/'+name,photoIndex);
+				console.log(BASE_URL+'/tours/'+tourId+'/'+name,photoIndex);
 			}
 			
-			console.log(appStore.vehicle);
+			console.log("After photo upload");
+			console.log(appStore.tour);
 		  } catch(err) {
 			console.log(err);
 			setSpinner(false);
@@ -218,21 +232,7 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 		
 	};
 
-	const deletePhoto = async() => {
-		console.log("Deleting photo ..."+imageUrl.substring(imageUrl.indexOf('buses')+6));
-		try {	
-			const response: AxiosResponse = await client.delete('/photos/'+imageUrl.substring(imageUrl.indexOf('buses')+6));
-		} catch(err) {
-		console.log(err);
-		}  	
-
-
-	};
-
-
-	
-
-	const deleteBusPhoto = async() => {
+	const deleteTourPhoto = async() => {
 		console.log(imageUrl.substring(imageUrl.lastIndexOf('/')+1));
 		const config: AxiosRequestConfig = {
 			headers: {
@@ -241,11 +241,20 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 			} as RawAxiosRequestHeaders,
 		  };
 		try {	
-			//await client.post(`/transportServices/vehicles/photos`, {id: vehicleId, transportServiceId: appStore.transportService.id , name: name, image: data} , config);
-			//router.delete('/:transportServiceId/vehicles/:id/photos/:name', function(req, res) {
-			console.log(('/transportServices/'+appStore.transportService.id+'/vehicles/'+appStore.vehicle.id+'/photos/'+imageUrl.substring(imageUrl.lastIndexOf('/')+1)));
-			const response: AxiosResponse = await client.delete('/transportServices/'+appStore.transportService.id+'/vehicles/'+appStore.vehicle.id+'/photos/'+imageUrl.substring(imageUrl.lastIndexOf('/')+1));
+			
+        var data={
+			tourId: appStore.tour.id,
+			photoName: imageUrl.substring(imageUrl.lastIndexOf('/')+1)
+		}
+		//	/:transportServiceId/vehicles/:vehicleIndex/photos/:photoIndex'
+
+			console.log(('/tours/'+tourId+'/photos/'+imageUrl.substring(imageUrl.lastIndexOf('/')+1)));
+			const response: AxiosResponse = await client.put('/tours/'+tourId+'/photos/'+photoIndex, data, config);
 			console.log("### "+response.data);
+			appStore.tour.photos.remove(photoIndex);
+			//appStore.vehicle.reset();
+			//appStore.vehicles.reset();
+			//loadVehicles();
 		} catch(err) {
 			console.log(err);
 		}  	
@@ -271,10 +280,10 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 
 	
 	  const onPhotoDeletePress = async () => {
-		  console.log("appStore.bus.photos.length"+appStore.bus.photos.length);
+		  console.log("appStore.tour.photos.length"+appStore.tour.photos.length);
 		  errorMessageHandler("");
 		  if(update){
-			  if(appStore.bus.photos.length == 1){
+			  if(appStore.tour.photos.length == 1){
 				errorMessageHandler("One photo is mandatory, Please upload new photo before deleting the last.");
 			  }else{	
 				onPhotoDeleteLocal();
@@ -293,46 +302,47 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 			setPhotoIndex(-1);
 			
 			setPhotoDeleteEnable(false);
-			appStore.vehicle.deletePhoto(photoIndex);
+			appStore.tour.deletePhoto(photoIndex);
 			//deletePhoto();
-			deleteBusPhoto();
+			deleteTourPhoto();
 		}else{
 			let newPhotIndex = photoIndex;
 			console.log("photoIndex::"+photoIndex);
-			console.log("appStore.vehicle.photos.length::"+appStore.vehicle.photos.length);
-			if(photoIndex < appStore.vehicle.photos.length-1){
-				console.log("appStore.bus.getPhoto(photoIndex+1)::"+appStore.vehicle.getPhoto(photoIndex+1));
-				setImageUrl(appStore.vehicle.getPhoto(photoIndex+1));	
+			console.log("appStore.tour.photos.length::"+appStore.tour.photos.length);
+			if(photoIndex < appStore.tour.photos.length-1){
+				//console.log("appStore.bus.getPhoto(photoIndex+1)::"+appStore.vehicle.getPhoto(photoIndex+1));
+				setImageUrl(appStore.tour.getPhoto(photoIndex+1));	
 				setPhotoIndex(photoIndex);
 				console.log("####");
-				if(photoIndex == appStore.vehicle.photos.length-2){
+				if(photoIndex == appStore.tour.photos.length-2){
 					console.log("setPhotoNextEnable");
 					setPhotoNextEnable(false);
 				}	
 			}else {
-				console.log("appStore.vehicle.getPhoto(photoIndex-1)::"+appStore.vehicle.getPhoto(photoIndex-1));
-				setImageUrl(appStore.vehicle.getPhoto(photoIndex-1));
+				console.log("appStore.tour.getPhoto(photoIndex-1)::"+appStore.tour.getPhoto(photoIndex-1));
+				setImageUrl(appStore.tour.getPhoto(photoIndex-1));
 				setPhotoIndex(photoIndex-1);	
 			}
-			appStore.vehicle.deletePhoto(newPhotIndex);
+			appStore.tour.deletePhoto(newPhotIndex);
 			//deletePhoto();
-			deleteBusPhoto();
+			deleteTourPhoto();
 		}	
 		
 	};
 
 	const onImagePressed = (): void => {
-		console.log("photos length:"+appStore.tour.photos.length);
-		console.log(imageUrl);
-		console.log("photoIndex:"+photoIndex);
 		if(appStore.tour.photos.length > photoIndex+1 ){
 			setPhotoIndex(photoIndex+1);
+			console.log("setting imageurl to::"+appStore.tour.getPhoto(photoIndex+1));
 			setImageUrl(appStore.tour.getPhoto(photoIndex+1));
 		}else{
 			setPhotoIndex(0);
+			console.log("setting imageurl to::"+appStore.tour.getPhoto(0));
 			setImageUrl(appStore.tour.getPhoto(0));
 		}
 	};
+
+	
 
 	return (
 		<View>
