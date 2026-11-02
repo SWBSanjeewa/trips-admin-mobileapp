@@ -123,7 +123,12 @@ const TourStore = types
     addPhoto(photo){
       self.photos.push(photo);
       console.log("No of photo:"+self.photos.length);
-    },
+    },  
+    // 
+     addPhotoAfterIndex(photo,index){
+      self.photos.splice(index, 0, photo);
+      console.log("No of photo:"+self.photos.length);
+    },  
     getPhoto(index){
       console.log("getPhotos No of photo:"+self.photos.length);
       console.log("GetPhotos index:"+index);

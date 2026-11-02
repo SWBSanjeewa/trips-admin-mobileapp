@@ -96,6 +96,8 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 	const appStore = useStore(AppStore);
 
 	const [reload, setReload] = React.useState(false);
+
+	const BASE_URL = 'https://routes.lk:7007';
 	
 	const isTourOwner = (): boolean => {
 		
@@ -253,6 +255,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 		
 		
 		const tour = appStore.tours.tours[info.index];
+		
 		//console.log(bus.title);
 		//console.log(" info.item._id"+ info.item._id+" journeyStartLatitude:"+bus.journey.stoppings[0].latitude);
 		navigation && navigation.navigate("TourDetails", { id: tour.id });
@@ -265,7 +268,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 			</View>
 			<CachedImage
 				resizeMode="cover"
-				style={styles.itemHeader} source={info.item.photos[0]} />
+				style={styles.itemHeader} source={BASE_URL+info.item.photos[0]} />
 		</View>
 	);
 

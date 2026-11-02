@@ -203,9 +203,9 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update}): CardEle
 					setTourId(response.data.id);
 				}
 				appStore.tour.setId(response.data.id);
-				appStore.tour.addPhoto(BASE_URL+'/tours/'+response.data.id+'/'+name);
-				setImageUrl(BASE_URL+'/tours/'+response.data.id+'/'+name);
-				console.log(BASE_URL+'/tours/'+response.data.id+'/'+name);
+				appStore.tour.addPhoto(BASE_URL+'/tours/'+appStore.tour.id+'/'+name);
+				setImageUrl(BASE_URL+'/tours/'+appStore.tour.id+'/'+name);
+				console.log(BASE_URL+'/tours/'+appStore.tour.id+'/'+name);
 				
 			}
 			

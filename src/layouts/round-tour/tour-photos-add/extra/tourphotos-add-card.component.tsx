@@ -58,7 +58,7 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update, vehicleIn
 		
 		if(appStore.tour.photos?.length > 0){
 			console.log("appStore.tour.photos[0]::"+appStore.tour.photos[0]);
-			setImageUrl(appStore.tour.photos[0]);
+			setImageUrl(BASE_URL+appStore.tour.photos[0]);
 			setPhotoDeleteEnable(true);
 		}
 		if(appStore.tour.photos?.length > 1){
@@ -213,13 +213,13 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update, vehicleIn
 		  };
 		  try {
 			
-			const response: AxiosResponse = await client.post(`/tours/`+tourId+`/photos/`+(photoIndex+1), { name: name, image: data} , config);
+			const response: AxiosResponse = await client.post(`/tours/`+appStore.tour.id+`/photos/`+(photoIndex+1), { name: name, image: data} , config);
 			console.log(response.status);
 			if(response.status == 200){
 				//appStore.vehicle.addPhoto(BASE_URL+'/transport-services/'+appStore.transportService.id+'/vehicles/'+response.data.id+'/'+name);
-				appStore.tour.addPhotoAfterIndex(BASE_URL+'/tours/'+tourId+'/'+name,photoIndex);
-				setImageUrl(BASE_URL+'/tours/'+tourId+'/'+name,photoIndex);
-				console.log(BASE_URL+'/tours/'+tourId+'/'+name,photoIndex);
+				appStore.tour.addPhotoAfterIndex('/tours/'+appStore.tour.id+'/'+name,photoIndex+1);
+				setImageUrl(BASE_URL+'/tours/'+appStore.tour.id+'/'+name);
+				console.log('/tours/'+appStore.tour.id+'/'+name);
 			}
 			
 			console.log("After photo upload");
@@ -233,7 +233,9 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update, vehicleIn
 	};
 
 	const deleteTourPhoto = async() => {
-		console.log(imageUrl.substring(imageUrl.lastIndexOf('/')+1));
+
+		var photoName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+		console.log("deleteTourPhoto. photoIndex::"+photoIndex);
 		const config: AxiosRequestConfig = {
 			headers: {
 			  'Accept': 'application/json',
@@ -242,16 +244,11 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update, vehicleIn
 		  };
 		try {	
 			
-        var data={
-			tourId: appStore.tour.id,
-			photoName: imageUrl.substring(imageUrl.lastIndexOf('/')+1)
-		}
-		//	/:transportServiceId/vehicles/:vehicleIndex/photos/:photoIndex'
-
-			console.log(('/tours/'+tourId+'/photos/'+imageUrl.substring(imageUrl.lastIndexOf('/')+1)));
-			const response: AxiosResponse = await client.put('/tours/'+tourId+'/photos/'+photoIndex, data, config);
+			
+			const response: AxiosResponse = await client.delete('/tours/'+appStore.tour.id+'/photos/'+photoName, config);
 			console.log("### "+response.data);
-			appStore.tour.photos.remove(photoIndex);
+			
+			//appStore.tour.photos.remove(photoIndex);
 			//appStore.vehicle.reset();
 			//appStore.vehicles.reset();
 			//loadVehicles();
@@ -296,7 +293,7 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update, vehicleIn
 	const onPhotoDeleteLocal = async () => {
 		
 		
-        if(appStore.vehicle.photos.length == 1){
+        if(appStore.tour.photos.length == 1){
 			//setBase64Image('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAwBQTFRF7c5J78kt+/Xm78lQ6stH5LI36bQh6rcf7sQp671G89ZZ8c9V8c5U9+u27MhJ/Pjv9txf8uCx57c937Ay5L1n58Nb67si8tVZ5sA68tJX/Pfr7dF58tBG9d5e8+Gc6chN6LM+7spN1pos6rYs6L8+47hE7cNG6bQc9uFj7sMn4rc17cMx3atG8duj+O7B686H7cAl7cEm7sRM26cq/vz5/v767NFY7tJM78Yq8s8y3agt9dte6sVD/vz15bY59Nlb8txY9+y86LpA5LxL67pE7L5H05Ai2Z4m58Vz89RI7dKr+/XY8Ms68dx/6sZE7sRCzIEN0YwZ67wi6rk27L4k9NZB4rAz7L0j5rM66bMb682a5sJG6LEm3asy3q0w3q026sqC8cxJ6bYd685U5a457cIn7MBJ8tZW7c1I7c5K7cQ18Msu/v3678tQ3aMq7tNe6chu6rgg79VN8tNH8c0w57Q83akq7dBb9Nld9d5g6cdC8dyb675F/v327NB6////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/LvB3QAAAMFJREFUeNpiqIcAbz0ogwFKm7GgCjgyZMihCLCkc0nkIAnIMVRw2UhDBGp5fcurGOyLfbhVtJwLdJkY8oscZCsFPBk5spiNaoTC4hnqk801Qi2zLQyD2NlcWWP5GepN5TOtSxg1QwrV01itpECG2kaLy3AYiCWxcRozQWyp9pNMDWePDI4QgVpbx5eo7a+mHFOqAxUQVeRhdrLjdFFQggqo5tqVeSS456UEQgWE4/RBboxyC4AKCEI9Wu9lUl8PEGAAV7NY4hyx8voAAAAASUVORK5CYII=');
 			setImageUrl(BASE_URL+'/no_image.png');
 			setPhotoIndex(-1);
@@ -311,7 +308,7 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update, vehicleIn
 			console.log("appStore.tour.photos.length::"+appStore.tour.photos.length);
 			if(photoIndex < appStore.tour.photos.length-1){
 				//console.log("appStore.bus.getPhoto(photoIndex+1)::"+appStore.vehicle.getPhoto(photoIndex+1));
-				setImageUrl(appStore.tour.getPhoto(photoIndex+1));	
+				setImageUrl(BASE_URL+appStore.tour.getPhoto(photoIndex+1));	
 				setPhotoIndex(photoIndex);
 				console.log("####");
 				if(photoIndex == appStore.tour.photos.length-2){
@@ -320,7 +317,7 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update, vehicleIn
 				}	
 			}else {
 				console.log("appStore.tour.getPhoto(photoIndex-1)::"+appStore.tour.getPhoto(photoIndex-1));
-				setImageUrl(appStore.tour.getPhoto(photoIndex-1));
+				setImageUrl(BASE_URL+appStore.tour.getPhoto(photoIndex-1));
 				setPhotoIndex(photoIndex-1);	
 			}
 			appStore.tour.deletePhoto(newPhotIndex);
@@ -334,11 +331,11 @@ const TourPhotosAddCard = ({ navigation , errorMessageHandler, update, vehicleIn
 		if(appStore.tour.photos.length > photoIndex+1 ){
 			setPhotoIndex(photoIndex+1);
 			console.log("setting imageurl to::"+appStore.tour.getPhoto(photoIndex+1));
-			setImageUrl(appStore.tour.getPhoto(photoIndex+1));
+			setImageUrl(BASE_URL+appStore.tour.getPhoto(photoIndex+1));
 		}else{
 			setPhotoIndex(0);
 			console.log("setting imageurl to::"+appStore.tour.getPhoto(0));
-			setImageUrl(appStore.tour.getPhoto(0));
+			setImageUrl(BASE_URL+appStore.tour.getPhoto(0));
 		}
 	};
 
