@@ -19,6 +19,7 @@ export class Tour {
 		readonly photos: string[],
 		readonly stoppings: string[],
 		readonly stoppingsPlaces: string[],
+		readonly tags: string[],
 		readonly schedules: Schedule[],
 	) {}
 

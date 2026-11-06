@@ -89,6 +89,8 @@ const BusJourneyList = ({ navigation }): React.ReactElement => {
 			<View style={{flex: 1,flexDirection: "row", justifyContent: "space-between"}}>
 				<Button style={{ flex: 1 , margin: 2, borderRadius:50, margin: 10 }} onPress={()=>onStoppingAddPress()} >Add Stopping</Button>
 			</View>
+
+			
 			
 			<View>	
 

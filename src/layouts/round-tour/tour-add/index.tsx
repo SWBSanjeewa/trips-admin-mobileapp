@@ -20,7 +20,7 @@ import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
-import {routeTypes, getRouteColor, vehcileTypes, getVehicleColor}  from "../../../app/routes-common";
+import {routeTypes, getRouteColor, vehcileTypes, getVehicleColor, tourTags}  from "../../../app/routes-common";
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
@@ -99,6 +99,12 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 
 	const vehicleSeatLayoutDropdownControllerRef = useRef(null);
+	
+	const [selectedTagsIndex, setSelectedTagsIndex] = useState<IndexPath[]>([]);
+	
+	const tagsDisplayValue = selectedTagsIndex
+	.map((index) => tourTags[index.row].value)
+	.join(', ');
 
 
 	const onPhotosPress = (): void => {
@@ -201,6 +207,8 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 	
 
+	
+
 	const onCreatePress1 = async() => {
 		console.log(JSON.stringify(toJS(appStore.tour)));	
 	}
@@ -299,12 +307,22 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 		appStore.tour.deleteStoppingPlace(stopping);
 	};
 
-	const onTransportServiceSelect = (index): void => {
-		setSelectedIndexTransportServices(index);
-		appStore.tour.setTransportServiceId(transportServices[index-1]._id);
-		appStore.tour.setTransportServiceName(transportServices[index-1].name);
-		appStore.tour.setTransportServiceThemeColor(transportServices[index-1].themeColor);
-	};
+	
+
+	const onTagsSelect = (index: IndexPath) => {
+			setSelectedTagsIndex(index as IndexPath[]);
+			//appStore.vehcleSeatLayout.setDoorSeatNumbers(index);
+		};
+
+	
+
+	
+
+	const renderTagsOption = (column): React.ReactElement => (
+			<SelectItem key={column.key} title={evaProps => <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+				<Text style={{ paddingHorizontal: 5}}>{column.value}</Text>
+			</View>} />
+		);
 
 	
 	
@@ -465,6 +483,26 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 					<Text style={{ padding: 5, paddingLeft: 10}}>Seat Layout</Text>
 					<View style={{ margin: 10}}>
 					<VehicleLayoutSuggestions vehicleSeatLayoutDropdownControllerRef={vehicleSeatLayoutDropdownControllerRef}/>
+				</View>
+				</View>
+			</View>
+
+			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+					<Text style={{ padding: 5, paddingLeft: 10}}>Tags</Text>
+					<View style={{ margin: 10}}>
+					<Select
+						multiSelect={true}
+						placeholder='Select options...'
+						value={tagsDisplayValue}
+						selectedIndex={selectedTagsIndex}
+						// Typings allow IndexPath | IndexPath[] here
+						// onSelect={(index) => setSelectedDoorSeatsIndex(index as IndexPath[])}
+						onSelect={(index) => onTagsSelect(index)}
+					>
+						{tourTags.map(renderTagsOption)}
+					</Select>
+					
 				</View>
 				</View>
 			</View>

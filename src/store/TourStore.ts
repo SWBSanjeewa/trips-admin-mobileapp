@@ -73,6 +73,7 @@ const TourStore = types
     noOfDays: types.optional(types.string, "1"),
     countryCode: types.optional(types.string, ""),
     photos: types.array(types.string),
+    tags: types.array(types.string),
     schedules: types.array(Schedule),
     confirmationStartsBefore: types.optional(types.string, "7 Days"),
     confirmationFinishBefore: types.optional(types.string, "2 Days"),
@@ -90,12 +91,14 @@ const TourStore = types
       self.stoppings= String[0];
       self.schedules= Schedule[0];
       self.vehicleSeatLayoutId = "";
+      self.tags = String[0];
     },
     populate(tour) {
       self.id = tour.id;
       self.objectId = tour._id;
       self.title = tour.title;
       self.photos = tour.photos;
+      self.tags = tour.tags;
       self.stoppingsPlaces = tour.stoppingsPlaces;
       self.vehicleSeatLayoutId = tour.vehicleSeatLayoutId;
     },
@@ -120,12 +123,17 @@ const TourStore = types
     setVehicleSeatLayoutId(vehicleSeatLayoutId) {
       self.vehicleSeatLayoutId = vehicleSeatLayoutId;
     },
+    setTags(tags){
+      self.tags = tags;
+    }, 
+    addTag(tag){
+      self.tags.push(tag);
+    }, 
     addPhoto(photo){
       self.photos.push(photo);
       console.log("No of photo:"+self.photos.length);
     },  
-    // 
-     addPhotoAfterIndex(photo,index){
+    addPhotoAfterIndex(photo,index){
       self.photos.splice(index, 0, photo);
       console.log("No of photo:"+self.photos.length);
     },  

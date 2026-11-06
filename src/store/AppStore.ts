@@ -1080,10 +1080,10 @@ const Tours = types.model({
   tours: types.array(TourStore),
 })
 .actions((self) => ({
-  addTour(id,objectId,transportServiceId,transportServiceName,transportServiceThemeColor,vehicleType,title,remarks,stoppingsPlaces,stoppings,noOfSeats,noOfDays,countryCode,photos,schedules,confirmationStartsBefore,confirmationFinishBefore){
+  addTour(id,objectId,transportServiceId,transportServiceName,transportServiceThemeColor,vehicleType,title,remarks,stoppingsPlaces,stoppings,noOfSeats,noOfDays,countryCode,tags,photos,schedules,confirmationStartsBefore,confirmationFinishBefore){
     console.log("::"+title);
     self.tours.push({
-      id,objectId,transportServiceId,transportServiceName,transportServiceThemeColor,vehicleType,title,remarks,stoppingsPlaces,stoppings,noOfSeats,noOfDays,countryCode,photos,schedules,confirmationStartsBefore,confirmationFinishBefore
+      id,objectId,transportServiceId,transportServiceName,transportServiceThemeColor,vehicleType,title,remarks,stoppingsPlaces,stoppings,noOfSeats,noOfDays,countryCode,tags,photos,schedules,confirmationStartsBefore,confirmationFinishBefore
     })
   },
   reset(){

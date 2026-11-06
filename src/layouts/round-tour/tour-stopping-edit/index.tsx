@@ -249,7 +249,7 @@ const TourStoppingEdit = ({ navigation }): React.ReactElement => {
 	return (
 		
 		<ScrollView>
-			<TopNavigation accessoryLeft={renderBackAction} title="Edit Stopping"/>
+			<TopNavigation accessoryLeft={renderBackAction} title="Edit Tour Stopping"/>
 
 			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
 					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>

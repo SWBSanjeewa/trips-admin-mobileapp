@@ -10,7 +10,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 import { CachedImage } from '@georstat/react-native-image-cache';
 
-import {routeBusTypes, operatorTypes, transportAuthorityTypes,getTransportAuthorityTypesIndexNumber, getOperatorTypesIndexNumber,getServiceTypesIndexNumber}  from "../../../../app/routes-common";
+import {routeBusTypes, operatorTypes, transportAuthorityTypes,getTransportAuthorityTypesIndexNumber, getOperatorTypesIndexNumber,getServiceTypesIndexNumber, tourTags}  from "../../../../app/routes-common";
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
@@ -127,6 +127,18 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 			setImageIndex(0);
 		}
 	};
+
+	const [selectedTagsIndex, setSelectedTagsIndex] = useState<IndexPath[]>([]);
+		
+	/*
+	const tagsDisplayValue = selectedTagsIndex
+	.map((index) => tourTags[index.row].value)
+	.join(', ');
+	*/
+
+	const [tagsDisplayValue, setTagsDisplayValue] = useState('');
+
+	
 
 	const [selectedIndexTransportAuthorityType, setSelectedIndexTransportAuthorityType] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
 	const transportAuthorityType = transportAuthorityTypes[selectedIndexTransportAuthorityType.row];
@@ -406,6 +418,19 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 		setSelectedOperatorIndex(new IndexPath(getOperatorTypesIndexNumber(appStore.routeBus.operator)));
 		setSelectedIndexBusType(new IndexPath(getServiceTypesIndexNumber(appStore.routeBus.typeOfService)));
 		
+		var tagsIndexPaths=[];
+		
+		appStore.tour.tags.forEach(tag => {
+			tagsIndexPaths.push(new IndexPath(tourTags.findIndex(t => t.value === tag)));
+		});
+		setSelectedTagsIndex(tagsIndexPaths);
+		
+
+		const tagsDisplayValue = appStore.tour.tags
+			.map((tag) => tag)
+			.join(', ');
+
+		setTagsDisplayValue(tagsDisplayValue);
 
 		if(route.params?.reload){
 			const fetch = async ()=>{
@@ -524,6 +549,59 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 	function errorMessageHandler(value) {
 		setPhotosErrorMessage(value);
 	}
+
+	const onTagsSelect = (index: IndexPath) => {
+		
+		setSelectedTagsIndex(index as IndexPath[]);
+
+		
+		//appStore.vehcleSeatLayout.setDoorSeatNumbers(index);
+	};
+
+	const renderTagsOption = (column): React.ReactElement => (
+		<SelectItem key={column.key} title={evaProps => <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+			<Text style={{ paddingHorizontal: 5}}>{column.value}</Text>
+		</View>} />
+	);
+
+
+	const updateTagsSelected = async() => {
+		appStore.tour.setTags([]);
+		selectedTagsIndex.forEach((index) => {
+			appStore.tour.addTag(tourTags[index.row].value);
+		});
+		console.log("Tags:"+JSON.stringify(toJS(appStore.tour.tags)));
+
+		
+		const tagsDisplayValue = appStore.tour.tags
+			.map((tag) => tag)
+			.join(', ');
+		setTagsDisplayValue(tagsDisplayValue);
+
+
+
+		const data = {
+			tags: appStore.tour.tags
+		};
+
+		const config: AxiosRequestConfig = {
+			headers: {
+			  'Accept': 'application/json',
+			  'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		  };
+
+		  try {
+			const response: AxiosResponse = await client.put(`/tours/`+appStore.tour.id+`/tags/` ,data, config);
+			console.log(response.status);
+		  } catch(err) {
+			console.log(err);
+		  }  
+
+		appStore.routeBus.setTitle(title);
+	};
+	
+	
 
 
 	
@@ -728,6 +806,28 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 			/>
 					</View>	
 					
+				</View>
+
+				<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
+					<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
+						<Text style={{ padding: 5, paddingLeft: 10}}>Tags</Text>
+						<View style={{ margin: 10}}>
+						<Select
+							multiSelect={true}
+							placeholder='Select options...'
+							value={tagsDisplayValue}
+							selectedIndex={selectedTagsIndex}
+							onFocus={() => console.log("onFocus")}
+							onBlur={() => updateTagsSelected()}
+							// Typings allow IndexPath | IndexPath[] here
+							// onSelect={(index) => setSelectedDoorSeatsIndex(index as IndexPath[])}
+							onSelect={(index) => onTagsSelect(index)}
+						>
+							{tourTags.map(renderTagsOption)}
+						</Select>
+						
+					</View>
+					</View>
 				</View>
 
 				<Card style={{ margin: 10, borderRadius:10}} onPress={onPhotosPress}>	

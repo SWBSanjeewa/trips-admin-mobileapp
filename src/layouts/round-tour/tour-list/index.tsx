@@ -24,7 +24,7 @@ const client = axios.create({
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import {routeTypes, getRouteColor, vehcileTypes, getTourTypeColor}  from "../../../app/routes-common";
+import {routeTypes, getRouteColor, getTagColor, getTourTypeColor}  from "../../../app/routes-common";
 
 //import * as Device from 'expo-device';
 //import * as Notifications from 'expo-notifications';
@@ -186,7 +186,7 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 			console.log(response.status);
 			console.log(response.data);  
 			appStore.tours.reset();
-			response.data.forEach((element) => appStore.tours.addTour(element.id,element.objectId,element.transportServiceId,element.transportServiceName,element.transportServiceThemeColor,element.vehicleType,element.title,element.remarks,element.stoppingsPlaces,element.stoppings,element.noOfSeats,element.noOfDays,element.countryCode,element.photos,element.schedules,element.confirmationStartsBefore,element.confirmationFinishBefore));
+			response.data.forEach((element) => appStore.tours.addTour(element.id,element.objectId,element.transportServiceId,element.transportServiceName,element.transportServiceThemeColor,element.vehicleType,element.title,element.remarks,element.stoppingsPlaces,element.stoppings,element.noOfSeats,element.noOfDays,element.countryCode,element.tags,element.photos,element.schedules,element.confirmationStartsBefore,element.confirmationFinishBefore));
 			console.log(">>>"+appStore.tours.tours.length);
 			//var owner = isBusOwner(); 
 			//console.log("Is owner::"+owner);
@@ -364,11 +364,14 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 					}							
 				})}	
 				</Text>
+				
 			</View>
-			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "space-between"}}>
-				{info.item.vehicleType && (
-				<Button appearance='ghost'  size="small"  style={{ borderColor:"#142169", borderWidth: 2}} >{info.item.vehicleType}</Button>
-				)}	
+			
+			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-start",flexWrap: 'wrap'}}>
+				{info.item.tags.map(function(tag, index){	
+						return <Button  size="small"  style={{ backgroundColor:getTagColor(tag),borderColor:getTagColor(tag), borderWidth: 2, marginHorizontal: 5}} >{tag}</Button>								
+				})}	
+				
 				<Button size="small" onPress={()=>onTransportServicePress(info.item)}>{info.item.schedules[0]?.tourStartDate}</Button>
 			</View>
 			

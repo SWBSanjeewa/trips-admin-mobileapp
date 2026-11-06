@@ -28,6 +28,22 @@ export const transportAuthorityTypes = [
 		{name: "SP-RPTA", themeColor: "#A9A9A9", ac: false, details: "Southern Province Road Passenger Transport Authority"}
 ]
 
+export const tourTags = [
+			{key: "AC", value: "AC", themeColor: "#483248"},
+			{key: "VIP", value: "VIP", themeColor: "#00008B"},
+			{key: "Luxury Bus", value: "Luxury Bus", themeColor: "#A9A9A9"},
+			{key: "Super Luxury Bus", value: "Super Luxury Bus", themeColor: "#23a038"},
+			{key: "Foreigners Only", value: "Foreigners Only", themeColor: "#483248"},
+			{key: "Russians Only", value: "Russians Only", themeColor: "#00008B"},
+			{key: "Guide", value: "Guide", themeColor: "#A9A9A9"}]
+
+export const getTagColor = (tagKey) => {
+	const tag = tourTags.find(p => p.key === tagKey);
+	//console.log("tagKey"+tagKey+" "+tag?.themeColor);
+	return tag?.themeColor;
+}
+
+
 export const getTransportAuthorityTypesIndexNumber1 = (transportAuthorityType): number => {
 	
 	//var index = 0;
