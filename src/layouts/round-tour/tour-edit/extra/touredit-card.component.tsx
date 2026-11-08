@@ -163,6 +163,16 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 
 	const [photosErrorMessage, setPhotosErrorMessage] = React.useState<string>("");
 
+   const getNoOfDaysIndexNumber = (noOfDays): number => {
+	var myindex = 0;
+	days.map(function(element, index){
+		if(element.value == noOfDays){
+			myindex=index;
+		}
+	});
+	return myindex;
+};
+
 
 	const MenuIcon = (props): IconElement => (
 		<MaterialIcons name="more-vert" size={24} color="black" />
@@ -222,23 +232,7 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 		  }  
 	}
 
-	const onTitleUpdate = async() => {
-		console.log(JSON.stringify(toJS(appStore.routeBus.title)));	
-
-		const config: AxiosRequestConfig = {
-			headers: {
-			  'Accept': 'application/json',
-			  'token': appStore.user.accessToken
-			} as RawAxiosRequestHeaders,
-		  };
-		  try {
-			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/title/`+appStore.routeBus.operator, appStore.routeBus.title , config);
-			console.log(response.status);
-		  } catch(err) {
-			console.log(err);
-		  }  
-	}
-
+	
 	
 	const loadBusses = async() => {
 		const config: AxiosRequestConfig = {
@@ -409,14 +403,11 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 	
 
 	useEffect(() => {
+		console.log(toJS(appStore.tour));
 		setTitle(appStore.tour.title);
-
-		console.log("useefefct:"+appStore.routeBus.transportAuthority);
-		console.log(">>"+getTransportAuthorityTypesIndexNumber(appStore.routeBus.transportAuthority));
-		
-		setSelectedIndexTransportAuthorityType(new IndexPath(getTransportAuthorityTypesIndexNumber(appStore.routeBus.transportAuthority)));
-		setSelectedOperatorIndex(new IndexPath(getOperatorTypesIndexNumber(appStore.routeBus.operator)));
-		setSelectedIndexBusType(new IndexPath(getServiceTypesIndexNumber(appStore.routeBus.typeOfService)));
+		console.log("appStore.tour.noOfDays::"+appStore.tour.noOfDays);
+		console.log("appStore.tour.noOfDays.index::"+getNoOfDaysIndexNumber(appStore.tour.noOfDays));
+		setSelectedIndex(new IndexPath(getNoOfDaysIndexNumber(appStore.tour.noOfDays)));
 		
 		var tagsIndexPaths=[];
 		
@@ -445,13 +436,6 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 	}, []);
 
 	
-
-	const onTransportAuthorityTypeSelect = (index): void => {
-		setSelectedIndexTransportAuthorityType(index);
-		appStore.routeBus.setTransportAuthority(transportAuthorityTypes[index-1].name);
-		onTransportAuthorityUpdate();
-	};
-
 	const renderItemHeader = (): React.ReactElement => (
 		<View>
 			<View style={{paddingTop: 10, flexDirection: "row", justifyContent: "flex-end" }}>	
@@ -461,12 +445,7 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 		</View>
 	);
 
-	const renderOptionBusTypes = (routeType): React.ReactElement => (
-		<SelectItem key={routeType.name} title={evaProps => <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-			<FontAwesome5 name="bus" size={24} color={getRouteColor(routeType.name)} />
-			<Text style={{ paddingHorizontal: 5}}>{routeType.name}</Text>
-		</View>} />
-	);
+	
 
 	const onAddStopping = (stopping: string) => () =>  {
        console.log(stopping);
@@ -483,9 +462,9 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 		  };
 
 		  try {
-			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/stoppingPlaces/delete/`+stopping , config);
+			const response: AxiosResponse = await client.put(`/tours/`+appStore.tour.id+`/stoppingPlaces/delete/`+stopping , config);
 			if(response.status == 200){
-				appStore.routeBus.deleteStoppingPlaceByPlace(stopping);
+				appStore.tour.deleteStoppingPlaceByPlace(stopping);
 			}
 			console.log(response.status);
 		  } catch(err) {
@@ -504,13 +483,14 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 		  };
 
 		  try {
-			const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/title/`+title , config);
+			const response: AxiosResponse = await client.put(`/tours/`+appStore.tour.id+`/title/`+title , config);
 			console.log(response.status);
+			appStore.tour.setTitle(title);
 		  } catch(err) {
 			console.log(err);
 		  }  
 
-		appStore.routeBus.setTitle(title);
+		
 			
 		refRBSheetTitleEdit.current.close();
 		
@@ -528,11 +508,26 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 
 
 	
-	const onNoOfDaysSelect = (index): void => {
+	const onNoOfDaysSelect = async (index) => {
 		console.log("Slected index:"+index);
 		setSelectedDaysIndex(index);
-		
 		appStore.tour.setNoOfDays(days[index-1].value);
+
+		const config: AxiosRequestConfig = {
+			headers: {
+				'Accept': 'application/json',
+				'token': appStore.user.accessToken
+			} as RawAxiosRequestHeaders,
+		};
+
+		try {
+			const response: AxiosResponse = await client.put(`/tours/`+appStore.tour.id+`/noOfDays/`+days[index-1].value , config);
+			console.log(response.status);
+		} catch(err) {
+			console.log(err);
+		}  
+
+		
 	};
 
 	const renderOptionDays = (day): React.ReactElement => (
@@ -720,7 +715,7 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 					console.log(data);
 					console.log("*****");
 					console.log(data.description)
-					console.log(Number(details.geometry.location.lat)+":"+Number(details.geometry.location.lng))
+					//console.log(Number(details.geometry.location.lat)+":"+Number(details.geometry.location.lng))
 					
 					var address=data.description;
 					
@@ -733,7 +728,7 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 					refAutoComplete.current?.setAddressText("");
 					
 					if(selectedStopping != ""){
-						var index = appStore.routeBus.getIndex(selectedStopping);
+						var index = appStore.tour.getStoppingsPlacesIndex(selectedStopping);
 						const data = {
 											place: address,
 											latitude: details.geometry.location.lat,
@@ -750,10 +745,10 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 						};
 
 						try {
-							const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/stoppingPlaces/add` , data, config);
+							const response: AxiosResponse = await client.put(`/tours/`+appStore.tour.id+`/stoppingPlaces/add` , data, config);
 							console.log(response.status);
 							if(response.status == 200){
-								appStore.routeBus.addStoppingPlaceAtIndex(address,Number(details.geometry.location.lat),Number(details.geometry.location.lng),index+1);
+								appStore.tour.addStoppingPlaceAtIndex(address,Number(details.geometry.location.lat),Number(details.geometry.location.lng),index+1);
 								setSelectedStopping("");
 							}
 						} catch(err) {
@@ -779,12 +774,12 @@ const TourEditCard = React.forwardRef(({navigation},refStandard) => {
 						};
 
 						try {
-							const response: AxiosResponse = await client.put(`/routebuses/`+appStore.routeBus.objectId+`/stoppingPlaces/add` , data, config);
+							const response: AxiosResponse = await client.put(`/tours/`+appStore.tour.id+`/stoppingPlaces/add` , data, config);
 							console.log(response.status);
 						} catch(err) {
 							console.log(err);
 						}  
-						appStore.routeBus.addStoppingPlace(address,Number(details.geometry.location.lat),Number(details.geometry.location.lng));
+						appStore.tour.addStoppingPlace(address,Number(details.geometry.location.lat),Number(details.geometry.location.lng));
 					}
 					
 				}}

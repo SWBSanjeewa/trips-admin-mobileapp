@@ -46,7 +46,7 @@ const TourStoppingAdd = ({ navigation }): React.ReactElement => {
 	const [selectedDaysIndex, setSelectedDaysIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
 	const selectedDays = days[selectedDaysIndex.row];
 
-	 const waitingTime = [
+	const waitingTime = [
 		{key: "15 mins", value: "15 mins"},
 		{key: "30 mins",value: "30 mins"},
 		{key: "45 mins",value: "45 mins"},
@@ -67,11 +67,24 @@ const TourStoppingAdd = ({ navigation }): React.ReactElement => {
 		setDatePickerVisibility(false);
 	};
 
-	const renderOptionDays = (day): React.ReactElement => (
-		<SelectItem key={day.key} title={evaProps => <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-			<Text style={{ paddingHorizontal: 5}}>{day.value}</Text>
-		</View>} />
-	);
+	const renderOptionDays = (day): React.ReactElement | null => {
+    if (day > appStore.tour.noOfDays) {
+        return null;
+    }
+
+    return (
+        <SelectItem
+            key={day.key}
+            title={evaProps => (
+                <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                    <Text style={{ paddingHorizontal: 5 }}>
+                        {day.value}
+                    </Text>
+                </View>
+            )}
+        />
+    );
+};
 
 	const renderOptionWaitingTime = (waiting): React.ReactElement => (
 		<SelectItem key={waiting.key} title={evaProps => <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>

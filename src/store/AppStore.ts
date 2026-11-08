@@ -1080,11 +1080,42 @@ const Tours = types.model({
   tours: types.array(TourStore),
 })
 .actions((self) => ({
-  addTour(id,objectId,transportServiceId,transportServiceName,transportServiceThemeColor,vehicleType,title,remarks,stoppingsPlaces,stoppings,noOfSeats,noOfDays,countryCode,tags,photos,schedules,confirmationStartsBefore,confirmationFinishBefore){
+  
+  addTour(id,objectId,title,stoppingsPlaces,noOfSeats,noOfDays,tags,photos,schedules){
     console.log("::"+title);
-    self.tours.push({
-      id,objectId,transportServiceId,transportServiceName,transportServiceThemeColor,vehicleType,title,remarks,stoppingsPlaces,stoppings,noOfSeats,noOfDays,countryCode,tags,photos,schedules,confirmationStartsBefore,confirmationFinishBefore
-    })
+    const tour =  TourStore.create({
+      "id":id,
+      "objectId": objectId,
+      "title": title,
+      "noOfDays":noOfDays
+     });
+
+    // console.log(">>>"+journey);
+    
+     if(stoppingsPlaces != null){
+				stoppingsPlaces.forEach((element,index)=> {
+					tour.addStoppingPlace(element.place,Number(element.latitude),Number(element.longitude)) 
+				});
+		 }
+
+     if(photos != null){
+				photos.forEach((element,index)=> {
+					tour.addPhoto(element) 
+				});
+		 }
+
+     if(tags != null){
+				tags.forEach((element,index)=> {
+					tour.addTag(element) 
+				});
+		 }
+     
+     
+     console.log("## rBus ##");
+     console.log(JSON.stringify(toJS(tour)));	
+    
+    self.tours.push(tour);
+  
   },
   reset(){
     self.tours = TourStore[0];

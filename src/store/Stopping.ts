@@ -10,7 +10,7 @@ const Stopping = types.model({
   place: types.optional(types.string, ""),
   latitude: types.optional(types.string, ""),
   longitude: types.optional(types.string, ""),
-  day: types.optional(types.string, ""),
+  day: types.optional(types.string, "1"),
   time: types.optional(types.string, ""),
   waitingTime: types.optional(types.string, "15 mins"),
 })
@@ -21,6 +21,10 @@ const Stopping = types.model({
       self.latitude = "";
       self.longitude = "";
       self.time= "";
+      self.day= "1";
+      self.waitingTime= "15 mins";
+      self.title= "";
+      self.remarks= "";
   },
   setTime(time) {
     self.time = time;

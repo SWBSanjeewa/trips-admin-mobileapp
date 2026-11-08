@@ -43,8 +43,8 @@ id: String,
 
 const StoppingPlace = types.model({
   place: types.optional(types.string, ""),
-  latitude: types.optional(types.string, ""),
-  longitude: types.optional(types.string, ""),
+  latitude: types.optional(types.number, 0.0),
+  longitude: types.optional(types.number, 0.0),
 })
 .actions((self) => ({
   setPlace(place,latitude,longitude) {
@@ -80,6 +80,7 @@ const TourStore = types
     vehicleId: types.optional(types.string, ""),  
     driverMobileNumber: types.optional(types.string, ""),
     vehicleSeatLayoutId: types.optional(types.string, ""),
+    vehicleSeatLayoutTitle: types.optional(types.string, "")
   })
   .actions((self) => ({
     reset() {
@@ -91,6 +92,7 @@ const TourStore = types
       self.stoppings= String[0];
       self.schedules= Schedule[0];
       self.vehicleSeatLayoutId = "";
+      self.vehicleSeatLayoutTitle = "";
       self.tags = String[0];
     },
     populate(tour) {
@@ -99,8 +101,10 @@ const TourStore = types
       self.title = tour.title;
       self.photos = tour.photos;
       self.tags = tour.tags;
-      self.stoppingsPlaces = tour.stoppingsPlaces;
+      self.noOfDays = tour.noOfDays;
+      //self.stoppingsPlaces = tour.stoppingsPlaces;
       self.vehicleSeatLayoutId = tour.vehicleSeatLayoutId;
+      self.vehicleSeatLayoutTitle = tour.vehicleSeatLayoutTitle;
     },
     setId(id) {
       self.id = id;
@@ -122,6 +126,9 @@ const TourStore = types
     },
     setVehicleSeatLayoutId(vehicleSeatLayoutId) {
       self.vehicleSeatLayoutId = vehicleSeatLayoutId;
+    },
+    setVehicleSeatLayoutTitle(vehicleSeatLayoutTitle) {
+      self.vehicleSeatLayoutTitle = vehicleSeatLayoutTitle;
     },
     setTags(tags){
       self.tags = tags;
@@ -186,9 +193,12 @@ const TourStore = types
         place,latitude,longitude
       })
     },
-    
     addStoppingPlaceAtIndex(place,latitude,longitude,index){
       self.stoppingsPlaces.splice(index, 0, {place,latitude,longitude});
+    },
+     deleteStoppingPlaceByPlace(place){
+       const stoppingPlace = self.stoppingsPlaces.find(p => p.place === place);
+       self.stoppingsPlaces.remove(stoppingPlace);
     },
     deleteStoppingPlace(index){
       //const s = self.stoppings.find(s => s === stopping);
@@ -197,14 +207,12 @@ const TourStore = types
     getIndex(stopping){
       return self.stoppings.findIndex(q => q === stopping);
     },
+    getStoppingsPlacesIndex(stoppingPlace){
+      return self.stoppingsPlaces.findIndex(q => q === stoppingPlace);
+    },
     getStopping(index){
       return self.stoppings[index];
     },
-    deleteStopping(index){
-      //const s = self.stoppings.find(s => s === stopping);
-      self.stoppings.remove(self.stoppings[index]);
-    },
-
    
 
     addSchedule(id,remarks,tourStartDate,tourStartTime,confirmationStartTime,confirmationEndTime,vehicleId,bookings){

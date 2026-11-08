@@ -20,7 +20,7 @@ import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 
-import {routeTypes }  from "../../../app/routes-common";
+import {operatorTypes, routeTypes }  from "../../../app/routes-common";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 import { format } from 'date-fns'
@@ -36,7 +36,11 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 	const [date, setDate ]= useState(new Date());
 
+	
+
 	const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+	const [initialized, setInitialized] = useState(false);
 	
 
 	const [index, setIndex] = useState(0);
@@ -57,6 +61,8 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 	
 	const [selectedWaitingIndex, setSelectedWatingTimeIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
 	const selectedWaitingTime = waitingTime[selectedWaitingIndex.row];
+
+	
 
 	const route = useRoute();
 
@@ -82,21 +88,36 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 	const routeType = routeTypes[selectedIndexBusType.row];
 
 
+	const [days, setDays] = React.useState([]);
+	/*
 	const days = Array.from({ length: 10 }, (_, i) => ({
 		key: (i + 1).toString(),
 		value: `${i + 1}`
 	}));
+	*/
 
 	const [selectedDaysIndex, setSelectedDaysIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
 	const selectedDays = days[selectedDaysIndex.row];
+
+	const getNoOfDaysIndexNumber = (noOfDays): number => {
+		var myindex = 0;
+		days.map(function(element, index){
+			if(element.name == noOfDays){
+				myindex=index;
+			}
+		});
+		return myindex;
+	};
+
+	const [selectedDayIndex, setSelectedDayIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
+	const selectedDay = days[selectedDayIndex.row];
 
 
 
 	const onNoOfDaysSelect = (index): void => {
 		console.log("Slected index:"+index);
 		setSelectedDaysIndex(index);
-		
-		appStore.tour.setNoOfDays(days[index-1].value);
+		appStore.stopping.setDay(days[index-1].value);
 	};
 
 	
@@ -157,8 +178,19 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 				if(route.params.index)
 					setIndex(route.params.index);
 			}
-		});
+			//setSelectedIndex(new IndexPath(getNoOfDaysIndexNumber(appStore.tour.noOfDays)));
+			if(initialized == false){
+				const days = Array.from({ length: appStore.tour.noOfDays }, (_, i) => ({
+					key: (i + 1).toString(),
+					value: `${i + 1}`
+				}));
+				console.log("days::"+JSON.stringify(days));
+				setDays(days);
+				setInitialized(true);
+			}
+		}, [days]);
 
+		
 	
 
 	const onCreatePress1 = async() => {
@@ -192,11 +224,22 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 
 	
 
-	const renderOptionDays = (day): React.ReactElement => (
-		<SelectItem key={day.key} title={evaProps => <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-			<Text style={{ paddingHorizontal: 5}}>{day.value}</Text>
-		</View>} />
-	);
+	const renderOptionDays = (day): React.ReactElement | null => {
+		
+	
+		return (
+			<SelectItem
+				key={day.key}
+				title={evaProps => (
+					<View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+						<Text style={{ paddingHorizontal: 5 }}>
+							{day.value}
+						</Text>
+					</View>
+				)}
+			/>
+		);
+	};
 
 	
 	
@@ -260,15 +303,17 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 			
 			<View style={{ margin: 10, borderRadius:10, borderWidth: 1, borderColor: "#eee"}}>	
 				<View style={{ flexDirection: "column",  justifyContent: 'space-between'}}>
-					<Text style={{ padding: 5, paddingLeft: 10}}>No Of Days</Text>
+					<Text style={{ padding: 5, paddingLeft: 10}}>Day</Text>
 					<View style={{ margin: 10}}>
 					<Select
 						placeholder='Default'
-						value={appStore.tour.noOfDays}
-						selectedIndex={selectedIndex}
+						value={appStore.stopping.day}
+						selectedIndex={selectedDayIndex}
 						onSelect={(index: IndexPath) => onNoOfDaysSelect(index)}>
 						{days.map(renderOptionDays)}
 					</Select>
+
+					
 				</View>
 				</View>
 			</View>

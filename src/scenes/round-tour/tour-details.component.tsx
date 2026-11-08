@@ -36,7 +36,7 @@ export const TourDetailsScreen = ({ navigation }): React.ReactElement => {
 
 
 	const onBackPress = () => {
-		appStore.bus.reset();		
+		
 		var localreload = false;
 		var localreload = route.params?.reload;
 		console.log("localreload::"+localreload);

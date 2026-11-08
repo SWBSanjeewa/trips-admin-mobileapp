@@ -186,7 +186,9 @@ export default React.forwardRef(({ navigation,searchCallback, search },ref) => {
 			console.log(response.status);
 			console.log(response.data);  
 			appStore.tours.reset();
-			response.data.forEach((element) => appStore.tours.addTour(element.id,element.objectId,element.transportServiceId,element.transportServiceName,element.transportServiceThemeColor,element.vehicleType,element.title,element.remarks,element.stoppingsPlaces,element.stoppings,element.noOfSeats,element.noOfDays,element.countryCode,element.tags,element.photos,element.schedules,element.confirmationStartsBefore,element.confirmationFinishBefore));
+
+			                                                          //addTour(id,objectId,title,stoppingsPlaces,noOfSeats,noOfDays,tags,photos,schedules){
+			response.data.forEach((element) => appStore.tours.addTour(element.id,element.objectId,element.title,element.stoppingsPlaces,element.noOfSeats,element.noOfDays,element.tags,element.photos,element.schedules));
 			console.log(">>>"+appStore.tours.tours.length);
 			//var owner = isBusOwner(); 
 			//console.log("Is owner::"+owner);

@@ -5,15 +5,19 @@ import { StyleSheet,Text } from "react-native";
 import { ArrowIosBackIcon } from "../../components/icons";
 import { SafeAreaLayout } from "../../components/safe-area-layout.component";
 import ContentView from "../../layouts/round-tour/tour-stopping-add";
-
+import AppStore from "../../store/AppStore";
+import { useStore } from "mobx-store-provider";
 
 
 
 export const TourStoppingAddScreen = ({ navigation }): React.ReactElement => {
 	
+	const appStore = useStore(AppStore);
+
 	const onBackPress = () => {
 		//appStore.bus.reset();	
-		appStore.bus.setRouteType("tour");
+		//appStore.bus.setRouteType("tour");
+		appStore.stopping.reset();
 		navigation.navigate("TourList", {reload: false});
 		
 	};
@@ -27,7 +31,7 @@ export const TourStoppingAddScreen = ({ navigation }): React.ReactElement => {
 			<SafeAreaLayout style={styles.container} insets="top">
 				<TopNavigation title={props => (
 					<Text {...props} style={{fontWeight: "500", fontSize: 18}}>
-					Add Round Tour
+					Add Tour Stopping
 					</Text>)} accessoryLeft={renderBackAction} />
 				<ContentView navigation={navigation} />
 			</SafeAreaLayout>

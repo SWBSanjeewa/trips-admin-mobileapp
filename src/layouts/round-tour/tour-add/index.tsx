@@ -310,19 +310,15 @@ const BusAdd = ({ navigation }): React.ReactElement => {
 	
 
 	const onTagsSelect = (index: IndexPath) => {
-			setSelectedTagsIndex(index as IndexPath[]);
-			//appStore.vehcleSeatLayout.setDoorSeatNumbers(index);
-		};
-
-	
-
-	
+		setSelectedTagsIndex(index as IndexPath[]);
+		//appStore.vehcleSeatLayout.setDoorSeatNumbers(index);
+	};
 
 	const renderTagsOption = (column): React.ReactElement => (
-			<SelectItem key={column.key} title={evaProps => <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
-				<Text style={{ paddingHorizontal: 5}}>{column.value}</Text>
-			</View>} />
-		);
+		<SelectItem key={column.key} title={evaProps => <View style={{ flexDirection: "row",  justifyContent: 'space-between'}}>
+			<Text style={{ paddingHorizontal: 5}}>{column.value}</Text>
+		</View>} />
+	);
 
 	
 	

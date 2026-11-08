@@ -134,6 +134,15 @@ export const TourDetailsCard = React.forwardRef(({navigation},refStandard) => {
 
 			console.log("Populate finished!!");
 			console.log(JSON.stringify(toJS(appStore.tour)));
+
+			if(response.data.stoppingsPlaces != null){
+				response.data.stoppingsPlaces.forEach(element => {
+					appStore.tour.addStoppingPlace( element.place,Number(element.latitude),Number(element.longitude))
+				});
+		    }
+
+			
+
 			
 			/*
 			if(response.data.photos != null){

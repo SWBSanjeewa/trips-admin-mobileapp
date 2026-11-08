@@ -23,6 +23,25 @@ export const VehicleLayoutSuggestions = memo((props: Omit<IAutocompleteDropdownP
     if(value){
       console.log(value);
       appStore.tour.setVehicleSeatLayoutId(value.id);
+
+      const data = {
+        vehicleSeatLayoutTitle: value.title,
+      };
+
+      const config: AxiosRequestConfig = {
+          headers: {
+            'Accept': 'application/json',
+            'token': appStore.user.accessToken
+          } as RawAxiosRequestHeaders,
+        };
+    
+        try {
+          const response: AxiosResponse = await client.put(`/tours/`+appStore.tour.id+`/vehicleSeatLayoutId/`+value.id , data, config);
+          console.log(response.status);
+        } catch(err) {
+          console.log(err);
+        }  
+
     }
   }
 
